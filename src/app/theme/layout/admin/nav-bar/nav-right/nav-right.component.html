@@ -1,49 +1,34 @@
 <ul class="navbar-nav ml-auto">
+  <li class="nav-item">
+    <app-nav-search></app-nav-search>
+  </li>
   <li *ngIf="!isLoggedIn">
     <a routerLink="/auth/signin" class="btn btn-primary btn-sm nav-login-btn">Se connecter</a>
   </li>
   <li *ngIf="isLoggedIn">
     <div class="dropdown drp-user" ngbDropdown placement="auto">
-      <a href="javascript:" ngbDropdownToggle data-toggle="dropdown" class="nav-user-dropdown user-profile-btn">
-        <!-- Avatar avec initiale -->
-        <div class="user-avatar">
-          <ng-container *ngIf="isAdmin()">
-            <i class="feather icon-settings"></i>
-          </ng-container>
-          <ng-container *ngIf="!isAdmin()">
-            <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="img-radius nav-avatar" alt="Profil">
-            <span *ngIf="!currentUser?.avatar" class="avatar-initial">{{ getUserInitial() }}</span>
-          </ng-container>
-        </div>
-
-        <!-- Informations utilisateur -->
-        <div class="user-info d-none d-md-block">
-          <span class="user-name">{{ getDisplayName() }}</span>
-          <span class="user-status">
-            <span class="status-dot"></span>
-            Connecté
-          </span>
-        </div>
-
-        <!-- Flèche dropdown -->
-        <i class="feather icon-chevron-down dropdown-arrow"></i>
+      <a href="javascript:" ngbDropdownToggle data-toggle="dropdown" class="nav-user-dropdown">
+        <ng-container *ngIf="isAdmin()">
+          <i class="icon feather icon-settings" title="Administrateur"></i>
+        </ng-container>
+        <ng-container *ngIf="!isAdmin()">
+          <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="img-radius nav-avatar" alt="Profil">
+          <i *ngIf="!currentUser?.avatar" class="icon feather icon-user"></i>
+        </ng-container>
+        <span class="ml-1 d-none d-md-inline">{{ getDisplayName() }}</span>
       </a>
       <div class="dropdown-menu dropdown-menu-right profile-notification" ngbDropdownMenu>
         <div class="pro-head">
           <ng-container *ngIf="isAdmin()">
-            <i class="feather icon-settings img-radius pro-icon admin-icon"></i>
+            <i class="feather icon-settings img-radius pro-icon"></i>
           </ng-container>
-          <ng-container *ngIf="!isAdmin()">
-            <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="img-radius" alt="Profil">
-            <div *ngIf="!currentUser?.avatar" class="pro-icon avatar-initial-large">{{ getUserInitial() }}</div>
-          </ng-container>
-          <div class="pro-head-info">
-            <span class="pro-name">{{ getDisplayName() }}</span>
-            <span class="pro-email">{{ currentUser?.email }}</span>
-          </div>
+          <img *ngIf="!isAdmin() && currentUser?.avatar" [src]="currentUser.avatar" class="img-radius" alt="Profil">
+          <i *ngIf="!isAdmin() && !currentUser?.avatar" class="feather icon-user img-radius pro-icon"></i>
+          <span>{{ getDisplayName() }}</span>
         </div>
         <ul class="pro-body">
-          <li><a routerLink="/auth/change-password" class="dropdown-item" ngbDropdownItem><i class="feather icon-user"></i> Modifier profil</a></li>
+          <li><a routerLink="/auth/profile" class="dropdown-item" ngbDropdownItem><i class="feather icon-user"></i> Modifier profil</a></li>
+          <li><a routerLink="/auth/change-password" class="dropdown-item" ngbDropdownItem><i class="feather icon-lock"></i> Changer le mot de passe</a></li>
           <li><a href="javascript:" class="dropdown-item" (click)="logout()" ngbDropdownItem><i class="feather icon-log-out"></i> Déconnexion</a></li>
         </ul>
       </div>

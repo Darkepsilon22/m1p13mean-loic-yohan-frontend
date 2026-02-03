@@ -12,6 +12,12 @@
 .nav-user-dropdown {
   display: inline-flex;
   align-items: center;
+  gap: 0.75rem;
+
+  &.dropdown-toggle::before,
+  &.dropdown-toggle::after {
+    display: none !important;
+  }
 }
 
 // New user profile button styling
@@ -116,39 +122,4 @@
   border-radius: 50%;
   font-size: 1.25rem;
   color: #666;
-}
-
-.admin-icon {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.avatar-initial-large {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.pro-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 15px;
-}
-
-.pro-head-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.pro-name {
-  font-weight: 600;
-  color: #333;
-  font-size: 14px;
-}
-
-.pro-email {
-  font-size: 12px;
-  color: #888;
 }

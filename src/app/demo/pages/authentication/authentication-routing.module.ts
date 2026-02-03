@@ -20,10 +20,6 @@ const routes: Routes = [
       {
         path: 'change-password',
         loadChildren: () => import('./auth-change-password/auth-change-password.module').then(module => module.AuthChangePasswordModule)
-      },
-      {
-        path: 'verify-email',
-        loadChildren: () => import('./auth-verify-email/auth-verify-email.module').then(module => module.AuthVerifyEmailModule)
       }
     ]
   }

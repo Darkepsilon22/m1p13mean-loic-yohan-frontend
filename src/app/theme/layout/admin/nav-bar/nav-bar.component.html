@@ -11,8 +11,9 @@
     </a>
     <a class="mob-toggler" [ngClass]="{'on' : this.menuClass}" href="javascript:" (click)="toggleMobOption()"><i class="feather icon-more-vertical"></i></a>
   </div>
-  <div class="collapse navbar-collapse" [style.display]="this.collapseStyle">
-    <app-nav-left class="mr-auto"></app-nav-left>
-    <app-nav-right class="ml-auto"></app-nav-right>
+  <div class="collapse navbar-collapse header-right-wrap" [style.display]="this.collapseStyle">
+    <div class="header-right-inner">
+      <app-nav-right></app-nav-right>
+    </div>
   </div>
 </ng-template>

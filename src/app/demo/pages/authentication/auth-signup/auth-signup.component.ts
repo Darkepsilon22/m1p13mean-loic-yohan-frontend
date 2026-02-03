@@ -55,7 +55,7 @@ export class AuthSignupComponent implements OnInit {
   }
 
   getSubmitLabel(): string {
-    return this.signupType === 'boutique' ? 'Créer mon compte boutique' : 'Créer mon compte';
+    return 'Créer';
   }
 
   onSubmit(): void {

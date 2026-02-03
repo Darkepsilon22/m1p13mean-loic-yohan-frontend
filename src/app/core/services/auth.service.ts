@@ -143,6 +143,31 @@ export class AuthService {
     );
   }
 
+  updateProfile(body: { firstName?: string; lastName?: string; phone?: string; avatar?: string }): Observable<{ success: boolean; message: string; data: { user: any } }> {
+    return this.http.put<{ success: boolean; message: string; data: { user: any } }>(`${this.base}/auth/profile`, body).pipe(
+      tap(res => {
+        if (res.success && res.data?.user) {
+          this.setStoredUser(res.data.user);
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<{ success: boolean; message: string; data?: { token: string } }> {
+    return this.http.put<{ success: boolean; message: string; data?: { token: string } }>(`${this.base}/auth/change-password`, {
+      currentPassword,
+      newPassword
+    }).pipe(
+      tap(res => {
+        if (res.success && res.data?.token) {
+          this.setToken(res.data.token);
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
   private handleError = (err: any): Observable<never> => {
     if (err.error && typeof err.error === 'object' && 'message' in err.error) {
       return throwError(() => err.error as ApiErrorBody);

@@ -47,6 +47,7 @@
 .landing-user-btn {
   display: inline-flex;
   align-items: center;
+  gap: 0.75rem;
   text-decoration: none;
   color: #333;
   padding: 0.25rem 0.5rem;
@@ -54,6 +55,11 @@
   background: transparent;
   &:hover {
     color: #7366ff;
+  }
+
+  &.dropdown-toggle::before,
+  &.dropdown-toggle::after {
+    display: none !important;
   }
 }
 
@@ -67,7 +73,6 @@
   align-items: center;
   justify-content: center;
   background: #e8e8e8;
-  margin-right: 6px;
 }
 
 .landing-avatar-placeholder i {
