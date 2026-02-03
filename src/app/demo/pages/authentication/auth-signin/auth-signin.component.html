@@ -1,34 +1,87 @@
-<div class="auth-wrapper">
+<div class="auth-wrapper" [ngClass]="'auth-signin--' + loginType">
   <div class="auth-content">
-    <div class="card">
-      <div class="row align-items-center text-center">
-        <div class="col-md-12">
-          <div class="card-body">
-            <img src="assets/images/logo-dark.png" alt="" class="img-fluid mb-4">
-            <h4 class="mb-3 f-w-400">Signin</h4>
-            <div class="input-group mb-3">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="feather icon-mail"></i></span>
-              </div>
-              <input type="email" class="form-control" placeholder="Email address">
-            </div>
-            <div class="input-group mb-4">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="feather icon-lock"></i></span>
-              </div>
-              <input type="password" class="form-control" placeholder="Password">
-            </div>
-            <div class="form-group text-left mt-2">
-              <div class="checkbox checkbox-primary d-inline">
-                <input type="checkbox" name="checkbox-fill-1" id="checkbox-fill-a1" checked="">
-                <label for="checkbox-fill-a1" class="cr"> Save credentials</label>
-              </div>
-            </div>
-            <button class="btn btn-block btn-primary mb-4">Signin</button>
-            <p class="mb-2 text-muted">Forgot password? <a [routerLink]="['/auth/reset-password']" class="f-w-400">Reset</a></p>
-            <p class="mb-0 text-muted">Don’t have an account? <a [routerLink]="['/auth/signup']" class="f-w-400">Signup</a></p>
-          </div>
+    <div class="card auth-card" [ngClass]="'auth-card--' + loginType">
+      <div class="card-header auth-card-header" [ngClass]="'auth-card-header--' + loginType">
+        <div class="auth-card-header-inner">
+          <img src="assets/images/logo-dark.png" alt="Next" class="auth-logo">
+          <h4 class="auth-title">{{ getTitle() }}</h4>
+          <p class="auth-subtitle text-muted mb-0">{{ getSubtitle() }}</p>
         </div>
+      </div>
+      <div class="card-body">
+        <div *ngIf="registeredMessage && !showOtpStep" class="alert alert-success" role="alert">
+          {{ registeredMessage }}
+        </div>
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+
+        <ng-container *ngIf="!showOtpStep">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="feather icon-mail"></i></span>
+                </div>
+                <input type="email" class="form-control" formControlName="email" placeholder="votre@email.com">
+              </div>
+              <small class="text-danger" *ngIf="getError('email')">{{ getError('email') }}</small>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mot de passe</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="feather icon-lock"></i></span>
+                </div>
+                <input type="password" class="form-control" formControlName="password" placeholder="Mot de passe">
+              </div>
+              <small class="text-danger" *ngIf="getError('password')">{{ getError('password') }}</small>
+            </div>
+            <div class="form-group form-check mb-3">
+              <input type="checkbox" class="form-check-input" formControlName="remember" id="remember">
+              <label class="form-check-label" for="remember">Mémoriser</label>
+            </div>
+            <button type="submit" class="btn btn-block btn-primary btn-lg mb-3" [disabled]="loading">
+              {{ loading ? 'Connexion...' : getSubmitLabel() }}
+            </button>
+          </form>
+          <!-- Liens spécifiques par type -->
+          <div class="auth-links auth-links--acheteur" *ngIf="loginType === 'acheteur'">
+            <p class="mb-1"><a routerLink="/auth/reset-password" class="auth-link">Mot de passe oublié ?</a></p>
+            <p class="mb-1"><a routerLink="/auth/signup" class="auth-link">Créer un compte acheteur</a></p>
+            <p class="mb-0 mt-2"><a routerLink="/landing" class="auth-link auth-link--back">← Retour à l'accueil</a></p>
+          </div>
+          <div class="auth-links auth-links--boutique" *ngIf="loginType === 'boutique'">
+            <p class="mb-1"><a routerLink="/auth/reset-password" class="auth-link">Mot de passe oublié ?</a></p>
+            <p class="mb-1"><a routerLink="/auth/signup/boutique" class="auth-link">Créer un compte boutique</a></p>
+            <p class="mb-0 mt-2"><a routerLink="/landing" class="auth-link auth-link--back">← Retour à l'accueil</a></p>
+          </div>
+          <div class="auth-links auth-links--admin" *ngIf="loginType === 'admin'">
+            <p class="mb-0"><a routerLink="/landing" class="auth-link auth-link--back">← Retour à l'accueil</a></p>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="showOtpStep">
+          <p class="text-muted mb-3">Un code a été envoyé à <strong>{{ loginEmail }}</strong>. Saisissez-le ci-dessous.</p>
+          <form [formGroup]="otpForm" (ngSubmit)="onVerifyOtp()">
+            <div class="form-group">
+              <label class="form-label">Code OTP</label>
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="feather icon-key"></i></span>
+                </div>
+                <input type="text" class="form-control" formControlName="otp" placeholder="Code à 6 chiffres" maxlength="8" autocomplete="one-time-code">
+              </div>
+              <small class="text-danger" *ngIf="getError('otp')">{{ getError('otp') }}</small>
+            </div>
+            <button type="submit" class="btn btn-block btn-primary btn-lg mb-2" [disabled]="otpLoading">
+              {{ otpLoading ? 'Vérification...' : 'Valider le code' }}
+            </button>
+            <button type="button" class="btn btn-link btn-sm d-block mb-1" (click)="resendOtp()">Renvoyer le code</button>
+            <button type="button" class="btn btn-link btn-sm d-block" (click)="backToLogin()">← Retour à la connexion</button>
+          </form>
+        </ng-container>
       </div>
     </div>
   </div>

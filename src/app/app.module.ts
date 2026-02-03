@@ -2,9 +2,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { SharedModule } from './theme/shared/shared.module';
+import { ApiInterceptor } from './core/interceptors/api.interceptor';
 
 import { AppComponent } from './app.component';
 import { AdminComponent } from './theme/layout/admin/admin.component';
@@ -46,6 +48,7 @@ import { NgbDropdownModule, NgbNavModule, NgbTooltipModule } from '@ng-bootstrap
   imports: [
     BrowserModule,
     CommonModule,
+    HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     SharedModule,
@@ -53,7 +56,10 @@ import { NgbDropdownModule, NgbNavModule, NgbTooltipModule } from '@ng-bootstrap
     NgbTooltipModule,
     NgbNavModule
   ],
-  providers: [NavigationItem],
+  providers: [
+    NavigationItem,
+    { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,38 +1,105 @@
-<div class="auth-wrapper">
+<div class="auth-wrapper" [ngClass]="'auth-signup--' + signupType">
   <div class="auth-content">
-    <div class="card">
-      <div class="row align-items-center text-center">
-        <div class="col-md-12">
-          <div class="card-body">
-            <img src="assets/images/logo-dark.png" alt="" class="img-fluid mb-4">
-            <h4 class="mb-3 f-w-400">Sign up</h4>
-            <div class="input-group mb-3">
+    <div class="card auth-card" [ngClass]="'auth-card--' + signupType">
+      <div class="card-header auth-card-header" [ngClass]="'auth-card-header--' + signupType">
+        <div class="auth-card-header-inner">
+          <img src="assets/images/logo-dark.png" alt="" class="auth-logo img-fluid mb-3">
+          <h4 class="auth-title">{{ getTitle() }}</h4>
+          <p class="auth-subtitle text-muted mb-0">{{ getSubtitle() }}</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label class="form-label">Prénom</label>
+            <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="feather icon-user"></i></span>
               </div>
-              <input type="text" class="form-control" placeholder="Username">
+              <input type="text" class="form-control" formControlName="firstName" placeholder="Prénom">
             </div>
-            <div class="input-group mb-3">
+            <small class="text-danger" *ngIf="getError('firstName')">{{ getError('firstName') }}</small>
+            <small class="text-danger" *ngIf="form.get('firstName')?.invalid && form.get('firstName')?.touched && !getError('firstName')">
+              Prénom requis (lettres uniquement)
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nom</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="feather icon-user"></i></span>
+              </div>
+              <input type="text" class="form-control" formControlName="lastName" placeholder="Nom">
+            </div>
+            <small class="text-danger" *ngIf="getError('lastName')">{{ getError('lastName') }}</small>
+            <small class="text-danger" *ngIf="form.get('lastName')?.invalid && form.get('lastName')?.touched && !getError('lastName')">
+              Nom requis (lettres uniquement)
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="feather icon-mail"></i></span>
               </div>
-              <input type="email" class="form-control" placeholder="Email address">
+              <input type="email" class="form-control" formControlName="email" placeholder="votre@email.com">
             </div>
-            <div class="input-group mb-4">
+            <small class="text-danger" *ngIf="getError('email')">{{ getError('email') }}</small>
+            <small class="text-danger" *ngIf="form.get('email')?.invalid && form.get('email')?.touched && !getError('email')">
+              Email valide requis
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mot de passe</label>
+            <div class="input-group">
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="feather icon-lock"></i></span>
               </div>
-              <input type="password" class="form-control" placeholder="Password">
+              <input type="password" class="form-control" formControlName="password" placeholder="8 car. min., maj., min., chiffre">
             </div>
-            <div class="form-group text-left mt-2">
-              <div class="checkbox checkbox-primary d-inline">
-                <input type="checkbox" name="checkbox-fill-2" id="checkbox-fill-2">
-                <label for="checkbox-fill-2" class="cr">Send me the <a href="javascript:"> Newsletter</a> weekly.</label>
-              </div>
-            </div>
-            <button class="btn btn-primary btn-block mb-4">Sign up</button>
-            <p class="mb-2">Already have an account? <a [routerLink]="['/auth/signin']" class="f-w-400">Signin</a></p>
+            <small class="text-danger" *ngIf="getError('password')">{{ getError('password') }}</small>
+            <small class="text-danger" *ngIf="form.get('password')?.invalid && form.get('password')?.touched && !getError('password')">
+              Min. 8 caractères, une majuscule, une minuscule, un chiffre
+            </small>
           </div>
+
+          <div class="form-group" *ngIf="signupType === 'boutique'">
+            <label class="form-label">Téléphone</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="feather icon-phone"></i></span>
+              </div>
+              <input type="text" class="form-control" formControlName="phone" placeholder="Téléphone (recommandé pour les boutiques)">
+            </div>
+            <small class="text-danger" *ngIf="getError('phone')">{{ getError('phone') }}</small>
+          </div>
+
+          <div class="form-group" *ngIf="signupType === 'acheteur'">
+            <label class="form-label">Téléphone <span class="text-muted">(optionnel)</span></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="feather icon-phone"></i></span>
+              </div>
+              <input type="text" class="form-control" formControlName="phone" placeholder="Téléphone">
+            </div>
+            <small class="text-danger" *ngIf="getError('phone')">{{ getError('phone') }}</small>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg mb-3" [disabled]="loading">
+            {{ loading ? 'Inscription...' : getSubmitLabel() }}
+          </button>
+        </form>
+
+        <div class="auth-links">
+          <p class="mb-1">Déjà un compte ? <a [routerLink]="signupType === 'boutique' ? ['/auth/signin/boutique'] : ['/auth/signin']" class="auth-link">{{ signupType === 'boutique' ? 'Se connecter (boutique)' : 'Se connecter' }}</a></p>
+          <p class="mb-0 mt-2"><a routerLink="/landing" class="auth-link auth-link--back">← Retour à l'accueil</a></p>
         </div>
       </div>
     </div>

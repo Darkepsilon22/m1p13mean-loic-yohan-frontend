@@ -1,0 +1,46 @@
+.home-page {
+  min-height: 60vh;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding-top: 0;
+}
+
+.home-corner {
+  max-width: 360px;
+}
+
+.home-connect-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+}
+
+.home-connect-icon {
+  font-size: 3rem;
+  color: #7366ff;
+}
+
+.home-connect-card .auth-link {
+  color: #7366ff;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.home-welcome-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.home-welcome-card .card-title {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.home-quick-links {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #eee;
+}

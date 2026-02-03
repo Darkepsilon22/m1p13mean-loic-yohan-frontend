@@ -1,0 +1,1 @@
+{"ast":null,"code":"export * from './angular/animator.module';\nexport * from './angular/animates.directive';\nexport * from './angular/animation.service';\n//# sourceMappingURL=angular.js.map","map":null,"metadata":{},"sourceType":"module","externalDependencies":[]}

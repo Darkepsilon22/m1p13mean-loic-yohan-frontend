@@ -1,0 +1,100 @@
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: #f5f7fa;
+}
+
+.auth-content {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border: none;
+  overflow: hidden;
+}
+
+.auth-card-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+  background: #fff;
+}
+
+.auth-card-header--acheteur {
+  border-top: 3px solid #7366ff;
+}
+
+.auth-card-header--boutique {
+  border-top: 3px solid #f73164;
+}
+
+.auth-card-header--admin {
+  border-top: 3px solid #333;
+  background: #f8f9fa;
+}
+
+.auth-logo {
+  height: 36px;
+  margin-bottom: 0.75rem;
+}
+
+.auth-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #333;
+}
+
+.auth-subtitle {
+  font-size: 0.875rem;
+}
+
+.auth-card .card-body {
+  padding: 1.5rem;
+}
+
+.auth-card .form-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+  color: #555;
+}
+
+.auth-card .input-group-text {
+  background: #f8f9fa;
+  border-color: #e9ecef;
+}
+
+.auth-links {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  font-size: 0.875rem;
+}
+
+.auth-link {
+  color: #7366ff;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+    color: #5a4fd6;
+  }
+}
+
+.auth-link--back {
+  color: #666;
+  &:hover {
+    color: #333;
+  }
+}
+
+.auth-links--admin .auth-link--back {
+  display: inline-block;
+  margin-top: 0.5rem;
+}

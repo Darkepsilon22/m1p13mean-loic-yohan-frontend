@@ -1,0 +1,35 @@
+<!-- Sidebar déjà dans le layout AdminComponent -->
+<div class="home-page">
+  <div class="home-corner">
+    <!-- Non connecté : inviter à se connecter -->
+    <div *ngIf="!isLoggedIn" class="card home-connect-card">
+      <div class="card-body text-center">
+        <i class="feather icon-user home-connect-icon"></i>
+        <h5 class="card-title mt-2 mb-2">Bienvenue</h5>
+        <p class="card-text text-muted mb-3">Connectez-vous pour accéder à l'application.</p>
+        <a routerLink="/auth/signin" class="btn btn-primary btn-lg">Se connecter</a>
+        <p class="mt-3 mb-0 small text-muted">
+          <a routerLink="/auth/signup" class="auth-link">Créer un compte</a>
+        </p>
+      </div>
+    </div>
+    <!-- Connecté : carte de bienvenue -->
+    <div *ngIf="isLoggedIn" class="card home-welcome-card">
+      <div class="card-body">
+        <h5 class="card-title mb-2">
+          <i class="feather icon-home mr-2"></i>Bienvenue
+        </h5>
+        <p class="card-text mb-1" *ngIf="getWelcomeName()">
+          <strong>{{ getWelcomeName() }}</strong>
+        </p>
+        <p class="card-text text-muted small mb-2" *ngIf="getRoleLabel()">
+          {{ getRoleLabel() }}
+        </p>
+        <div class="home-quick-links">
+          <a routerLink="/dashboard/analytics" class="btn btn-sm btn-outline-primary mr-1">Dashboard</a>
+          <a routerLink="/boutique/create" class="btn btn-sm btn-outline-secondary" *ngIf="currentUser?.role === 'boutique' || currentUser?.role === 'admin'">Créer une boutique</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

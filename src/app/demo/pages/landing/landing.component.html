@@ -1,0 +1,39 @@
+<header class="landing-header">
+  <div class="landing-header-inner">
+    <a routerLink="/landing" class="landing-logo" title="Accueil">
+      <img src="assets/images/logo-dark.png" alt="Next" class="logo-img">
+      <span class="logo-text">Next</span>
+    </a>
+    <nav class="landing-nav">
+      <ng-container *ngIf="!isLoggedIn">
+        <a routerLink="/auth/signin" class="btn btn-outline-primary btn-sm mr-2">Se connecter</a>
+        <a routerLink="/auth/signup" class="btn btn-outline-primary btn-sm mr-2">Créer un compte</a>
+        <a (click)="goToBoutique()" class="btn btn-outline-primary btn-sm" role="button">Boutique</a>
+      </ng-container>
+      <div *ngIf="isLoggedIn" class="dropdown" ngbDropdown placement="bottom-right">
+        <button class="btn btn-link dropdown-toggle landing-user-btn" ngbDropdownToggle type="button">
+          <img *ngIf="!isAdmin() && currentUser?.avatar" [src]="currentUser.avatar" alt="" class="landing-avatar">
+          <i *ngIf="isAdmin()" class="feather icon-settings"></i>
+          <span *ngIf="!isAdmin() && !currentUser?.avatar" class="landing-avatar-placeholder"><i class="feather icon-user"></i></span>
+          <span class="ml-1">{{ getDisplayName() }}</span>
+        </button>
+        <div ngbDropdownMenu class="dropdown-menu dropdown-menu-right">
+          <a ngbDropdownItem routerLink="/auth/change-password"><i class="feather icon-user mr-2"></i>Modifier profil</a>
+          <a ngbDropdownItem (click)="logout()"><i class="feather icon-log-out mr-2"></i>Déconnexion</a>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+<main class="landing-main">
+  <div class="landing-content text-center p-5">
+    <h1 class="mb-3">Centre Commercial</h1>
+    <p class="lead mb-4">Bienvenue. Connectez-vous ou créez un compte pour accéder à l'application.</p>
+    <ng-container *ngIf="!isLoggedIn">
+      <p class="text-muted small">Se connecter, créer un compte ou accéder à la boutique (connexion requise).</p>
+    </ng-container>
+    <ng-container *ngIf="isLoggedIn">
+      <a [routerLink]="['/home']" class="btn btn-primary btn-lg">Accéder à l'application</a>
+    </ng-container>
+  </div>
+</main>

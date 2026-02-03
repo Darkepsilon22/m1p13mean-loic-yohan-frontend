@@ -1,0 +1,26 @@
+.nav-login-btn {
+  text-decoration: none;
+}
+
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+}
+
+.nav-user-dropdown {
+  display: inline-flex;
+  align-items: center;
+}
+
+.pro-icon {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  color: #666;
+}

@@ -33,11 +33,25 @@ const NavigationItems = [
     icon: 'feather icon-monitor',
     children: [
       {
+        id: 'home',
+        title: 'Accueil',
+        type: 'item',
+        url: '/home',
+        icon: 'feather icon-home'
+      },
+      {
         id: 'dashboard',
         title: 'Dashboard',
         type: 'item',
         url: '/dashboard/analytics',
-        icon: 'feather icon-home'
+        icon: 'feather icon-bar-chart-2'
+      },
+      {
+        id: 'boutique-create',
+        title: 'Créer une boutique',
+        type: 'item',
+        url: '/boutique/create',
+        icon: 'feather icon-shopping-bag'
       },
       {
         id: 'page-layouts',

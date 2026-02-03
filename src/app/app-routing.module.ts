@@ -1,21 +1,35 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { AdminComponent } from './theme/layout/admin/admin.component';
-import {AuthComponent} from './theme/layout/auth/auth.component';
+import { AuthComponent } from './theme/layout/auth/auth.component';
+import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'landing' },
+  {
+    path: 'home',
+    component: AdminComponent,
+    children: [
+      { path: '', loadChildren: () => import('./demo/pages/home/home.module').then(module => module.HomeModule) }
+    ]
+  },
   {
     path: '',
     component: AdminComponent,
+    canActivate: [AuthGuard],
     children: [
       {
         path: '',
-        redirectTo: 'dashboard/analytics',
+        redirectTo: 'home',
         pathMatch: 'full'
       },
       {
         path: 'dashboard',
         loadChildren: () => import('./demo/dashboard/dashboard.module').then(module => module.DashboardModule)
+      },
+      {
+        path: 'boutique',
+        loadChildren: () => import('./demo/pages/boutique/boutique.module').then(module => module.BoutiqueModule)
       },
       {
         path: 'layout',
@@ -42,6 +56,10 @@ const routes: Routes = [
         loadChildren: () => import('./demo/pages/sample-page/sample-page.module').then(module => module.SamplePageModule)
       }
     ]
+  },
+  {
+    path: 'landing',
+    loadChildren: () => import('./demo/pages/landing/landing.module').then(module => module.LandingModule)
   },
   {
     path: '',

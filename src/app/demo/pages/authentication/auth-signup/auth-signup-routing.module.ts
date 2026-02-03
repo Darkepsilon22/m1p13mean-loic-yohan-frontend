@@ -1,11 +1,16 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {AuthSignupComponent} from './auth-signup.component';
+import { AuthSignupWrapperComponent } from './auth-signup-wrapper.component';
+import { AuthSignupComponent } from './auth-signup.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: AuthSignupComponent
+    component: AuthSignupWrapperComponent,
+    children: [
+      { path: '', component: AuthSignupComponent, data: { signupType: 'acheteur' } },
+      { path: 'boutique', component: AuthSignupComponent, data: { signupType: 'boutique' } }
+    ]
   }
 ];
 

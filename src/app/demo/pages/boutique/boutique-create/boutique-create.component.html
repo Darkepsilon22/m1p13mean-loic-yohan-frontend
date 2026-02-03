@@ -1,0 +1,97 @@
+<div class="row">
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>Créer une boutique</h5>
+      </div>
+      <div class="card-body">
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label>Nom de la boutique <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="name" placeholder="Nom">
+            <small class="text-danger" *ngIf="getError('name')">{{ getError('name') }}</small>
+          </div>
+
+          <div class="form-group">
+            <label>Description <span class="text-danger">*</span></label>
+            <textarea class="form-control" formControlName="description" rows="4" placeholder="Description"></textarea>
+            <small class="text-danger" *ngIf="getError('description')">{{ getError('description') }}</small>
+          </div>
+
+          <div class="form-group">
+            <label>Description courte (optionnel)</label>
+            <input type="text" class="form-control" formControlName="shortDescription" placeholder="Courte description">
+          </div>
+
+          <div class="form-group">
+            <label>Catégorie <span class="text-danger">*</span></label>
+            <select class="form-control" formControlName="categoryId">
+              <option value="">-- Choisir --</option>
+              <option *ngFor="let c of categories" [value]="c._id">{{ c.name }}</option>
+            </select>
+            <small class="text-muted" *ngIf="loadingCategories">Chargement des catégories...</small>
+            <small class="text-danger" *ngIf="getError('categoryId')">{{ getError('categoryId') }}</small>
+          </div>
+
+          <div class="form-group">
+            <label>Logo (URL) <span class="text-danger">*</span></label>
+            <input type="url" class="form-control" formControlName="logo" placeholder="https://...">
+            <small class="text-danger" *ngIf="getError('logo')">{{ getError('logo') }}</small>
+          </div>
+
+          <div class="form-group">
+            <label>Image de couverture (URL, optionnel)</label>
+            <input type="url" class="form-control" formControlName="coverImage" placeholder="https://...">
+          </div>
+
+          <hr>
+          <h6>Contact</h6>
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <label>Téléphone <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="contactPhone" placeholder="Téléphone">
+              <small class="text-danger" *ngIf="getError('contact.phone')">{{ getError('contact.phone') }}</small>
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control" formControlName="contactEmail" placeholder="Email">
+              <small class="text-danger" *ngIf="getError('contact.email')">{{ getError('contact.email') }}</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Site web (optionnel)</label>
+            <input type="url" class="form-control" formControlName="contactWebsite" placeholder="https://...">
+          </div>
+
+          <hr>
+          <h6>Emplacement</h6>
+          <div class="row">
+            <div class="col-md-4 form-group">
+              <label>Étage</label>
+              <input type="number" class="form-control" formControlName="locationFloor" min="0" placeholder="0">
+            </div>
+            <div class="col-md-4 form-group">
+              <label>Zone <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="locationZone" placeholder="Zone">
+              <small class="text-danger" *ngIf="getError('location.zone')">{{ getError('location.zone') }}</small>
+            </div>
+            <div class="col-md-4 form-group">
+              <label>Numéro <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="locationNumber" placeholder="N°">
+              <small class="text-danger" *ngIf="getError('location.number')">{{ getError('location.number') }}</small>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="loading || loadingCategories">
+            {{ loading ? 'Création...' : 'Créer la boutique' }}
+          </button>
+          <a routerLink="/dashboard/analytics" class="btn btn-secondary ml-2">Annuler</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
