@@ -6,11 +6,104 @@
   width: 32px;
   height: 32px;
   object-fit: cover;
+  border-radius: 50%;
 }
 
 .nav-user-dropdown {
   display: inline-flex;
   align-items: center;
+}
+
+// New user profile button styling
+.user-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 50px;
+  padding: 4px 12px 4px 4px;
+  transition: all 0.3s ease;
+  text-decoration: none !important;
+
+  &:hover {
+    background: rgba(102, 126, 234, 0.15);
+    border-color: rgba(102, 126, 234, 0.3);
+  }
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+
+  i {
+    font-size: 16px;
+  }
+}
+
+.avatar-initial {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.user-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #28a745;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #28a745;
+  border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(40, 167, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+  }
+}
+
+.dropdown-arrow {
+  font-size: 12px;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.drp-user.show .dropdown-arrow {
+  transform: rotate(180deg);
 }
 
 .pro-icon {
@@ -23,4 +116,39 @@
   border-radius: 50%;
   font-size: 1.25rem;
   color: #666;
+}
+
+.admin-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.avatar-initial-large {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.pro-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+}
+
+.pro-head-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.pro-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.pro-email {
+  font-size: 12px;
+  color: #888;
 }

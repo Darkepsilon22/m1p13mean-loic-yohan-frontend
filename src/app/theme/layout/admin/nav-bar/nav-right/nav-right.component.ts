@@ -29,6 +29,16 @@ export class NavRightComponent implements OnInit {
     return (first + ' ' + last).trim() || this.currentUser.email || 'Profil';
   }
 
+  getUserInitial(): string {
+    if (!this.currentUser) return 'U';
+    const firstName = this.currentUser.firstName || '';
+    const lastName = this.currentUser.lastName || '';
+    if (firstName) return firstName.charAt(0).toUpperCase();
+    if (lastName) return lastName.charAt(0).toUpperCase();
+    if (this.currentUser.email) return this.currentUser.email.charAt(0).toUpperCase();
+    return 'U';
+  }
+
   isAdmin(): boolean {
     return this.currentUser?.role === 'admin';
   }
