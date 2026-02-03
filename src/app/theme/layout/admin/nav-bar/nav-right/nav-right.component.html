@@ -1,30 +1,26 @@
 <ul class="navbar-nav ml-auto">
+  <li class="nav-item">
+    <app-nav-search></app-nav-search>
+  </li>
   <li *ngIf="!isLoggedIn">
     <a routerLink="/auth/signin" class="btn btn-primary btn-sm nav-login-btn">Se connecter</a>
   </li>
   <li *ngIf="isLoggedIn">
     <div class="dropdown drp-user" ngbDropdown placement="auto">
       <a href="javascript:" ngbDropdownToggle data-toggle="dropdown" class="nav-user-dropdown">
-        <ng-container *ngIf="isAdmin()">
-          <i class="icon feather icon-settings" title="Administrateur"></i>
-        </ng-container>
-        <ng-container *ngIf="!isAdmin()">
-          <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="img-radius nav-avatar" alt="Profil">
-          <i *ngIf="!currentUser?.avatar" class="icon feather icon-user"></i>
-        </ng-container>
-        <span class="ml-1 d-none d-md-inline">{{ getDisplayName() }}</span>
+        <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="img-radius nav-avatar" alt="Profil">
+        <img *ngIf="!currentUser?.avatar" src="assets/images/default-avatar.png" class="img-radius nav-avatar" alt="Profil">
+        <span class="nav-user-name d-none d-md-inline">{{ getDisplayName() }}</span>
       </a>
       <div class="dropdown-menu dropdown-menu-right profile-notification" ngbDropdownMenu>
         <div class="pro-head">
-          <ng-container *ngIf="isAdmin()">
-            <i class="feather icon-settings img-radius pro-icon"></i>
-          </ng-container>
-          <img *ngIf="!isAdmin() && currentUser?.avatar" [src]="currentUser.avatar" class="img-radius" alt="Profil">
-          <i *ngIf="!isAdmin() && !currentUser?.avatar" class="feather icon-user img-radius pro-icon"></i>
+          <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="img-radius pro-icon-img" alt="Profil">
+          <img *ngIf="!currentUser?.avatar" src="assets/images/default-avatar.png" class="img-radius pro-icon-img" alt="Profil">
           <span>{{ getDisplayName() }}</span>
         </div>
         <ul class="pro-body">
-          <li><a routerLink="/auth/change-password" class="dropdown-item" ngbDropdownItem><i class="feather icon-user"></i> Modifier profil</a></li>
+          <li><a routerLink="/auth/profile" class="dropdown-item" ngbDropdownItem><i class="feather icon-user"></i> Modifier profil</a></li>
+          <li><a routerLink="/auth/change-password" class="dropdown-item" ngbDropdownItem><i class="feather icon-lock"></i> Changer le mot de passe</a></li>
           <li><a href="javascript:" class="dropdown-item" (click)="logout()" ngbDropdownItem><i class="feather icon-log-out"></i> Déconnexion</a></li>
         </ul>
       </div>

@@ -1,0 +1,11 @@
+.header-right-wrap {
+  display: flex !important;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.header-right-inner {
+  display: flex;
+  align-items: center;
+}

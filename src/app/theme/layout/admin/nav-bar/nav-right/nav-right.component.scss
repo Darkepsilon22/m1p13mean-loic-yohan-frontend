@@ -11,6 +11,12 @@
 .nav-user-dropdown {
   display: inline-flex;
   align-items: center;
+  gap: 0.75rem;
+
+  &.dropdown-toggle::before,
+  &.dropdown-toggle::after {
+    display: none !important;
+  }
 }
 
 .pro-icon {
@@ -23,4 +29,10 @@
   border-radius: 50%;
   font-size: 1.25rem;
   color: #666;
+}
+
+.pro-icon-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
 }

@@ -1,8 +1,8 @@
 <header class="landing-header">
   <div class="landing-header-inner">
     <a routerLink="/landing" class="landing-logo" title="Accueil">
-      <img src="assets/images/logo-dark.png" alt="Next" class="logo-img">
-      <span class="logo-text">Next</span>
+      <img src="assets/images/logo-dark.png" alt="Next shop" class="logo-img">
+      <span class="logo-text">Next shop</span>
     </a>
     <nav class="landing-nav">
       <ng-container *ngIf="!isLoggedIn">
@@ -11,14 +11,14 @@
         <a (click)="goToBoutique()" class="btn btn-outline-primary btn-sm" role="button">Boutique</a>
       </ng-container>
       <div *ngIf="isLoggedIn" class="dropdown" ngbDropdown placement="bottom-right">
+        
+        <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" alt="" class="landing-avatar">
+        <img *ngIf="!currentUser?.avatar" src="assets/images/default-avatar.png" alt="" class="landing-avatar">
         <button class="btn btn-link dropdown-toggle landing-user-btn" ngbDropdownToggle type="button">
-          <img *ngIf="!isAdmin() && currentUser?.avatar" [src]="currentUser.avatar" alt="" class="landing-avatar">
-          <i *ngIf="isAdmin()" class="feather icon-settings"></i>
-          <span *ngIf="!isAdmin() && !currentUser?.avatar" class="landing-avatar-placeholder"><i class="feather icon-user"></i></span>
-          <span class="ml-1">{{ getDisplayName() }}</span>
+          <span class="landing-user-name">{{ getDisplayName() }}</span>
         </button>
         <div ngbDropdownMenu class="dropdown-menu dropdown-menu-right">
-          <a ngbDropdownItem routerLink="/auth/change-password"><i class="feather icon-user mr-2"></i>Modifier profil</a>
+          <a ngbDropdownItem routerLink="/auth/profile"><i class="feather icon-user mr-2"></i>Modifier profil</a>
           <a ngbDropdownItem (click)="logout()"><i class="feather icon-log-out mr-2"></i>Déconnexion</a>
         </div>
       </div>

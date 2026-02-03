@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 
 /**
- * Page d'accueil une fois connecté : sidebar + Next, contenu dans le coin opposé au logo (haut droit).
+ * Page d'accueil une fois connecté : sidebar + Next shop, contenu dans le coin opposé au logo (haut droit).
  */
 @Component({
   selector: 'app-home',

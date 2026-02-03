@@ -1,0 +1,79 @@
+<div class="auth-wrapper auth-profile">
+  <div class="auth-content">
+    <div class="card auth-card">
+      <div class="card-header auth-card-header">
+        <div class="auth-card-header-inner">
+          <img src="assets/images/logo-dark.png" alt="Next shop" class="auth-logo">
+          <h4 class="auth-title">Modifier mon profil</h4>
+          <p class="auth-subtitle text-muted mb-0">Mettez à jour vos informations personnelles.</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div *ngIf="successMessage" class="alert alert-success" role="alert">
+          {{ successMessage }}
+        </div>
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          {{ errorMessage }}
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label class="form-label">Prénom</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="feather icon-user"></i></span>
+              </div>
+              <input type="text" class="form-control" formControlName="firstName" placeholder="Prénom">
+            </div>
+            <small class="text-danger" *ngIf="getError('firstName')">{{ getError('firstName') }}</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nom</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="feather icon-user"></i></span>
+              </div>
+              <input type="text" class="form-control" formControlName="lastName" placeholder="Nom">
+            </div>
+            <small class="text-danger" *ngIf="getError('lastName')">{{ getError('lastName') }}</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Téléphone <span class="text-muted">(optionnel)</span></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="feather icon-phone"></i></span>
+              </div>
+              <input type="text" class="form-control" formControlName="phone" placeholder="Téléphone">
+            </div>
+            <small class="text-danger" *ngIf="getError('phone')">{{ getError('phone') }}</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Photo de profil <span class="text-muted">(URL, optionnel)</span></label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="feather icon-image"></i></span>
+              </div>
+              <input type="url" class="form-control" formControlName="avatar" placeholder="https://...">
+            </div>
+            <small class="text-danger" *ngIf="getError('avatar')">{{ getError('avatar') }}</small>
+          </div>
+
+          <br>
+          <div class="auth-submit-wrap">
+            <button type="submit" class="btn btn-primary btn-lg" [disabled]="loading">
+              {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+            </button>
+          </div>
+        </form>
+
+        <div class="auth-links">
+          <p class="mb-1"><a routerLink="/auth/change-password" class="auth-link">Changer le mot de passe</a></p>
+          <p class="mb-0 mt-2"><a routerLink="/landing" class="auth-link auth-link--back">← Retour à l'accueil</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

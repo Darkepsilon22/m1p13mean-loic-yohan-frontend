@@ -61,9 +61,43 @@
   color: #555;
 }
 
-.auth-card .input-group-text {
-  background: #f8f9fa;
-  border-color: #e9ecef;
+.auth-card .input-group {
+  align-items: stretch;
+
+  .input-group-prepend {
+    display: flex;
+  }
+
+  .input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-color: #e9ecef;
+    padding: 0 0.75rem;
+    min-width: 48px;
+
+    i, .feather {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+  }
+
+  .form-control {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+.auth-submit-wrap {
+  text-align: center;
+  margin-bottom: 1rem;
+  .btn {
+    min-width: 120px;
+    max-width: 180px;
+    width: auto;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+  }
 }
 
 .auth-links {
