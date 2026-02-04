@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService, ApiErrorBody } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-auth-signin',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './auth-signin.component.html',
   styleUrls: ['./auth-signin.component.scss']
 })

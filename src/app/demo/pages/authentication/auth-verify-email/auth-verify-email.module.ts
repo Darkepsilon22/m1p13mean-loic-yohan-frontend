@@ -8,10 +8,10 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [AuthVerifyEmailComponent],
   imports: [
     CommonModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    AuthVerifyEmailComponent
   ]
 })
 export class AuthVerifyEmailModule { }

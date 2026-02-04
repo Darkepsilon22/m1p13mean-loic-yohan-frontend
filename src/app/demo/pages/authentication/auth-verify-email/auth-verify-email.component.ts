@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-auth-verify-email',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './auth-verify-email.component.html',
   styleUrls: ['./auth-verify-email.component.scss']
 })
