@@ -12,8 +12,9 @@ import { AuthSigninWrapperComponent } from './auth-signin-wrapper.component';
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
-    AuthSigninRoutingModule
-  ],
-  declarations: [AuthSigninComponent, AuthSigninWrapperComponent]
+    AuthSigninRoutingModule,
+    AuthSigninComponent,
+    AuthSigninWrapperComponent
+  ]
 })
 export class AuthSigninModule { }

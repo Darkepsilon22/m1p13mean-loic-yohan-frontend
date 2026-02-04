@@ -8,14 +8,22 @@
   <li *ngIf="isLoggedIn">
     <div class="dropdown drp-user" ngbDropdown placement="auto">
       <a href="javascript:" ngbDropdownToggle data-toggle="dropdown" class="nav-user-dropdown">
-        <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="img-radius nav-avatar" alt="Profil">
-        <img *ngIf="!currentUser?.avatar" src="assets/images/default-avatar.png" class="img-radius nav-avatar" alt="Profil">
-        <span class="nav-user-name d-none d-md-inline">{{ getDisplayName() }}</span>
+        <ng-container *ngIf="isAdmin()">
+          <i class="icon feather icon-settings" title="Administrateur"></i>
+        </ng-container>
+        <ng-container *ngIf="!isAdmin()">
+          <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="img-radius nav-avatar" alt="Profil">
+          <i *ngIf="!currentUser?.avatar" class="icon feather icon-user"></i>
+        </ng-container>
+        <span class="ml-1 d-none d-md-inline">{{ getDisplayName() }}</span>
       </a>
       <div class="dropdown-menu dropdown-menu-right profile-notification" ngbDropdownMenu>
         <div class="pro-head">
-          <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="img-radius pro-icon-img" alt="Profil">
-          <img *ngIf="!currentUser?.avatar" src="assets/images/default-avatar.png" class="img-radius pro-icon-img" alt="Profil">
+          <ng-container *ngIf="isAdmin()">
+            <i class="feather icon-settings img-radius pro-icon"></i>
+          </ng-container>
+          <img *ngIf="!isAdmin() && currentUser?.avatar" [src]="currentUser.avatar" class="img-radius" alt="Profil">
+          <i *ngIf="!isAdmin() && !currentUser?.avatar" class="feather icon-user img-radius pro-icon"></i>
           <span>{{ getDisplayName() }}</span>
         </div>
         <ul class="pro-body">

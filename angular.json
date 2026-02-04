@@ -116,5 +116,8 @@
         }
       }
     }},
-  "defaultProject": "next-v8.1.2-lite"
+  "defaultProject": "next-v8.1.2-lite",
+  "cli": {
+    "analytics": false
+  }
 }

@@ -116,6 +116,22 @@ export class AuthService {
     );
   }
 
+  verifyEmail(token: string): Observable<{ success: boolean; message: string; data?: { user: any; token: string } }> {
+    return this.http.get<{ success: boolean; message: string; data?: { user: any; token: string } }>(
+      `${this.base}/auth/verify-email/${token}`
+    ).pipe(
+      tap(res => {
+        if (res.success && res.data?.token) {
+          this.setToken(res.data.token);
+          if (res.data.user) {
+            this.setStoredUser(res.data.user);
+          }
+        }
+      }),
+      catchError(this.handleError)
+    );
+  }
+
   getMe(): Observable<{ success: boolean; data: { user: any } }> {
     return this.http.get<{ success: boolean; data: { user: any } }>(`${this.base}/auth/me`).pipe(
       tap(res => {

@@ -22,8 +22,8 @@ const routes: Routes = [
         loadChildren: () => import('./auth-change-password/auth-change-password.module').then(module => module.AuthChangePasswordModule)
       },
       {
-        path: 'profile',
-        loadChildren: () => import('./auth-profile/auth-profile.module').then(module => module.AuthProfileModule)
+        path: 'verify-email',
+        loadChildren: () => import('./auth-verify-email/auth-verify-email.module').then(module => module.AuthVerifyEmailModule)
       }
     ]
   }
