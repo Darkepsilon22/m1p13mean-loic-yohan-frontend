@@ -1,0 +1,67 @@
+<div class="row">
+  <div class="col-sm-12">
+    <div class="card">
+      <div class="card-header">
+        <h5>Modifier la catégorie</h5>
+      </div>
+      <div class="card-body">
+        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+        <div *ngIf="loadingCategory" class="text-center py-4">Chargement...</div>
+
+        <form *ngIf="!loadingCategory" [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label>Nom <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" formControlName="name" placeholder="Nom de la catégorie">
+            <small class="text-danger" *ngIf="getError('name')">{{ getError('name') }}</small>
+            <small class="text-danger" *ngIf="form.get('name')?.invalid && form.get('name')?.touched && !getError('name')">Le nom est requis (max 100 caractères).</small>
+          </div>
+
+          <div class="form-group">
+            <label>Description (optionnel)</label>
+            <textarea class="form-control" formControlName="description" rows="2" placeholder="Description (max 500 caractères)"></textarea>
+            <small class="text-danger" *ngIf="getError('description')">{{ getError('description') }}</small>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <label>Icône (optionnel)</label>
+              <input type="text" class="form-control" formControlName="icon" placeholder="ex: shopping-bag">
+              <small class="text-danger" *ngIf="getError('icon')">{{ getError('icon') }}</small>
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Couleur (optionnel)</label>
+              <input type="text" class="form-control" formControlName="color" placeholder="#FF5733">
+              <small class="text-danger" *ngIf="getError('color')">{{ getError('color') }}</small>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <label>Catégorie parente (optionnel)</label>
+              <select class="form-control" formControlName="parentId">
+                <option [ngValue]="null">Aucune (catégorie racine)</option>
+                <option *ngFor="let p of parentCategories" [ngValue]="p._id">{{ p.name }}</option>
+              </select>
+              <small class="text-muted" *ngIf="loadingParent">Chargement...</small>
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Ordre d'affichage</label>
+              <input type="number" class="form-control" formControlName="order" min="0">
+              <small class="text-danger" *ngIf="getError('order')">{{ getError('order') }}</small>
+            </div>
+          </div>
+
+          <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="isActive" formControlName="isActive">
+            <label class="form-check-label" for="isActive">Catégorie active</label>
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="loading || loadingParent">
+            {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+          <a routerLink="/category/list" class="btn btn-secondary ml-2">Annuler</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

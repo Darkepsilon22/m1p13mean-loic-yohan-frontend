@@ -168,6 +168,29 @@ export class AuthService {
     );
   }
 
+  /** Admin: list users awaiting approval (status=pending & email verified) */
+  getPendingUsers(): Observable<{ success: boolean; count: number; data: { users: any[] } }> {
+    return this.http.get<{ success: boolean; count: number; data: { users: any[] } }>(`${this.base}/auth/users/pending`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /** Admin: approve a user */
+  approveUser(userId: string): Observable<{ success: boolean; message: string; data: { user: any } }> {
+    return this.http.patch<{ success: boolean; message: string; data: { user: any } }>(`${this.base}/auth/users/${userId}/approve`, {}).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /** Admin: reject a user (optional reason) */
+  rejectUser(userId: string, reason?: string): Observable<{ success: boolean; message: string; data: { user: any } }> {
+    const body: { reason?: string } = {};
+    if (reason != null && reason.trim() !== '') body.reason = reason.trim();
+    return this.http.patch<{ success: boolean; message: string; data: { user: any } }>(`${this.base}/auth/users/${userId}/reject`, body).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   private handleError = (err: any): Observable<never> => {
     if (err.error && typeof err.error === 'object' && 'message' in err.error) {
       return throwError(() => err.error as ApiErrorBody);

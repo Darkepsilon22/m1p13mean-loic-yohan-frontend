@@ -1,0 +1,139 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card *ngIf="isAdmin" cardTitle="Demandes d'inscription boutique (à valider)" [options]="false">
+      <div *ngIf="pendingError" class="alert alert-danger">{{ pendingError }}</div>
+      <div *ngIf="pendingLoading" class="text-center py-3">Chargement...</div>
+
+      <div *ngIf="!pendingLoading && pendingBoutiqueUsers.length === 0" class="text-muted py-3 text-center">
+        Aucune demande en attente.
+      </div>
+
+      <div *ngIf="!pendingLoading && pendingBoutiqueUsers.length > 0" class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of pendingBoutiqueUsers">
+              <td><strong>{{ u.firstName }} {{ u.lastName }}</strong></td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.phone || '—' }}</td>
+              <td>{{ u.createdAt | date:'short' }}</td>
+              <td class="text-right">
+                <button class="btn btn-sm btn-success mr-2" (click)="openPendingAction(u, 'approve')">Accepter</button>
+                <button class="btn btn-sm btn-danger" (click)="openPendingAction(u, 'reject')">Refuser</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </app-card>
+
+    <app-card cardTitle="Liste des boutiques" [options]="false">
+      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+        <label class="mb-0 mr-2">Statut :</label>
+        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+          <option value="">Tous</option>
+          <option value="pending">En attente</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="rejected">Refusée</option>
+        </select>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
+
+      <div *ngIf="!loading && boutiques.length === 0" class="text-muted py-4 text-center">
+        Aucune boutique trouvée.
+      </div>
+
+      <div *ngIf="!loading && boutiques.length > 0" class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Propriétaire</th>
+              <th>Catégorie</th>
+              <th>Statut</th>
+              <th>Étage / Zone</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of boutiques" (click)="goToDetail(b._id)" style="cursor: pointer;">
+              <td>
+                <strong>{{ b.name }}</strong>
+              </td>
+              <td>
+                <span *ngIf="b.userId">{{ b.userId.firstName }} {{ b.userId.lastName }}</span>
+                <span *ngIf="!b.userId">—</span>
+              </td>
+              <td>
+                <span *ngIf="b.categoryId">{{ b.categoryId.name }}</span>
+                <span *ngIf="!b.categoryId">—</span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getStatusClass(b.status)">{{ getStatusLabel(b.status) }}</span>
+              </td>
+              <td>
+                <span *ngIf="b.location">Étage {{ b.location.floor }} · {{ b.location.zone }}</span>
+                <span *ngIf="!b.location">—</span>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <a [routerLink]="['/boutique', b._id]" class="btn btn-sm btn-primary">Voir</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="pagination && pagination.pages > 1" class="d-flex justify-content-between align-items-center mt-3">
+        <small class="text-muted">
+          Page {{ pagination.page }} / {{ pagination.pages }} ({{ pagination.total }} boutique(s))
+        </small>
+        <div>
+          <button class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
+          <button class="btn btn-sm btn-outline-secondary" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>
+
+<!-- Popup de validation (accept/refuse) -->
+<app-ui-modal #pendingModal dialogClass="modal-dialog-centered" [containerClick]="false">
+  <div class="app-modal-header">
+    <h5 class="modal-title">
+      {{ actionType === 'approve' ? 'Valider la demande boutique' : 'Refuser la demande boutique' }}
+    </h5>
+    <button type="button" class="close basic-close" aria-label="Close" (click)="closePendingModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="app-modal-body">
+    <p class="mb-2" *ngIf="selectedUser">
+      Confirmer l’action pour <strong>{{ selectedUser.firstName }} {{ selectedUser.lastName }}</strong> ({{ selectedUser.email }}) ?
+    </p>
+
+    <div class="form-group" *ngIf="actionType === 'reject'">
+      <label class="form-label">Motif (optionnel)</label>
+      <textarea class="form-control" [(ngModel)]="rejectReason" rows="3" placeholder="Raison du refus..."></textarea>
+    </div>
+
+    <div *ngIf="actionError" class="alert alert-danger mt-2">{{ actionError }}</div>
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closePendingModal()" [disabled]="actionLoading">Annuler</button>
+    <button type="button" class="btn" [ngClass]="actionType === 'approve' ? 'btn-success' : 'btn-danger'"
+            (click)="confirmPendingAction()" [disabled]="actionLoading">
+      {{ actionLoading ? 'Traitement...' : 'Confirmer' }}
+    </button>
+  </div>
+</app-ui-modal>

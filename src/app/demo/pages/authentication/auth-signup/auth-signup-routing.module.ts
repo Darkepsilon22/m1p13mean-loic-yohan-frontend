@@ -9,7 +9,8 @@ const routes: Routes = [
     component: AuthSignupWrapperComponent,
     children: [
       { path: '', component: AuthSignupComponent, data: { signupType: 'acheteur' } },
-      { path: 'boutique', component: AuthSignupComponent, data: { signupType: 'boutique' } }
+      { path: 'boutique', component: AuthSignupComponent, data: { signupType: 'boutique' } },
+      { path: 'admin', component: AuthSignupComponent, data: { signupType: 'admin' } }
     ]
   }
 ];

@@ -47,11 +47,32 @@ const NavigationItems = [
         icon: 'feather icon-bar-chart-2'
       },
       {
+        id: 'boutique-list',
+        title: 'Liste des boutiques',
+        type: 'item',
+        url: '/boutique/list',
+        icon: 'feather icon-list'
+      },
+      {
         id: 'boutique-create',
         title: 'Créer une boutique',
         type: 'item',
         url: '/boutique/create',
         icon: 'feather icon-shopping-bag'
+      },
+      {
+        id: 'category-list',
+        title: 'Catégories',
+        type: 'item',
+        url: '/category/list',
+        icon: 'feather icon-tag'
+      },
+      {
+        id: 'category-create',
+        title: 'Nouvelle catégorie',
+        type: 'item',
+        url: '/category/create',
+        icon: 'feather icon-plus-square'
       },
       {
         id: 'page-layouts',

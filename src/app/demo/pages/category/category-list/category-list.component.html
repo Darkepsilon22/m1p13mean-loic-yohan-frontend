@@ -1,0 +1,88 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Catégories" [options]="false">
+      <div class="mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <label class="mb-0">Statut :</label>
+          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="activeFilter" (ngModelChange)="onFilterChange()">
+            <option value="">Toutes</option>
+            <option [value]="true">Actives</option>
+            <option [value]="false">Inactives</option>
+          </select>
+        </div>
+        <button *ngIf="isAdmin" class="btn btn-primary btn-sm" (click)="goToCreate()">Nouvelle catégorie</button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
+
+      <div *ngIf="!loading && categories.length === 0" class="text-muted py-4 text-center">
+        Aucune catégorie trouvée.
+      </div>
+
+      <div *ngIf="!loading && categories.length > 0" class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Slug</th>
+              <th>Parent</th>
+              <th>Ordre</th>
+              <th>Statut</th>
+              <th *ngIf="isAdmin"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of categories">
+              <td><strong>{{ c.name }}</strong></td>
+              <td><code>{{ c.slug || '—' }}</code></td>
+              <td>{{ getParentName(c) }}</td>
+              <td>{{ c.order ?? 0 }}</td>
+              <td>
+                <span class="badge" [ngClass]="c.isActive ? 'badge-success' : 'badge-secondary'">
+                  {{ c.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td *ngIf="isAdmin">
+                <button class="btn btn-sm btn-outline-primary mr-1" (click)="goToEdit(c._id)">Modifier</button>
+                <button class="btn btn-sm btn-outline-danger" (click)="openDeleteModal(c)">Supprimer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="pagination && pagination.pages > 1" class="d-flex justify-content-between align-items-center mt-3">
+        <small class="text-muted">
+          Page {{ pagination.page }} / {{ pagination.pages }} ({{ pagination.total }} catégorie(s))
+        </small>
+        <div>
+          <button class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
+          <button class="btn btn-sm btn-outline-secondary" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>
+
+<app-ui-modal #deleteModal dialogClass="modal-dialog-centered" [containerClick]="false">
+  <div class="app-modal-header">
+    <h5 class="modal-title">Supprimer la catégorie</h5>
+    <button type="button" class="close basic-close" aria-label="Close" (click)="closeDeleteModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="app-modal-body">
+    <p *ngIf="categoryToDelete">
+      Êtes-vous sûr de vouloir supprimer la catégorie <strong>{{ categoryToDelete.name }}</strong> ?
+      Cette action est irréversible. Les catégories avec sous-catégories ou utilisées par des boutiques ne peuvent pas être supprimées.
+    </p>
+    <div *ngIf="deleteError" class="alert alert-danger mt-2">{{ deleteError }}</div>
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="deleteLoading">Annuler</button>
+    <button type="button" class="btn btn-danger" (click)="confirmDelete()" [disabled]="deleteLoading">
+      {{ deleteLoading ? 'Suppression...' : 'Supprimer' }}
+    </button>
+  </div>
+</app-ui-modal>

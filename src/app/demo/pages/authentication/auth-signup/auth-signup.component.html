@@ -70,6 +70,18 @@
             </small>
           </div>
 
+          <div class="form-group" *ngIf="signupType === 'admin'">
+            <label class="form-label">Clé secrète admin</label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text"><i class="feather icon-shield"></i></span>
+              </div>
+              <input type="password" class="form-control" formControlName="adminSecretKey" placeholder="Clé secrète (voir config backend)">
+            </div>
+            <small class="text-danger" *ngIf="getError('adminSecretKey')">{{ getError('adminSecretKey') }}</small>
+            <small class="text-muted d-block mt-1">Valeur de <code>ADMIN_SECRET_KEY</code> dans le .env du backend (défaut : admin-secret-2024)</small>
+          </div>
+
           <div class="form-group" *ngIf="signupType === 'boutique'">
             <label class="form-label">Téléphone</label>
             <div class="input-group">
@@ -101,7 +113,7 @@
         </form>
 
         <div class="auth-links">
-          <p class="mb-1">Déjà un compte ? <a [routerLink]="signupType === 'boutique' ? ['/auth/signin/boutique'] : ['/auth/signin']" class="auth-link">{{ signupType === 'boutique' ? 'Se connecter (boutique)' : 'Se connecter' }}</a></p>
+          <p class="mb-1">Déjà un compte ? <a [routerLink]="signupType === 'admin' ? ['/auth/signin/admin'] : signupType === 'boutique' ? ['/auth/signin/boutique'] : ['/auth/signin']" class="auth-link">{{ signupType === 'admin' ? 'Se connecter (admin)' : signupType === 'boutique' ? 'Se connecter (boutique)' : 'Se connecter' }}</a></p>
           <p class="mb-0 mt-2"><a routerLink="/landing" class="auth-link auth-link--back">← Retour à l'accueil</a></p>
         </div>
       </div>

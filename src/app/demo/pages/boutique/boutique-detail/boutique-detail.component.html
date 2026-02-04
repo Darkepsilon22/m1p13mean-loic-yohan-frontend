@@ -1,0 +1,71 @@
+<div class="row">
+  <div class="col-sm-12">
+    <a routerLink="/boutique/list" class="btn btn-link mb-2">← Retour à la liste</a>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="loading" class="text-center py-5">Chargement...</div>
+
+    <app-card *ngIf="!loading && boutique" [cardTitle]="boutique.name" [options]="false">
+      <div class="row">
+        <div class="col-md-4 text-center mb-3">
+          <img *ngIf="boutique.logo" [src]="boutique.logo" alt="Logo" class="boutique-detail-logo img-fluid rounded">
+          <div *ngIf="!boutique.logo" class="bg-light rounded p-4 text-muted">Pas de logo</div>
+        </div>
+        <div class="col-md-8">
+          <p class="mb-1"><strong>Statut :</strong> <span class="badge" [ngClass]="getStatusClass(boutique.status)">{{ getStatusLabel(boutique.status) }}</span></p>
+          <p *ngIf="boutique.rejectionReason" class="mb-1 text-danger"><strong>Motif de refus :</strong> {{ boutique.rejectionReason }}</p>
+          <p class="mb-1"><strong>Propriétaire :</strong> <span *ngIf="boutique.userId">{{ boutique.userId.firstName }} {{ boutique.userId.lastName }} ({{ boutique.userId.email }})</span></p>
+          <p class="mb-1"><strong>Catégorie :</strong> <span *ngIf="boutique.categoryId">{{ boutique.categoryId.name }}</span></p>
+          <p class="mb-1"><strong>Description courte :</strong> {{ boutique.shortDescription || '—' }}</p>
+          <p class="mb-2"><strong>Description :</strong> {{ boutique.description || '—' }}</p>
+
+          <h6 class="mt-3">Contact</h6>
+          <p *ngIf="boutique.contact" class="mb-1">Tél : {{ boutique.contact.phone }} · Email : {{ boutique.contact.email }}</p>
+          <p *ngIf="boutique.contact?.website" class="mb-1">Site : {{ boutique.contact.website }}</p>
+
+          <h6 class="mt-3">Emplacement</h6>
+          <p *ngIf="boutique.location" class="mb-1">Étage {{ boutique.location.floor }} · Zone {{ boutique.location.zone }} · N° {{ boutique.location.number }}</p>
+
+          <h6 class="mt-3">Horaires</h6>
+          <div *ngIf="boutique.openingHours && boutique.openingHours.length" class="small">
+            <div *ngFor="let h of boutique.openingHours" class="mb-1">
+              {{ getDayLabel(h.day) }} : <span *ngIf="h.isClosed">Fermé</span><span *ngIf="!h.isClosed">{{ h.open }} – {{ h.close }}</span>
+            </div>
+          </div>
+
+          <div *ngIf="isAdmin" class="mt-4">
+            <button type="button" class="btn btn-primary" (click)="openStatusModal()">Changer le statut</button>
+          </div>
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal de validation du changement de statut -->
+<app-ui-modal #statusModal dialogClass="modal-dialog-centered" [containerClick]="false">
+  <div class="app-modal-header">
+    <h5 class="modal-title">Changer le statut de la boutique</h5>
+    <button type="button" class="close basic-close" aria-label="Close" (click)="closeModal()"><span aria-hidden="true">&times;</span></button>
+  </div>
+  <div class="app-modal-body">
+    <p class="text-muted small">Choisissez le nouveau statut et validez.</p>
+    <div class="form-group">
+      <label class="form-label">Nouveau statut</label>
+      <select class="form-control" [(ngModel)]="newStatus">
+        <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
+    <div class="form-group" *ngIf="newStatus === 'rejected'">
+      <label class="form-label">Motif de refus (optionnel)</label>
+      <textarea class="form-control" [(ngModel)]="rejectionReason" rows="3" placeholder="Raison du refus..."></textarea>
+    </div>
+    <div *ngIf="statusError" class="alert alert-danger mt-2">{{ statusError }}</div>
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="statusLoading">Annuler</button>
+    <button type="button" class="btn btn-primary" (click)="confirmStatusChange()" [disabled]="statusLoading || !newStatus">
+      {{ statusLoading ? 'Modification...' : 'Confirmer' }}
+    </button>
+  </div>
+</app-ui-modal>

@@ -14,8 +14,8 @@ export class AuthSignupComponent implements OnInit {
   loading = false;
   errorMessage = '';
   fieldErrors: Record<string, string> = {};
-  /** Type d'inscription : acheteur | boutique */
-  signupType: 'acheteur' | 'boutique' = 'acheteur';
+  /** Type d'inscription : acheteur | boutique | admin */
+  signupType: 'acheteur' | 'boutique' | 'admin' = 'acheteur';
 
   constructor(
     private fb: FormBuilder,
@@ -35,20 +35,26 @@ export class AuthSignupComponent implements OnInit {
         Validators.pattern(/[0-9]/)
       ]],
       role: ['acheteur', Validators.required],
-      phone: ['']
+      phone: [''],
+      adminSecretKey: ['']
     });
   }
 
   ngOnInit(): void {
-    this.signupType = (this.route.snapshot.data['signupType'] || 'acheteur') as 'acheteur' | 'boutique';
+    this.signupType = (this.route.snapshot.data['signupType'] || 'acheteur') as 'acheteur' | 'boutique' | 'admin';
     this.form.patchValue({ role: this.signupType });
+    if (this.signupType === 'admin') {
+      this.form.get('adminSecretKey')?.setValidators([Validators.required]);
+    }
   }
 
   getTitle(): string {
+    if (this.signupType === 'admin') return 'Créer un compte administrateur';
     return this.signupType === 'boutique' ? 'Créer un compte boutique' : 'Créer un compte acheteur';
   }
 
   getSubtitle(): string {
+    if (this.signupType === 'admin') return 'Saisissez la clé secrète admin pour créer un compte administrateur.';
     return this.signupType === 'boutique'
       ? 'Inscrivez votre boutique pour vendre sur la plateforme'
       : 'Rejoignez la plateforme pour acheter en toute simplicité';
@@ -76,11 +82,14 @@ export class AuthSignupComponent implements OnInit {
     if (value.phone?.trim()) {
       body.phone = value.phone.trim();
     }
+    if (this.signupType === 'admin' && value.adminSecretKey?.trim()) {
+      body.adminSecretKey = value.adminSecretKey.trim();
+    }
     this.loading = true;
     this.auth.register(body).subscribe({
       next: (res) => {
         this.loading = false;
-        const signinPath = this.signupType === 'boutique' ? ['/auth/signin/boutique'] : ['/auth/signin'];
+        const signinPath = this.signupType === 'admin' ? ['/auth/signin/admin'] : this.signupType === 'boutique' ? ['/auth/signin/boutique'] : ['/auth/signin'];
         this.router.navigate(signinPath, {
           queryParams: { registered: true, message: 'Vérifiez votre email pour activer votre compte.' }
         });

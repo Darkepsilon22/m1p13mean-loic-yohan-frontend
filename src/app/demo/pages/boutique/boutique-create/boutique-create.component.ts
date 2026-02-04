@@ -42,7 +42,7 @@ export class BoutiqueCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.categoryService.getAll({ active: true, limit: 200 }).subscribe({
+    this.categoryService.getAll({ active: true, limit: 100 }).subscribe({
       next: (res) => {
         this.loadingCategories = false;
         if (res.success && res.data?.categories) {

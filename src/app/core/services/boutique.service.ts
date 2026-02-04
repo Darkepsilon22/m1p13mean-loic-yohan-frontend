@@ -84,4 +84,17 @@ export class BoutiqueService {
       })
     );
   }
+
+  patchStatus(id: string, status: string, rejectionReason?: string): Observable<BoutiqueResponse> {
+    const body: { status: string; rejectionReason?: string } = { status };
+    if (rejectionReason != null && rejectionReason !== '') body.rejectionReason = rejectionReason;
+    return this.http.patch<BoutiqueResponse>(`${API}/boutiques/${id}/status`, body).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object' && 'message' in err.error) {
+          return throwError(() => err.error as ApiErrorBody);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau', errors: [] } as ApiErrorBody));
+      })
+    );
+  }
 }
