@@ -31,12 +31,12 @@
                 Votre compte boutique est en attente d'approbation par l'administrateur.
               </div>
 
-              <div class="d-flex flex-column gap-2 mt-4">
-                <button class="btn btn-primary btn-block" (click)="goToLogin()">
+              <div class="d-flex flex-column gap-2 mt-4 auth-verify-buttons">
+                <button class="btn btn-primary btn-auth-sm" (click)="goToLogin()">
                   <i class="feather icon-log-in mr-2"></i>
                   Se connecter
                 </button>
-                <button class="btn btn-outline-secondary btn-block mt-2" (click)="goToHome()">
+                <button class="btn btn-outline-secondary btn-auth-sm mt-2" (click)="goToHome()">
                   <i class="feather icon-home mr-2"></i>
                   Retour à l'accueil
                 </button>
@@ -51,12 +51,12 @@
               <h5 class="text-danger mb-3">Erreur de vérification</h5>
               <p class="text-muted mb-4">{{ message }}</p>
 
-              <div class="d-flex flex-column gap-2 mt-4">
-                <button class="btn btn-primary btn-block" (click)="goToLogin()">
+              <div class="d-flex flex-column gap-2 mt-4 auth-verify-buttons">
+                <button class="btn btn-primary btn-auth-sm" (click)="goToLogin()">
                   <i class="feather icon-log-in mr-2"></i>
                   Aller à la connexion
                 </button>
-                <button class="btn btn-outline-secondary btn-block mt-2" (click)="goToHome()">
+                <button class="btn btn-outline-secondary btn-auth-sm mt-2" (click)="goToHome()">
                   <i class="feather icon-home mr-2"></i>
                   Retour à l'accueil
                 </button>

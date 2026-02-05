@@ -1,5 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {NextConfig} from '../../../../app-config';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-nav-bar',
@@ -11,18 +12,33 @@ export class NavBarComponent implements OnInit {
   public menuClass: boolean;
   public collapseStyle: string;
   public windowWidth: number;
+  currentUser: any = null;
 
   @Output() onNavCollapse = new EventEmitter();
   @Output() onNavHeaderMobCollapse = new EventEmitter();
 
-  constructor() {
+  constructor(
+    private auth: AuthService
+  ) {
     this.nextConfig = NextConfig.config;
     this.menuClass = false;
     this.collapseStyle = 'none';
     this.windowWidth = window.innerWidth;
   }
 
-  ngOnInit() { }
+  ngOnInit() {
+    this.currentUser = this.auth.getStoredUser();
+  }
+
+  getRoleLabel(): string {
+    if (!this.currentUser?.role) return '';
+    const labels: Record<string, string> = {
+      admin: 'Administrateur',
+      boutique: 'Boutique',
+      acheteur: 'Acheteur'
+    };
+    return labels[this.currentUser.role] || this.currentUser.role;
+  }
 
   toggleMobOption() {
     this.menuClass = !this.menuClass;

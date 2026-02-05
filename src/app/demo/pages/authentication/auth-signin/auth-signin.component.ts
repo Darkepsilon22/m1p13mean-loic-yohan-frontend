@@ -22,8 +22,10 @@ export class AuthSigninComponent implements OnInit {
   showOtpStep = false;
   loginEmail = '';
   registeredMessage = '';
+  resetSuccessMessage = '';
   /** Type de connexion : acheteur | boutique | admin */
   loginType: 'acheteur' | 'boutique' | 'admin' = 'acheteur';
+  hidePassword = true;
 
   constructor(
     private fb: FormBuilder,
@@ -46,6 +48,9 @@ export class AuthSigninComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['registered'] === 'true' && params['message']) {
         this.registeredMessage = params['message'];
+      }
+      if (params['reset'] === 'success') {
+        this.resetSuccessMessage = 'Mot de passe réinitialisé. Vous pouvez vous connecter.';
       }
     });
   }

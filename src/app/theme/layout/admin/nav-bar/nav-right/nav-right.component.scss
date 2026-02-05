@@ -2,6 +2,23 @@
   text-decoration: none;
 }
 
+.nav-role-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  color: #555;
+}
+
+.pro-head-role {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
 .nav-avatar {
   width: 32px;
   height: 32px;

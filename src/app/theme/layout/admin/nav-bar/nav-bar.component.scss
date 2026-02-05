@@ -1,3 +1,17 @@
+.header-center {
+  display: flex !important;
+  flex: 1;
+  min-width: 0;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-role-badge {
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
 .header-right-wrap {
   display: flex !important;
   flex: 1;

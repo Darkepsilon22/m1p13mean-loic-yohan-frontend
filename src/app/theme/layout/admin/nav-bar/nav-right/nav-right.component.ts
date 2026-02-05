@@ -43,6 +43,16 @@ export class NavRightComponent implements OnInit {
     return this.currentUser?.role === 'admin';
   }
 
+  getRoleLabel(): string {
+    if (!this.currentUser?.role) return '';
+    const labels: Record<string, string> = {
+      admin: 'Administrateur',
+      boutique: 'Boutique',
+      acheteur: 'Acheteur'
+    };
+    return labels[this.currentUser.role] || this.currentUser.role;
+  }
+
   goToProfile(): void {
     this.router.navigate(['/auth/change-password']);
   }

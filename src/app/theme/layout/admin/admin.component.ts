@@ -1,6 +1,7 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { NextConfig } from '../../../app-config';
 import { Location } from '@angular/common';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-admin',
@@ -12,8 +13,10 @@ export class AdminComponent implements OnInit {
   public navCollapsed: boolean;
   public navCollapsedMob: boolean;
   public windowWidth: number;
+  /** Rôle pour la couleur de la sidebar: acheteur = bleu, admin = noir, boutique = vert */
+  public sidebarRole: 'acheteur' | 'admin' | 'boutique' = 'acheteur';
 
-  constructor(private zone: NgZone, private location: Location) {
+  constructor(private zone: NgZone, private location: Location, private auth: AuthService) {
     this.nextConfig = NextConfig.config;
     let currentURL = this.location.path();
     const baseHerf = this.location['_baseHref'];
@@ -35,6 +38,10 @@ export class AdminComponent implements OnInit {
   }
 
   ngOnInit() {
+    const user = this.auth.getStoredUser();
+    if (user?.role === 'admin' || user?.role === 'boutique' || user?.role === 'acheteur') {
+      this.sidebarRole = user.role;
+    }
     if (this.windowWidth < 992) {
       this.nextConfig.layout = 'vertical';
       setTimeout(() => {

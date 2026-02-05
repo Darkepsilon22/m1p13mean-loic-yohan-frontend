@@ -1,0 +1,103 @@
+/* Sidebar couleur selon le rôle : Acheteur = Bleu roi, Admin = Noir, Boutique = Vert */
+
+.pcoded-navbar.sidebar-acheteur {
+  background: #1e3a8a !important;
+  color: rgba(255, 255, 255, 0.9);
+
+  .header-logo {
+    background: #1e3a8a !important;
+  }
+
+  .pcoded-inner-navbar li > a,
+  .pcoded-inner-navbar a,
+  .pcoded-menu-caption {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .pcoded-inner-navbar li > a:hover,
+  .pcoded-inner-navbar li.pcoded-trigger > a,
+  .pcoded-inner-navbar li.active > a,
+  .pcoded-inner-navbar li:hover > a {
+    background: #1e40af !important;
+    color: #fff !important;
+  }
+
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu li > a:hover,
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu li.active > a {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+  }
+
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu:after,
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu li:after {
+    background: rgba(255, 255, 255, 0.25) !important;
+  }
+}
+
+.pcoded-navbar.sidebar-admin {
+  background: #212121 !important;
+  color: rgba(255, 255, 255, 0.9);
+
+  .header-logo {
+    background: #212121 !important;
+  }
+
+  .pcoded-inner-navbar li > a,
+  .pcoded-inner-navbar a,
+  .pcoded-menu-caption {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .pcoded-inner-navbar li > a:hover,
+  .pcoded-inner-navbar li.pcoded-trigger > a,
+  .pcoded-inner-navbar li.active > a,
+  .pcoded-inner-navbar li:hover > a {
+    background: #000 !important;
+    color: #fff !important;
+  }
+
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu li > a:hover,
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu li.active > a {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #fff !important;
+  }
+
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu:after,
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu li:after {
+    background: rgba(255, 255, 255, 0.2) !important;
+  }
+}
+
+.pcoded-navbar.sidebar-boutique {
+  background: #2e7d32 !important;
+  color: rgba(255, 255, 255, 0.9);
+
+  .header-logo {
+    background: #2e7d32 !important;
+  }
+
+  .pcoded-inner-navbar li > a,
+  .pcoded-inner-navbar a,
+  .pcoded-menu-caption {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .pcoded-inner-navbar li > a:hover,
+  .pcoded-inner-navbar li.pcoded-trigger > a,
+  .pcoded-inner-navbar li.active > a,
+  .pcoded-inner-navbar li:hover > a {
+    background: #1b5e20 !important;
+    color: #fff !important;
+  }
+
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu li > a:hover,
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu li.active > a {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+  }
+
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu:after,
+  .pcoded-inner-navbar li.pcoded-hasmenu .pcoded-submenu li:after {
+    background: rgba(255, 255, 255, 0.25) !important;
+  }
+}
