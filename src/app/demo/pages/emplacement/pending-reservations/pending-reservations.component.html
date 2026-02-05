@@ -1,0 +1,278 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Demandes de réservation en attente" [options]="false">
+      
+      <!-- Statistiques rapides -->
+      <div class="row mb-4" *ngIf="!loading">
+        <div class="col-md-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body">
+              <h6 class="text-white mb-3">Total en attente</h6>
+              <h3 class="text-white mb-0">{{ pendingReservations.length }}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-info text-white">
+            <div class="card-body">
+              <h6 class="text-white mb-3">Aujourd'hui</h6>
+              <h3 class="text-white mb-0">{{ getTodayCount() }}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-warning text-white">
+            <div class="card-body">
+              <h6 class="text-white mb-3">Plus de 24h</h6>
+              <h3 class="text-white mb-0">{{ getOldCount() }}</h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-success text-white">
+            <div class="card-body">
+              <h6 class="text-white mb-3">Validées (7j)</h6>
+              <h3 class="text-white mb-0">{{ validatedThisWeek }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Erreur globale -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ errorMessage }}
+        <button type="button" class="close" (click)="errorMessage = ''" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Message de succès -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ successMessage }}
+        <button type="button" class="close" (click)="successMessage = ''" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- Chargement -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+          <span class="sr-only">Chargement...</span>
+        </div>
+        <p class="mt-3 text-muted">Chargement des demandes...</p>
+      </div>
+
+      <!-- Aucune demande -->
+      <div *ngIf="!loading && pendingReservations.length === 0" class="text-center py-5">
+        <i class="feather icon-check-circle" style="font-size: 4rem; color: #28a745;"></i>
+        <h4 class="mt-3">Aucune demande en attente</h4>
+        <p class="text-muted">Toutes les demandes de réservation ont été traitées.</p>
+      </div>
+
+      <!-- Liste des demandes -->
+      <div *ngIf="!loading && pendingReservations.length > 0">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Emplacement</th>
+                <th>Demandeur</th>
+                <th>Date de demande</th>
+                <th>Détails</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let reservation of pendingReservations" [class.table-warning]="isOld(reservation.requestedAt)">
+                <td>
+                  <div>
+                    <strong>{{ reservation.boutique?.name || 'N/A' }}</strong>
+                    <br>
+                    <small class="text-muted">
+                      Étage {{ reservation.boutique?.location?.floor || 0 }} - 
+                      Zone {{ reservation.boutique?.location?.zone }} - 
+                      N° {{ reservation.boutique?.location?.number }}
+                    </small>
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    <strong>{{ getUserName(reservation.user) }}</strong>
+                    <br>
+                    <small class="text-muted">{{ reservation.user?.email }}</small>
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    {{ reservation.requestedAt | date:'short' }}
+                    <br>
+                    <small class="text-muted" [class.text-warning]="isOld(reservation.requestedAt)">
+                      {{ getTimeAgo(reservation.requestedAt) }}
+                    </small>
+                  </div>
+                </td>
+                <td>
+                  <ul class="list-unstyled mb-0 small">
+                    <li *ngIf="reservation.boutique?.surface">
+                      <i class="feather icon-maximize mr-1"></i> {{ reservation.boutique.surface }} m²
+                    </li>
+                    <li *ngIf="reservation.price">
+                      <i class="feather icon-dollar-sign mr-1"></i> {{ formatPrice(reservation.price) }}/mois
+                    </li>
+                    <li>
+                      <i class="feather icon-calendar mr-1"></i> Réservé le {{ reservation.createdAt | date:'short' }}
+                    </li>
+                  </ul>
+                </td>
+                <td>
+                  <div class="btn-group-vertical" role="group">
+                    <button 
+                      class="btn btn-sm btn-success mb-1" 
+                      (click)="openValidateModal(reservation)"
+                      [disabled]="processingId === reservation._id">
+                      <i class="feather icon-check mr-1"></i>
+                      {{ processingId === reservation._id ? 'Traitement...' : 'Valider' }}
+                    </button>
+                    <button 
+                      class="btn btn-sm btn-danger" 
+                      (click)="openRejectModal(reservation)"
+                      [disabled]="processingId === reservation._id">
+                      <i class="feather icon-x mr-1"></i> Refuser
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal de validation -->
+<app-ui-modal #validateModal dialogClass="modal-dialog-centered" [containerClick]="false">
+  <div class="app-modal-header">
+    <h5 class="modal-title">Valider la réservation</h5>
+    <button type="button" class="close basic-close" aria-label="Close" (click)="closeValidateModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="app-modal-body" *ngIf="selectedReservation">
+    <div class="alert alert-info">
+      <i class="feather icon-info mr-2"></i>
+      Vous êtes sur le point de valider cette réservation.
+    </div>
+
+    <h6>Détails de la réservation</h6>
+    <table class="table table-sm table-bordered">
+      <tr>
+        <td width="40%"><strong>Emplacement</strong></td>
+        <td>{{ selectedReservation.boutique?.name }}</td>
+      </tr>
+      <tr>
+        <td><strong>Localisation</strong></td>
+        <td>
+          Étage {{ selectedReservation.boutique?.location?.floor || 0 }} - 
+          Zone {{ selectedReservation.boutique?.location?.zone }} - 
+          N° {{ selectedReservation.boutique?.location?.number }}
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Demandeur</strong></td>
+        <td>{{ getUserName(selectedReservation.user) }}</td>
+      </tr>
+      <tr>
+        <td><strong>Email</strong></td>
+        <td>{{ selectedReservation.user?.email }}</td>
+      </tr>
+      <tr *ngIf="selectedReservation.boutique?.surface">
+        <td><strong>Surface</strong></td>
+        <td>{{ selectedReservation.boutique.surface }} m²</td>
+      </tr>
+      <tr *ngIf="selectedReservation.price">
+        <td><strong>Prix mensuel</strong></td>
+        <td>{{ formatPrice(selectedReservation.price) }}</td>
+      </tr>
+    </table>
+
+    <p class="text-success">
+      <strong>En validant :</strong> L'emplacement sera définitivement attribué à cet utilisateur.
+    </p>
+
+    <div *ngIf="modalError" class="alert alert-danger mt-3">{{ modalError }}</div>
+    <div *ngIf="modalSuccess" class="alert alert-success mt-3">{{ modalSuccess }}</div>
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeValidateModal()" [disabled]="modalLoading">
+      Annuler
+    </button>
+    <button type="button" class="btn btn-success" (click)="confirmValidate()" [disabled]="modalLoading || modalSuccess">
+      <i class="feather icon-check mr-1"></i>
+      {{ modalLoading ? 'Validation...' : 'Confirmer la validation' }}
+    </button>
+  </div>
+</app-ui-modal>
+
+<!-- Modal de refus -->
+<app-ui-modal #rejectModal dialogClass="modal-dialog-centered" [containerClick]="false">
+  <div class="app-modal-header">
+    <h5 class="modal-title">Refuser la réservation</h5>
+    <button type="button" class="close basic-close" aria-label="Close" (click)="closeRejectModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="app-modal-body" *ngIf="selectedReservation">
+    <div class="alert alert-warning">
+      <i class="feather icon-alert-triangle mr-2"></i>
+      Vous êtes sur le point de refuser cette réservation.
+    </div>
+
+    <h6>Détails de la réservation</h6>
+    <table class="table table-sm table-bordered mb-3">
+      <tr>
+        <td width="40%"><strong>Emplacement</strong></td>
+        <td>{{ selectedReservation.boutique?.name }}</td>
+      </tr>
+      <tr>
+        <td><strong>Demandeur</strong></td>
+        <td>{{ getUserName(selectedReservation.user) }}</td>
+      </tr>
+    </table>
+
+    <div class="form-group">
+      <label for="rejectionReason">
+        Motif du refus <span class="text-danger">*</span>
+      </label>
+      <textarea 
+        id="rejectionReason"
+        class="form-control" 
+        rows="4" 
+        [(ngModel)]="rejectionReason"
+        placeholder="Expliquez la raison du refus (minimum 10 caractères)"
+        [class.is-invalid]="rejectionReasonError"
+        maxlength="500">
+      </textarea>
+      <small class="form-text text-muted">{{ rejectionReason.length }}/500 caractères</small>
+      <div class="invalid-feedback" *ngIf="rejectionReasonError">
+        {{ rejectionReasonError }}
+      </div>
+    </div>
+
+    <p class="text-danger">
+      <strong>En refusant :</strong> L'emplacement sera libéré et l'utilisateur sera notifié du refus.
+    </p>
+
+    <div *ngIf="modalError" class="alert alert-danger mt-3">{{ modalError }}</div>
+    <div *ngIf="modalSuccess" class="alert alert-success mt-3">{{ modalSuccess }}</div>
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeRejectModal()" [disabled]="modalLoading">
+      Annuler
+    </button>
+    <button type="button" class="btn btn-danger" (click)="confirmReject()" [disabled]="modalLoading || modalSuccess">
+      <i class="feather icon-x mr-1"></i>
+      {{ modalLoading ? 'Refus...' : 'Confirmer le refus' }}
+    </button>
+  </div>
+</app-ui-modal>

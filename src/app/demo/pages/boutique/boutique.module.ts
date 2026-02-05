@@ -1,27 +1,31 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { BoutiqueRoutingModule } from './boutique-routing.module';
-import { BoutiqueCreateComponent } from './boutique-create/boutique-create.component';
-import { BoutiqueListComponent } from './boutique-list/boutique-list.component';
-import { BoutiqueDetailComponent } from './boutique-detail/boutique-detail.component';
 import { SharedModule } from '../../../theme/shared/shared.module';
+
+// Composants existants
+import { BoutiqueCreateComponent } from './boutique-create/boutique-create.component';
+import { BoutiqueDetailComponent } from './boutique-detail/boutique-detail.component';
+import { BoutiqueListComponent } from './boutique-list/boutique-list.component';
+
+// NOUVEAU COMPOSANT
+import { BoutiqueEditComponent } from './boutique-edit/boutique-edit.component';
 
 @NgModule({
   declarations: [
     BoutiqueCreateComponent,
+    BoutiqueDetailComponent,
     BoutiqueListComponent,
-    BoutiqueDetailComponent
+    BoutiqueEditComponent  // AJOUTEZ ICI
   ],
   imports: [
     CommonModule,
-    RouterModule,
-    ReactiveFormsModule,
-    FormsModule,
+    BoutiqueRoutingModule,
     SharedModule,
-    BoutiqueRoutingModule
+    ReactiveFormsModule,
+    FormsModule
   ]
 })
 export class BoutiqueModule { }

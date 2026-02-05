@@ -1,0 +1,60 @@
+// Styles pour le composant pending-reservations
+
+.table-warning {
+  background-color: #fff3cd;
+}
+
+.card-body {
+  h6 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  h3 {
+    font-size: 2rem;
+    font-weight: 600;
+  }
+}
+
+.btn-group-vertical {
+  .btn {
+    border-radius: 0.25rem !important;
+  }
+}
+
+// Amélioration des badges
+.badge-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+// Animation pour le spinner
+.spinner-border {
+  animation: spinner-border 0.75s linear infinite;
+}
+
+@keyframes spinner-border {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Hover sur les lignes du tableau
+tbody tr {
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+  }
+}
+
+// Style pour les alertes
+.alert {
+  border-radius: 0.25rem;
+  
+  i {
+    vertical-align: middle;
+  }
+}

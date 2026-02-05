@@ -1,0 +1,35 @@
+.card.border {
+  transition: box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+/* Forcer le texte en noir dans les cards d’emplacements */
+.card {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.card-title {
+  color: #000000;
+}
+
+.card-body p,
+.card-body li,
+.card-body span,
+.card-body small,
+.card-body label {
+  color: #000000 !important;
+}
+
+/* Icônes */
+.card-body i {
+  color: #000000;
+}
+
+/* Équipements (badges) */
+.card-body .badge-light {
+  background-color: #f1f1f1;
+  color: #000000;
+}

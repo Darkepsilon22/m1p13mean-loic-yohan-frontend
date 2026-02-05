@@ -1,0 +1,131 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Emplacements disponibles" [options]="false">
+      <!-- Filtres -->
+      <div class="row mb-4">
+        <div class="col-md-3 form-group">
+          <label>Étage</label>
+          <select class="form-control" [(ngModel)]="filterFloor" (ngModelChange)="onFilterChange()">
+            <option [ngValue]="null">Tous</option>
+            <option [ngValue]="0">Rez-de-chaussée</option>
+            <option [ngValue]="1">1er étage</option>
+            <option [ngValue]="2">2ème étage</option>
+            <option [ngValue]="3">3ème étage</option>
+          </select>
+        </div>
+        <div class="col-md-3 form-group">
+          <label>Zone</label>
+          <input type="text" class="form-control" [(ngModel)]="filterZone" (ngModelChange)="onFilterChange()" placeholder="Ex: A, B, C...">
+        </div>
+        <div class="col-md-2 form-group">
+          <label>Prix min (MGA)</label>
+          <input type="number" class="form-control" [(ngModel)]="filterMinPrice" (ngModelChange)="onFilterChange()" placeholder="Min">
+        </div>
+        <div class="col-md-2 form-group">
+          <label>Prix max (MGA)</label>
+          <input type="number" class="form-control" [(ngModel)]="filterMaxPrice" (ngModelChange)="onFilterChange()" placeholder="Max">
+        </div>
+        <div class="col-md-2 form-group d-flex align-items-end">
+          <button class="btn btn-outline-secondary btn-block" (click)="clearFilters()">Réinitialiser</button>
+        </div>
+      </div>
+
+      <!-- Erreur -->
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+      <!-- Chargement -->
+      <div *ngIf="loading" class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Chargement...</span>
+        </div>
+      </div>
+
+      <!-- Aucun résultat -->
+      <div *ngIf="!loading && emplacements.length === 0" class="text-center py-4 text-muted">
+        <i class="feather icon-map-pin" style="font-size: 3rem;"></i>
+        <p class="mt-3">Aucun emplacement disponible pour le moment.</p>
+      </div>
+
+      <!-- Liste des emplacements -->
+      <div *ngIf="!loading && emplacements.length > 0" class="row">
+        <div class="col-md-6 col-lg-4" *ngFor="let emp of emplacements">
+          <div class="card border mb-3">
+            <div class="card-body">
+              <h5 class="card-title">{{ emp.name }}</h5>
+              <p class="text-muted small mb-2">{{ emp.shortDescription || emp.description | slice:0:100 }}...</p>
+
+              <div class="mb-2">
+                <span class="badge badge-info mr-1">Étage {{ emp.location?.floor || 0 }}</span>
+                <span class="badge badge-secondary mr-1" *ngIf="emp.location?.zone">Zone {{ emp.location.zone }}</span>
+                <span class="badge badge-light" *ngIf="emp.location?.number">N° {{ emp.location.number }}</span>
+              </div>
+
+              <ul class="list-unstyled small mb-3">
+                <li *ngIf="emp.surface"><i class="feather icon-maximize mr-1"></i> {{ emp.surface }} m²</li>
+                <li *ngIf="emp.price"><i class="feather icon-dollar-sign mr-1"></i> {{ formatPrice(emp.price) }} / mois</li>
+                <li *ngIf="emp.categoryId"><i class="feather icon-tag mr-1"></i> {{ emp.categoryId.name }}</li>
+              </ul>
+
+              <div *ngIf="emp.amenities && emp.amenities.length > 0" class="mb-3">
+                <small class="text-muted">Équipements:</small>
+                <div>
+                  <span class="badge badge-light mr-1 mb-1" *ngFor="let a of emp.amenities">{{ a }}</span>
+                </div>
+              </div>
+
+              <button class="btn btn-primary btn-block" (click)="openReserveModal(emp)">
+                <i class="feather icon-bookmark mr-1"></i> Réserver
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal de réservation -->
+<app-ui-modal #reserveModal dialogClass="modal-dialog-centered" [containerClick]="false">
+  <div class="app-modal-header">
+    <h5 class="modal-title">Réserver cet emplacement</h5>
+    <button type="button" class="close basic-close" aria-label="Close" (click)="closeReserveModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="app-modal-body">
+    <div *ngIf="selectedEmplacement">
+      <h6>{{ selectedEmplacement.name }}</h6>
+      <p class="text-muted">{{ selectedEmplacement.shortDescription || selectedEmplacement.description }}</p>
+
+      <table class="table table-sm">
+        <tr>
+          <td><strong>Emplacement</strong></td>
+          <td>Étage {{ selectedEmplacement.location?.floor || 0 }}, Zone {{ selectedEmplacement.location?.zone }}, N° {{ selectedEmplacement.location?.number }}</td>
+        </tr>
+        <tr *ngIf="selectedEmplacement.surface">
+          <td><strong>Surface</strong></td>
+          <td>{{ selectedEmplacement.surface }} m²</td>
+        </tr>
+        <tr *ngIf="selectedEmplacement.price">
+          <td><strong>Prix mensuel</strong></td>
+          <td>{{ formatPrice(selectedEmplacement.price) }}</td>
+        </tr>
+      </table>
+
+      <div class="alert alert-info">
+        <i class="feather icon-info mr-1"></i>
+        <strong>Information:</strong> En cliquant sur "Confirmer", vous réservez temporairement cet emplacement pendant <strong>15 minutes</strong>.
+        Vous devrez ensuite confirmer votre demande pour qu'elle soit soumise à validation par l'administration.
+      </div>
+
+      <div *ngIf="reserveError" class="alert alert-danger">{{ reserveError }}</div>
+      <div *ngIf="reserveSuccess" class="alert alert-success">{{ reserveSuccess }}</div>
+    </div>
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeReserveModal()" [disabled]="reserveLoading">Annuler</button>
+    <button type="button" class="btn btn-primary" (click)="confirmReserve()" [disabled]="reserveLoading || reserveSuccess">
+      {{ reserveLoading ? 'Réservation...' : 'Confirmer la réservation' }}
+    </button>
+  </div>
+</app-ui-modal>

@@ -25,7 +25,7 @@ import { ConfigurationComponent } from './theme/layout/admin/configuration/confi
 import { ToggleFullScreenDirective } from './theme/shared/full-screen/toggle-full-screen';
 
 /* Menu Items */
-import { NavigationItem } from './theme/layout/admin/navigation/navigation';
+import { Navigation } from './theme/layout/admin/navigation/navigation';
 import { NgbDropdownModule, NgbNavModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
@@ -57,7 +57,7 @@ import { NgbDropdownModule, NgbNavModule, NgbTooltipModule } from '@ng-bootstrap
     NgbNavModule
   ],
   providers: [
-    NavigationItem,
+    Navigation,
     { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]

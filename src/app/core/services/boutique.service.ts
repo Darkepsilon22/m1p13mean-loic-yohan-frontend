@@ -32,6 +32,24 @@ export interface CreateBoutiqueBody {
   userId?: string;
 }
 
+export interface UpdateBoutiqueBody {
+  name?: string;
+  description?: string;
+  shortDescription?: string;
+  categoryId?: string;
+  logo?: string;
+  coverImage?: string;
+  photos?: string[];
+  contact?: {
+    phone?: string;
+    email?: string;
+    website?: string;
+    facebook?: string;
+    instagram?: string;
+  };
+  openingHours?: Array<{ day: number; open: string | null; close: string | null; isClosed: boolean }>;
+}
+
 export interface BoutiqueResponse {
   success: boolean;
   message?: string;
@@ -85,10 +103,149 @@ export class BoutiqueService {
     );
   }
 
+  /**
+   * NOUVEAU: Mettre à jour une boutique (full update)
+   * @param id - ID de la boutique
+   * @param body - Données à mettre à jour
+   */
+  update(id: string, body: UpdateBoutiqueBody): Observable<BoutiqueResponse> {
+    return this.http.put<BoutiqueResponse>(`${API}/boutiques/${id}`, body).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object' && 'message' in err.error) {
+          return throwError(() => err.error as ApiErrorBody);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau', errors: [] } as ApiErrorBody));
+      })
+    );
+  }
+
   patchStatus(id: string, status: string, rejectionReason?: string): Observable<BoutiqueResponse> {
     const body: { status: string; rejectionReason?: string } = { status };
     if (rejectionReason != null && rejectionReason !== '') body.rejectionReason = rejectionReason;
     return this.http.patch<BoutiqueResponse>(`${API}/boutiques/${id}/status`, body).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object' && 'message' in err.error) {
+          return throwError(() => err.error as ApiErrorBody);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau', errors: [] } as ApiErrorBody));
+      })
+    );
+  }
+
+  // ==================== EMPLACEMENTS ====================
+
+  getAvailableEmplacements(params?: { floor?: number; zone?: string; minPrice?: number; maxPrice?: number; minSurface?: number }): Observable<{ success: boolean; count: number; data: { boutiques: any[] } }> {
+    let query = '';
+    if (params) {
+      const q = new URLSearchParams();
+      if (params.floor != null) q.set('floor', String(params.floor));
+      if (params.zone) q.set('zone', params.zone);
+      if (params.minPrice != null) q.set('minPrice', String(params.minPrice));
+      if (params.maxPrice != null) q.set('maxPrice', String(params.maxPrice));
+      if (params.minSurface != null) q.set('minSurface', String(params.minSurface));
+      query = '?' + q.toString();
+    }
+    return this.http.get<{ success: boolean; count: number; data: { boutiques: any[] } }>(`${API}/boutiques/emplacements/available${query}`).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object') {
+          return throwError(() => err.error);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau' }));
+      })
+    );
+  }
+
+  reserveEmplacement(boutiqueId: string): Observable<BoutiqueResponse> {
+    return this.http.post<BoutiqueResponse>(`${API}/boutiques/${boutiqueId}/reserve`, {}).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object' && 'message' in err.error) {
+          return throwError(() => err.error as ApiErrorBody);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau', errors: [] } as ApiErrorBody));
+      })
+    );
+  }
+
+  confirmReservation(boutiqueId: string): Observable<BoutiqueResponse> {
+    return this.http.post<BoutiqueResponse>(`${API}/boutiques/${boutiqueId}/confirm`, {}).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object' && 'message' in err.error) {
+          return throwError(() => err.error as ApiErrorBody);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau', errors: [] } as ApiErrorBody));
+      })
+    );
+  }
+
+  cancelReservation(boutiqueId: string, reason?: string): Observable<BoutiqueResponse> {
+    const body = reason ? { reason } : {};
+    return this.http.post<BoutiqueResponse>(`${API}/boutiques/${boutiqueId}/cancel`, body).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object' && 'message' in err.error) {
+          return throwError(() => err.error as ApiErrorBody);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau', errors: [] } as ApiErrorBody));
+      })
+    );
+  }
+
+  getMyReservation(): Observable<{ success: boolean; data: { reservation: any; boutique: any } | null }> {
+    return this.http.get<{ success: boolean; data: { reservation: any; boutique: any } | null }>(`${API}/boutiques/my/reservation`).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object') {
+          return throwError(() => err.error);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau' }));
+      })
+    );
+  }
+
+  getMyReservationHistory(): Observable<{ success: boolean; data: { reservations: any[] } }> {
+    return this.http.get<{ success: boolean; data: { reservations: any[] } }>(`${API}/boutiques/my/history`).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object') {
+          return throwError(() => err.error);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau' }));
+      })
+    );
+  }
+
+  // ==================== ADMIN RESERVATION MANAGEMENT ====================
+
+  /**
+   * Obtenir toutes les demandes de réservation en attente (Admin)
+   */
+  getPendingReservations(): Observable<{ success: boolean; count: number; data: any[] }> {
+    return this.http.get<{ success: boolean; count: number; data: any[] }>(`${API}/boutiques/reservations/pending`).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object') {
+          return throwError(() => err.error);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau' }));
+      })
+    );
+  }
+
+  /**
+   * Valider une réservation (Admin)
+   */
+  validateReservation(boutiqueId: string): Observable<BoutiqueResponse> {
+    return this.http.post<BoutiqueResponse>(`${API}/boutiques/${boutiqueId}/validate`, {}).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object' && 'message' in err.error) {
+          return throwError(() => err.error as ApiErrorBody);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau', errors: [] } as ApiErrorBody));
+      })
+    );
+  }
+
+  /**
+   * Refuser une réservation (Admin)
+   */
+  rejectReservation(boutiqueId: string, reason: string): Observable<BoutiqueResponse> {
+    return this.http.post<BoutiqueResponse>(`${API}/boutiques/${boutiqueId}/reject`, { reason }).pipe(
       catchError(err => {
         if (err.error && typeof err.error === 'object' && 'message' in err.error) {
           return throwError(() => err.error as ApiErrorBody);

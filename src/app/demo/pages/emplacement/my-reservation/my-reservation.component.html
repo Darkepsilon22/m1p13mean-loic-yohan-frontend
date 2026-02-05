@@ -1,0 +1,281 @@
+<div class="row">
+  <div class="col-sm-12">
+    <!-- Réservation active -->
+    <app-card cardTitle="Ma réservation actuelle" [options]="false">
+      <!-- Erreur -->
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+      <!-- Chargement -->
+      <div *ngIf="loading" class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Chargement...</span>
+        </div>
+      </div>
+
+      <!-- Pas de réservation -->
+      <div *ngIf="!loading && !reservation" class="text-center py-4">
+        <i class="feather icon-inbox" style="font-size: 3rem; color: #ccc;"></i>
+        <p class="mt-3 text-muted">Vous n'avez aucune réservation active.</p>
+        <a routerLink="/emplacement/available" class="btn btn-primary">
+          <i class="feather icon-search mr-1"></i> Voir les emplacements disponibles
+        </a>
+      </div>
+
+      <!-- Réservation existante -->
+      <div *ngIf="!loading && reservation && boutique">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h4>{{ boutique.name }}</h4>
+                <p class="text-muted mb-0">{{ boutique.shortDescription || boutique.description }}</p>
+              </div>
+              
+              <!-- Bouton Modifier la boutique (visible uniquement pour réservation confirmée) -->
+              <div *ngIf="reservation.status === 'confirmee'">
+                <button class="btn btn-outline-primary" (click)="goToEditBoutique()">
+                  <i class="feather icon-edit mr-1"></i> Modifier ma boutique
+                </button>
+              </div>
+            </div>
+
+            <table class="table table-bordered">
+              <tr>
+                <td width="40%"><strong>Statut de la réservation</strong></td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusClass(reservation.status)">
+                    {{ getStatusLabel(reservation.status) }}
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Emplacement</strong></td>
+                <td>Étage {{ boutique.location?.floor || 0 }}, Zone {{ boutique.location?.zone }}, N° {{ boutique.location?.number }}</td>
+              </tr>
+              <tr *ngIf="boutique.surface">
+                <td><strong>Surface</strong></td>
+                <td>{{ boutique.surface }} m²</td>
+              </tr>
+              <tr *ngIf="boutique.price">
+                <td><strong>Prix mensuel</strong></td>
+                <td>{{ formatPrice(boutique.price) }}</td>
+              </tr>
+              <tr>
+                <td><strong>Date de réservation</strong></td>
+                <td>{{ reservation.createdAt | date:'medium' }}</td>
+              </tr>
+              <tr *ngIf="reservation.status === 'confirmee' && reservation.confirmedAt">
+                <td><strong>Date de confirmation</strong></td>
+                <td>{{ reservation.confirmedAt | date:'medium' }}</td>
+              </tr>
+              <tr *ngIf="reservation.status === 'temporaire' && reservation.expiresAt">
+                <td><strong>Expire dans</strong></td>
+                <td class="text-danger font-weight-bold">{{ getRemainingTime() }}</td>
+              </tr>
+            </table>
+
+            <!-- Actions selon le statut -->
+            <div class="mt-3" *ngIf="reservation.status === 'temporaire'">
+              <div class="alert alert-warning">
+                <i class="feather icon-alert-triangle mr-1"></i>
+                <strong>Attention:</strong> Votre réservation est temporaire. Vous devez la confirmer avant expiration pour soumettre votre demande à l'administration.
+              </div>
+              <button class="btn btn-success mr-2" (click)="openConfirmModal()">
+                <i class="feather icon-check mr-1"></i> Confirmer ma demande
+              </button>
+              <button class="btn btn-outline-danger" (click)="openCancelModal()">
+                <i class="feather icon-x mr-1"></i> Annuler
+              </button>
+            </div>
+
+            <div class="mt-3" *ngIf="reservation.status === 'en_attente_validation'">
+              <div class="alert alert-info">
+                <i class="feather icon-clock mr-1"></i>
+                Votre demande est en cours d'examen par l'administration. Vous serez notifié de la décision.
+              </div>
+              <button class="btn btn-outline-danger" (click)="openCancelModal()">
+                <i class="feather icon-x mr-1"></i> Annuler ma demande
+              </button>
+            </div>
+
+            <!-- NOUVEAU: Actions pour réservation confirmée -->
+            <div class="mt-3" *ngIf="reservation.status === 'confirmee'">
+              <div class="alert alert-success">
+                <i class="feather icon-check-circle mr-1"></i>
+                <strong>Félicitations!</strong> Votre réservation a été confirmée. Cet emplacement vous est attribué.
+              </div>
+              
+              <div class="alert alert-warning">
+                <i class="feather icon-info mr-1"></i>
+                <strong>Important:</strong> Vous pouvez annuler votre réservation à tout moment. L'emplacement redeviendra alors disponible pour d'autres utilisateurs.
+              </div>
+              
+              <div class="btn-group">
+                <button class="btn btn-primary" (click)="goToEditBoutique()">
+                  <i class="feather icon-edit mr-1"></i> Modifier ma boutique
+                </button>
+                <button class="btn btn-outline-danger" (click)="openCancelConfirmedModal()">
+                  <i class="feather icon-trash-2 mr-1"></i> Résilier l'emplacement
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-3" *ngIf="reservation.status === 'refusee'">
+              <div class="alert alert-danger">
+                <i class="feather icon-x-circle mr-1"></i>
+                <strong>Refusée:</strong> {{ reservation.rejectionReason || 'Votre demande a été refusée.' }}
+              </div>
+              <a routerLink="/emplacement/available" class="btn btn-primary">
+                <i class="feather icon-search mr-1"></i> Chercher un autre emplacement
+              </a>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body text-center">
+                <img 
+                  [src]="boutique.logo || 'assets/images/default-shop.png'" 
+                  alt="{{ boutique.name }}" 
+                  class="img-fluid rounded mb-3"
+                  style="max-height: 200px; object-fit: cover;">
+                
+                <h6 class="mb-2">{{ boutique.name }}</h6>
+                <p class="text-muted small mb-3">{{ boutique.categoryId?.name || 'Non catégorisé' }}</p>
+                
+                <div *ngIf="reservation.status === 'confirmee'">
+                  <button class="btn btn-sm btn-outline-primary btn-block" (click)="goToEditBoutique()">
+                    <i class="feather icon-settings mr-1"></i> Gérer ma boutique
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </app-card>
+
+    <!-- Historique -->
+    <app-card cardTitle="Historique des réservations" [options]="false" *ngIf="history.length > 0">
+      <div *ngIf="historyLoading" class="text-center py-3">Chargement...</div>
+
+      <div class="table-responsive" *ngIf="!historyLoading">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Emplacement</th>
+              <th>Statut</th>
+              <th>Date</th>
+              <th>Motif (si refusé/annulé)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let h of history">
+              <td>{{ h.boutique?.name || h.boutiqueSnapshot?.name || 'N/A' }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusClass(h.status)">{{ getStatusLabel(h.status) }}</span>
+              </td>
+              <td>{{ h.createdAt | date:'short' }}</td>
+              <td>{{ h.rejectionReason || h.cancellationReason || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal Confirmation de demande -->
+<app-ui-modal #confirmModal dialogClass="modal-dialog-centered" [containerClick]="false">
+  <div class="app-modal-header">
+    <h5 class="modal-title">Confirmer la demande</h5>
+    <button type="button" class="close basic-close" aria-label="Close" (click)="closeConfirmModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="app-modal-body">
+    <p>Êtes-vous sûr de vouloir soumettre votre demande de réservation pour <strong>{{ boutique?.name }}</strong> ?</p>
+    <p class="text-muted">Votre demande sera examinée par l'administration du centre commercial.</p>
+
+    <div *ngIf="actionError" class="alert alert-danger">{{ actionError }}</div>
+    <div *ngIf="actionSuccess" class="alert alert-success">{{ actionSuccess }}</div>
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeConfirmModal()" [disabled]="actionLoading">Annuler</button>
+    <button type="button" class="btn btn-success" (click)="confirmReservation()" [disabled]="actionLoading || actionSuccess">
+      {{ actionLoading ? 'Envoi...' : 'Confirmer ma demande' }}
+    </button>
+  </div>
+</app-ui-modal>
+
+<!-- Modal Annulation (temporaire ou en attente) -->
+<app-ui-modal #cancelModal dialogClass="modal-dialog-centered" [containerClick]="false">
+  <div class="app-modal-header">
+    <h5 class="modal-title">Annuler la réservation</h5>
+    <button type="button" class="close basic-close" aria-label="Close" (click)="closeCancelModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="app-modal-body">
+    <p>Êtes-vous sûr de vouloir annuler votre réservation pour <strong>{{ boutique?.name }}</strong> ?</p>
+    <p class="text-danger">Cette action est irréversible.</p>
+
+    <div *ngIf="actionError" class="alert alert-danger">{{ actionError }}</div>
+    <div *ngIf="actionSuccess" class="alert alert-success">{{ actionSuccess }}</div>
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeCancelModal()" [disabled]="actionLoading">Fermer</button>
+    <button type="button" class="btn btn-danger" (click)="cancelReservation()" [disabled]="actionLoading || actionSuccess">
+      {{ actionLoading ? 'Annulation...' : 'Annuler la réservation' }}
+    </button>
+  </div>
+</app-ui-modal>
+
+<!-- NOUVEAU: Modal Résiliation (réservation confirmée) -->
+<app-ui-modal #cancelConfirmedModal dialogClass="modal-dialog-centered" [containerClick]="false">
+  <div class="app-modal-header">
+    <h5 class="modal-title">Résilier l'emplacement</h5>
+    <button type="button" class="close basic-close" aria-label="Close" (click)="closeCancelConfirmedModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="app-modal-body">
+    <div class="alert alert-warning">
+      <i class="feather icon-alert-triangle mr-2"></i>
+      <strong>Attention :</strong> Vous êtes sur le point de résilier votre emplacement confirmé.
+    </div>
+    
+    <p>Êtes-vous sûr de vouloir résilier votre réservation pour <strong>{{ boutique?.name }}</strong> ?</p>
+    
+    <ul class="text-muted small mb-3">
+      <li>Votre emplacement redeviendra disponible immédiatement</li>
+      <li>Vous perdrez l'accès à cet emplacement</li>
+      <li>Cette action est irréversible</li>
+    </ul>
+
+    <div class="form-group">
+      <label for="cancellationReason">Motif de résiliation (optionnel)</label>
+      <textarea 
+        id="cancellationReason"
+        class="form-control" 
+        rows="3" 
+        [(ngModel)]="cancellationReason"
+        placeholder="Pourquoi souhaitez-vous résilier cet emplacement ?"
+        maxlength="500">
+      </textarea>
+      <small class="form-text text-muted">{{ cancellationReason.length }}/500 caractères</small>
+    </div>
+
+    <div *ngIf="actionError" class="alert alert-danger mt-3">{{ actionError }}</div>
+    <div *ngIf="actionSuccess" class="alert alert-success mt-3">{{ actionSuccess }}</div>
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeCancelConfirmedModal()" [disabled]="actionLoading">
+      Fermer
+    </button>
+    <button type="button" class="btn btn-danger" (click)="cancelConfirmedReservation()" [disabled]="actionLoading || actionSuccess">
+      <i class="feather icon-trash-2 mr-1"></i>
+      {{ actionLoading ? 'Résiliation...' : 'Confirmer la résiliation' }}
+    </button>
+  </div>
+</app-ui-modal>

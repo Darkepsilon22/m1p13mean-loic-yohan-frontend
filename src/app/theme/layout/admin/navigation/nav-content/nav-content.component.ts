@@ -1,7 +1,8 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, NgZone, OnInit, Output, ViewChild } from '@angular/core';
-import { NavigationItem } from '../navigation';
+import { Navigation } from '../navigation';
 import { NextConfig } from '../../../../../app-config';
 import { Location } from '@angular/common';
+import { AuthService } from '../../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-nav-content',
@@ -23,11 +24,20 @@ export class NavContentComponent implements OnInit, AfterViewInit {
   @ViewChild('navbarContent', {static: false}) navbarContent: ElementRef;
   @ViewChild('navbarWrapper', {static: false}) navbarWrapper: ElementRef;
 
-  constructor(public nav: NavigationItem, private zone: NgZone, private location: Location) {
+  constructor(
+    public nav: Navigation,
+    private zone: NgZone,
+    private location: Location,
+    private authService: AuthService
+  ) {
     this.nextConfig = NextConfig.config;
     this.windowWidth = window.innerWidth;
 
-    this.navigation = this.nav.get();
+    // Charger la navigation selon le rôle de l'utilisateur
+    const user = this.authService.getStoredUser();
+    const role = user?.role || null;
+    this.navigation = this.nav.getByRole(role);
+
     this.prevDisabled = 'disabled';
     this.nextDisabled = '';
     this.scrollWidth = 0;

@@ -1,0 +1,68 @@
+// Styles pour le composant boutique-edit
+
+.form-control {
+  &.is-invalid {
+    border-color: #dc3545;
+    
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+  }
+}
+
+.invalid-feedback {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #dc3545;
+}
+
+.custom-switch {
+  padding-left: 2.25rem;
+  
+  .custom-control-label {
+    cursor: pointer;
+  }
+}
+
+.img-thumbnail {
+  padding: 0.25rem;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  max-width: 100%;
+  height: auto;
+}
+
+.table {
+  td, th {
+    vertical-align: middle;
+  }
+}
+
+// Animation de chargement
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
