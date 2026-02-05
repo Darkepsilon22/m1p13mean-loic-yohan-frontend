@@ -2,7 +2,7 @@
   <div class="col-sm-12">
     <div class="card">
       <div class="card-header">
-        <h5>Créer une boutique</h5>
+        <h5>{{ isAdmin ? 'Créer un emplacement' : 'Créer une boutique' }}</h5>
       </div>
       <div class="card-body">
         <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
@@ -10,65 +10,34 @@
         </div>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <div class="form-group">
-            <label>Nom de la boutique <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" formControlName="name" placeholder="Nom">
-            <small class="text-danger" *ngIf="getError('name')">{{ getError('name') }}</small>
-          </div>
+          <input type="hidden" formControlName="name">
+          <input type="hidden" formControlName="description">
+          <input type="hidden" formControlName="shortDescription">
+          <input type="hidden" formControlName="logo">
+          <input type="hidden" formControlName="coverImage">
 
-          <div class="form-group">
-            <label>Description <span class="text-danger">*</span></label>
-            <textarea class="form-control" formControlName="description" rows="4" placeholder="Description"></textarea>
-            <small class="text-danger" *ngIf="getError('description')">{{ getError('description') }}</small>
-          </div>
-
-          <div class="form-group">
-            <label>Description courte (optionnel)</label>
-            <input type="text" class="form-control" formControlName="shortDescription" placeholder="Courte description">
-          </div>
+          <h6>Informations de l'emplacement</h6>
 
           <div class="form-group">
             <label>Catégorie <span class="text-danger">*</span></label>
-            <select class="form-control" formControlName="categoryId">
+            <select class="form-control" formControlName="categoryId"
+                    [class.is-invalid]="form.get('categoryId')?.invalid && form.get('categoryId')?.touched">
               <option value="">-- Choisir --</option>
               <option *ngFor="let c of categories" [value]="c._id">{{ c.name }}</option>
             </select>
             <small class="text-muted" *ngIf="loadingCategories">Chargement des catégories...</small>
+            <small class="text-danger" *ngIf="form.get('categoryId')?.invalid && form.get('categoryId')?.touched">
+              Veuillez sélectionner une catégorie
+            </small>
             <small class="text-danger" *ngIf="getError('categoryId')">{{ getError('categoryId') }}</small>
           </div>
 
-          <div class="form-group">
-            <label>Logo (URL) <span class="text-danger">*</span></label>
-            <input type="url" class="form-control" formControlName="logo" placeholder="https://...">
-            <small class="text-danger" *ngIf="getError('logo')">{{ getError('logo') }}</small>
-          </div>
-
-          <div class="form-group">
-            <label>Image de couverture (URL, optionnel)</label>
-            <input type="url" class="form-control" formControlName="coverImage" placeholder="https://...">
-          </div>
+          <input type="hidden" formControlName="contactPhone">
+          <input type="hidden" formControlName="contactEmail">
+          <input type="hidden" formControlName="contactWebsite">
 
           <hr>
-          <h6>Contact</h6>
-          <div class="row">
-            <div class="col-md-6 form-group">
-              <label>Téléphone <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="contactPhone" placeholder="Téléphone">
-              <small class="text-danger" *ngIf="getError('contact.phone')">{{ getError('contact.phone') }}</small>
-            </div>
-            <div class="col-md-6 form-group">
-              <label>Email <span class="text-danger">*</span></label>
-              <input type="email" class="form-control" formControlName="contactEmail" placeholder="Email">
-              <small class="text-danger" *ngIf="getError('contact.email')">{{ getError('contact.email') }}</small>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Site web (optionnel)</label>
-            <input type="url" class="form-control" formControlName="contactWebsite" placeholder="https://...">
-          </div>
-
-          <hr>
-          <h6>Emplacement</h6>
+          <h6>Localisation</h6>
           <div class="row">
             <div class="col-md-4 form-group">
               <label>Étage</label>
@@ -86,10 +55,49 @@
             </div>
           </div>
 
+          <ng-container *ngIf="isAdmin">
+            <hr>
+            <h6>Détails de l'emplacement</h6>
+            <div class="row">
+              <div class="col-md-4 form-group">
+                <label>Prix mensuel (MGA)</label>
+                <input type="number" class="form-control" formControlName="price" min="0" placeholder="Ex: 500000">
+                <small class="text-danger" *ngIf="getError('price')">{{ getError('price') }}</small>
+              </div>
+              <div class="col-md-4 form-group">
+                <label>Surface (m²)</label>
+                <input type="number" class="form-control" formControlName="surface" min="1" placeholder="Ex: 25">
+                <small class="text-danger" *ngIf="getError('surface')">{{ getError('surface') }}</small>
+              </div>
+              <div class="col-md-4 form-group">
+                <label>Statut de l'emplacement</label>
+                <select class="form-control" formControlName="emplacementStatus">
+                  <option value="libre">Libre</option>
+                  <option value="temporaire">Temporaire (réservé)</option>
+                  <option value="occupee">Occupé</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Équipements disponibles</label>
+              <div class="row">
+                <div class="col-md-4" *ngFor="let amenity of availableAmenities">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" [id]="'amenity-' + amenity"
+                           [checked]="isAmenitySelected(amenity)"
+                           (change)="toggleAmenity(amenity)">
+                    <label class="custom-control-label" [for]="'amenity-' + amenity">{{ amenity }}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
           <button type="submit" class="btn btn-primary" [disabled]="loading || loadingCategories">
-            {{ loading ? 'Création...' : 'Créer la boutique' }}
+            {{ loading ? 'Création...' : (isAdmin ? 'Créer l\'emplacement' : 'Créer la boutique') }}
           </button>
-          <a routerLink="/dashboard/analytics" class="btn btn-secondary ml-2">Annuler</a>
+          <a routerLink="/boutique/list" class="btn btn-secondary ml-2">Annuler</a>
         </form>
       </div>
     </div>

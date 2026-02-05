@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
 export interface NavigationItem {
   id: string;
@@ -18,17 +18,14 @@ export interface NavigationItem {
     title?: string;
     type?: string;
   };
-  children?: Navigation[];
-}
-
-export interface Navigation extends NavigationItem {
   children?: NavigationItem[];
 }
 
-const NavigationItems = [
+// Navigation pour ADMIN
+const AdminNavigationItems: NavigationItem[] = [
   {
-    id: 'navigation',
-    title: 'Navigation',
+    id: 'admin-navigation',
+    title: 'Administration',
     type: 'group',
     icon: 'feather icon-monitor',
     children: [
@@ -45,24 +42,47 @@ const NavigationItems = [
         type: 'item',
         url: '/dashboard/analytics',
         icon: 'feather icon-bar-chart-2'
-      },
+      }
+    ]
+  },
+  {
+    id: 'admin-emplacements',
+    title: 'Gestion Emplacements',
+    type: 'group',
+    icon: 'feather icon-map-pin',
+    children: [
       {
-        id: 'boutique-list',
-        title: 'Liste des boutiques',
+        id: 'emplacement-list',
+        title: 'Liste des emplacements',
         type: 'item',
         url: '/boutique/list',
         icon: 'feather icon-list'
       },
       {
-        id: 'boutique-create',
-        title: 'Créer une boutique',
+        id: 'emplacement-create',
+        title: 'Créer un emplacement',
         type: 'item',
         url: '/boutique/create',
-        icon: 'feather icon-shopping-bag'
+        icon: 'feather icon-plus-square'
       },
       {
+        id: 'pending-reservations',
+        title: 'Demandes de réservation',
+        type: 'item',
+        url: '/emplacement/pending-reservations',
+        icon: 'feather icon-clock'
+      }
+    ]
+  },
+  {
+    id: 'admin-categories',
+    title: 'Catégories',
+    type: 'group',
+    icon: 'feather icon-tag',
+    children: [
+      {
         id: 'category-list',
-        title: 'Catégories',
+        title: 'Liste des catégories',
         type: 'item',
         url: '/category/list',
         icon: 'feather icon-tag'
@@ -73,290 +93,179 @@ const NavigationItems = [
         type: 'item',
         url: '/category/create',
         icon: 'feather icon-plus-square'
-      },
-      {
-        id: 'page-layouts',
-        title: 'Horizontal Layouts',
-        type: 'item',
-        url: '/layout/horizontal',
-        target: true,
-        icon: 'feather icon-layout'
       }
     ]
   },
   {
-    id: 'ui-element',
-    title: 'UI ELEMENT & FORMS',
+    id: 'admin-users',
+    title: 'Gestion Utilisateurs',
     type: 'group',
-    icon: 'feather icon-layers',
+    icon: 'feather icon-users',
     children: [
       {
-        id: 'basic',
-        title: 'Basic',
-        type: 'collapse',
-        icon: 'feather icon-box',
-        children: [
-          {
-            id: 'alert',
-            title: 'Alert',
-            type: 'item',
-            url: '/basic/alert'
-          },
-          {
-            id: 'button',
-            title: 'Button',
-            type: 'item',
-            url: '/basic/button'
-          },
-          {
-            id: 'badges',
-            title: 'Badges',
-            type: 'item',
-            url: '/basic/badges'
-          },
-          {
-            id: 'breadcrumb-pagination',
-            title: 'Breadcrumbs & Pagination',
-            type: 'item',
-            url: '/basic/breadcrumb-paging'
-          },
-          {
-            id: 'cards',
-            title: 'Cards',
-            type: 'item',
-            url: '/basic/cards'
-          },
-          {
-            id: 'collapse',
-            title: 'Collapse',
-            type: 'item',
-            url: '/basic/collapse'
-          },
-          {
-            id: 'carousel',
-            title: 'Carousel',
-            type: 'item',
-            url: '/basic/carousel'
-          },
-          {
-            id: 'grid-system',
-            title: 'Grid System',
-            type: 'item',
-            url: '/basic/grid-system'
-          },
-          {
-            id: 'progress',
-            title: 'Progress',
-            type: 'item',
-            url: '/basic/progress'
-          },
-          {
-            id: 'modal',
-            title: 'Modal',
-            type: 'item',
-            url: '/basic/modal'
-          },
-          {
-            id: 'spinner',
-            title: 'Spinner',
-            type: 'item',
-            url: '/basic/spinner'
-          },
-          {
-            id: 'tabs-pills',
-            title: 'Tabs & Pills',
-            type: 'item',
-            url: '/basic/tabs-pills'
-          },
-          {
-            id: 'typography',
-            title: 'Typography',
-            type: 'item',
-            url: '/basic/typography'
-          },
-          {
-            id: 'tooltip-popovers',
-            title: 'Tooltip & Popovers',
-            type: 'item',
-            url: '/basic/tooltip-popovers'
-          },
-          {
-            id: 'other',
-            title: 'Other',
-            type: 'item',
-            url: '/basic/other'
-          }
-        ]
+        id: 'pending-boutiques',
+        title: 'Boutiques en attente',
+        type: 'item',
+        url: '/users/pending-boutiques',
+        icon: 'feather icon-clock'
+      }
+    ]
+  }
+];
+
+// Navigation pour BOUTIQUE
+const BoutiqueNavigationItems: NavigationItem[] = [
+  {
+    id: 'boutique-navigation',
+    title: 'Ma Boutique',
+    type: 'group',
+    icon: 'feather icon-shopping-bag',
+    children: [
+      {
+        id: 'home',
+        title: 'Accueil',
+        type: 'item',
+        url: '/home',
+        icon: 'feather icon-home'
       },
       {
-        id: 'forms-element',
-        title: 'Form Elements',
+        id: 'dashboard',
+        title: 'Dashboard',
         type: 'item',
-        url: '/forms/basic',
-        icon: 'feather icon-file-text'
+        url: '/dashboard/analytics',
+        icon: 'feather icon-bar-chart-2'
       }
     ]
   },
   {
-    id: 'table',
-    title: 'Table & Charts',
+    id: 'boutique-emplacements',
+    title: 'Emplacements',
     type: 'group',
-    icon: 'feather icon-list',
+    icon: 'feather icon-map-pin',
     children: [
       {
-        id: 'bootstrap',
-        title: 'Bootstrap Table',
+        id: 'emplacements-available',
+        title: 'Emplacements disponibles',
         type: 'item',
-        url: '/tbl-bootstrap/bt-basic',
-        icon: 'feather icon-server'
+        url: '/emplacement/available',
+        icon: 'feather icon-map-pin'
       },
       {
-        id: 'apex',
-        title: 'Apex Chart',
+        id: 'my-reservation',
+        title: 'Ma réservation',
         type: 'item',
-        url: '/charts/apex',
-        icon: 'feather icon-pie-chart'
+        url: '/emplacement/my-reservation',
+        icon: 'feather icon-bookmark'
+      }
+    ]
+  }
+];
+
+// Navigation pour ACHETEUR
+const AcheteurNavigationItems: NavigationItem[] = [
+  {
+    id: 'acheteur-navigation',
+    title: 'Navigation',
+    type: 'group',
+    icon: 'feather icon-monitor',
+    children: [
+      {
+        id: 'home',
+        title: 'Accueil',
+        type: 'item',
+        url: '/home',
+        icon: 'feather icon-home'
+      },
+      {
+        id: 'boutiques',
+        title: 'Boutiques',
+        type: 'item',
+        url: '/boutique/list',
+        icon: 'feather icon-shopping-bag'
       }
     ]
   },
   {
-    id: 'pages',
-    title: 'Pages',
+    id: 'acheteur-account',
+    title: 'Mon compte',
     type: 'group',
-    icon: 'feather icon-file-text',
+    icon: 'feather icon-user',
     children: [
       {
-        id: 'auth',
-        title: 'Authentication',
-        type: 'collapse',
-        icon: 'feather icon-lock',
-        children: [
-          {
-            id: 'signup',
-            title: 'Sign up',
-            type: 'item',
-            url: '/auth/signup',
-            target: true,
-            breadcrumbs: false
-          },
-          {
-            id: 'signin',
-            title: 'Sign in',
-            type: 'item',
-            url: '/auth/signin',
-            target: true,
-            breadcrumbs: false
-          },
-          {
-            id: 'reset-password',
-            title: 'Reset Password',
-            type: 'item',
-            url: '/auth/reset-password',
-            target: true,
-            breadcrumbs: false
-          },
-          {
-            id: 'change-password',
-            title: 'Change Password',
-            type: 'item',
-            url: '/auth/change-password',
-            target: true,
-            breadcrumbs: false
-          }
-        ]
+        id: 'profile',
+        title: 'Mon profil',
+        type: 'item',
+        url: '/auth/profile',
+        icon: 'feather icon-user'
+      }
+    ]
+  }
+];
+
+// Navigation par défaut (non connecté)
+const DefaultNavigationItems: NavigationItem[] = [
+  {
+    id: 'default-navigation',
+    title: 'Navigation',
+    type: 'group',
+    icon: 'feather icon-monitor',
+    children: [
+      {
+        id: 'home',
+        title: 'Accueil',
+        type: 'item',
+        url: '/home',
+        icon: 'feather icon-home'
       },
       {
-        id: 'maintenance',
-        title: 'Maintenance',
-        type: 'collapse',
-        icon: 'feather icon-sliders',
-        children: [
-          {
-            id: 'error',
-            title: 'Error',
-            type: 'item',
-            url: '/maintenance/error',
-            target: true,
-            breadcrumbs: false
-          },
-          {
-            id: 'coming-soon',
-            title: 'Maintenance',
-            type: 'item',
-            url: '/maintenance/coming-soon',
-            target: true,
-            breadcrumbs: false
-          }
-        ]
+        id: 'boutiques',
+        title: 'Boutiques',
+        type: 'item',
+        url: '/boutique/list',
+        icon: 'feather icon-shopping-bag'
       }
     ]
   },
   {
-    id: 'other',
-    title: 'Other',
+    id: 'auth',
+    title: 'Compte',
     type: 'group',
-    icon: 'feather icon-align-left',
+    icon: 'feather icon-lock',
     children: [
       {
-        id: 'menu-level',
-        title: 'Menu Levels',
-        type: 'collapse',
-        icon: 'feather icon-menu',
-        children: [
-          {
-            id: 'menu-level-2.1',
-            title: 'Menu Level 2.1',
-            type: 'item',
-            url: 'javascript:',
-            external: true
-          },
-          {
-            id: 'menu-level-2.2',
-            title: 'Menu Level 2.2',
-            type: 'collapse',
-            children: [
-              {
-                id: 'menu-level-2.2.1',
-                title: 'Menu Level 2.2.1',
-                type: 'item',
-                url: 'javascript:',
-                external: true
-              },
-              {
-                id: 'menu-level-2.2.2',
-                title: 'Menu Level 2.2.2',
-                type: 'item',
-                url: 'javascript:',
-                external: true
-              }
-            ]
-          }
-        ]
+        id: 'signin',
+        title: 'Connexion',
+        type: 'item',
+        url: '/auth/signin',
+        icon: 'feather icon-log-in'
       },
       {
-        id: 'disabled-menu',
-        title: 'Disabled Menu',
+        id: 'signup',
+        title: 'Inscription',
         type: 'item',
-        url: 'javascript:',
-        classes: 'nav-item disabled',
-        icon: 'feather icon-power',
-        external: true
-      },
-      {
-        id: 'sample-page',
-        title: 'Sample Page',
-        type: 'item',
-        url: '/sample-page',
-        classes: 'nav-item',
-        icon: 'feather icon-sidebar'
+        url: '/auth/signup',
+        icon: 'feather icon-user-plus'
       }
     ]
   }
 ];
 
 @Injectable()
-export class NavigationItem {
-  public get() {
-    return NavigationItems;
+export class Navigation {
+  public get(): NavigationItem[] {
+    return DefaultNavigationItems;
+  }
+
+  public getByRole(role: string | null): NavigationItem[] {
+    switch (role) {
+      case 'admin':
+        return AdminNavigationItems;
+      case 'boutique':
+        return BoutiqueNavigationItems;
+      case 'acheteur':
+        return AcheteurNavigationItems;
+      default:
+        return DefaultNavigationItems;
+    }
   }
 }

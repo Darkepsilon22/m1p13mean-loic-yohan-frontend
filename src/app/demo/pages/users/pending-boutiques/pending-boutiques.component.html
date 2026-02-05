@@ -1,0 +1,69 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Demandes d'inscription boutique (à valider)" [options]="false">
+      <div *ngIf="pendingError" class="alert alert-danger">{{ pendingError }}</div>
+      <div *ngIf="pendingLoading" class="text-center py-3">Chargement...</div>
+
+      <div *ngIf="!pendingLoading && pendingBoutiqueUsers.length === 0" class="text-muted py-3 text-center">
+        Aucune demande en attente.
+      </div>
+
+      <div *ngIf="!pendingLoading && pendingBoutiqueUsers.length > 0" class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Téléphone</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of pendingBoutiqueUsers">
+              <td><strong>{{ u.firstName }} {{ u.lastName }}</strong></td>
+              <td>{{ u.email }}</td>
+              <td>{{ u.phone || '—' }}</td>
+              <td>{{ u.createdAt | date:'short' }}</td>
+              <td class="text-right">
+                <button class="btn btn-sm btn-success mr-2" (click)="openPendingAction(u, 'approve')">Accepter</button>
+                <button class="btn btn-sm btn-danger" (click)="openPendingAction(u, 'reject')">Refuser</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </app-card>
+  </div>
+</div>
+
+<!-- Popup de validation (accept/refuse) -->
+<app-ui-modal #pendingModal dialogClass="modal-dialog-centered" [containerClick]="false">
+  <div class="app-modal-header">
+    <h5 class="modal-title">
+      {{ actionType === 'approve' ? 'Valider la demande boutique' : 'Refuser la demande boutique' }}
+    </h5>
+    <button type="button" class="close basic-close" aria-label="Close" (click)="closePendingModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="app-modal-body">
+    <p class="mb-2" *ngIf="selectedUser">
+      Confirmer l'action pour <strong>{{ selectedUser.firstName }} {{ selectedUser.lastName }}</strong> ({{ selectedUser.email }}) ?
+    </p>
+
+    <div class="form-group" *ngIf="actionType === 'reject'">
+      <label class="form-label">Motif (optionnel)</label>
+      <textarea class="form-control" [(ngModel)]="rejectReason" rows="3" placeholder="Raison du refus..."></textarea>
+    </div>
+
+    <div *ngIf="actionError" class="alert alert-danger mt-2">{{ actionError }}</div>
+  </div>
+  <div class="app-modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closePendingModal()" [disabled]="actionLoading">Annuler</button>
+    <button type="button" class="btn" [ngClass]="actionType === 'approve' ? 'btn-success' : 'btn-danger'"
+            (click)="confirmPendingAction()" [disabled]="actionLoading">
+      {{ actionLoading ? 'Traitement...' : 'Confirmer' }}
+    </button>
+  </div>
+</app-ui-modal>

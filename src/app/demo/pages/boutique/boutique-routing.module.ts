@@ -1,14 +1,39 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
+
+// Importez vos composants existants
 import { BoutiqueCreateComponent } from './boutique-create/boutique-create.component';
-import { BoutiqueListComponent } from './boutique-list/boutique-list.component';
 import { BoutiqueDetailComponent } from './boutique-detail/boutique-detail.component';
+import { BoutiqueListComponent } from './boutique-list/boutique-list.component';
+import { BoutiqueEditComponent } from './boutique-edit/boutique-edit.component';  // NOUVEAU
 
 const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'list' },
-  { path: 'list', component: BoutiqueListComponent },
-  { path: 'create', component: BoutiqueCreateComponent },
-  { path: ':id', component: BoutiqueDetailComponent }
+  {
+    path: '',
+    children: [
+      {
+        path: '',
+        redirectTo: 'list',
+        pathMatch: 'full'
+      },
+      {
+        path: 'list',
+        component: BoutiqueListComponent
+      },
+      {
+        path: 'create',
+        component: BoutiqueCreateComponent
+      },
+      {
+        path: 'edit/:id',  // NOUVELLE ROUTE
+        component: BoutiqueEditComponent
+      },
+      {
+        path: ':id',
+        component: BoutiqueDetailComponent
+      }
+    ]
+  }
 ];
 
 @NgModule({

@@ -36,6 +36,14 @@ const routes: Routes = [
         loadChildren: () => import('./demo/pages/category/category.module').then(module => module.CategoryModule)
       },
       {
+        path: 'emplacement',
+        loadChildren: () => import('./demo/pages/emplacement/emplacement.module').then(module => module.EmplacementModule)
+      },
+      {
+        path: 'users',
+        loadChildren: () => import('./demo/pages/users/users.module').then(module => module.UsersModule)
+      },
+      {
         path: 'layout',
         loadChildren: () => import('./demo/pages/layout/layout.module').then(module => module.LayoutModule)
       },

@@ -1,0 +1,329 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card [cardTitle]="'Modifier ma boutique'" [options]="false">
+      <!-- Messages d'erreur/succès -->
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="feather icon-alert-triangle mr-2"></i>
+        {{ errorMessage }}
+        <button type="button" class="close" (click)="errorMessage = ''">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="feather icon-check-circle mr-2"></i>
+        {{ successMessage }}
+      </div>
+
+      <!-- Chargement -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Chargement...</span>
+        </div>
+        <p class="mt-3 text-muted">Chargement des informations...</p>
+      </div>
+
+      <!-- Formulaire -->
+      <form [formGroup]="boutiqueForm" (ngSubmit)="onSubmit()" *ngIf="!loading && boutique">
+        <!-- Informations générales -->
+        <div class="row">
+          <div class="col-md-8">
+            <h5 class="mb-3">
+              <i class="feather icon-info mr-2"></i>
+              Informations générales
+            </h5>
+
+            <div class="form-group">
+              <label for="name">Nom de la boutique <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="name" 
+                formControlName="name"
+                [class.is-invalid]="hasError('name')"
+                placeholder="Ex: Boutique Mode">
+              <div class="invalid-feedback" *ngIf="hasError('name')">
+                {{ getErrorMessage('name') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="shortDescription">Description courte</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="shortDescription" 
+                formControlName="shortDescription"
+                [class.is-invalid]="hasError('shortDescription')"
+                placeholder="Brève description (200 caractères max)"
+                maxlength="200">
+              <small class="form-text text-muted">
+                {{ boutiqueForm.get('shortDescription')?.value?.length || 0 }}/200 caractères
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description complète <span class="text-danger">*</span></label>
+              <textarea 
+                class="form-control" 
+                id="description" 
+                formControlName="description"
+                [class.is-invalid]="hasError('description')"
+                rows="5"
+                placeholder="Description détaillée de votre boutique"
+                maxlength="2000"></textarea>
+              <small class="form-text text-muted">
+                {{ boutiqueForm.get('description')?.value?.length || 0 }}/2000 caractères
+              </small>
+              <div class="invalid-feedback" *ngIf="hasError('description')">
+                {{ getErrorMessage('description') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="categoryId">Catégorie <span class="text-danger">*</span></label>
+              <select 
+                class="form-control" 
+                id="categoryId" 
+                formControlName="categoryId"
+                [class.is-invalid]="hasError('categoryId')"
+                [disabled]="categoriesLoading">
+                <option value="">
+                  {{ categoriesLoading ? 'Chargement des catégories...' : 'Sélectionnez une catégorie' }}
+                </option>
+                <option *ngFor="let cat of categories" [value]="cat._id">
+                  {{ cat.name }}
+                </option>
+              </select>
+              <div class="invalid-feedback" *ngIf="hasError('categoryId')">
+                {{ getErrorMessage('categoryId') }}
+              </div>
+              <small class="form-text text-muted">
+                <span *ngIf="categoriesLoading">
+                  <i class="feather icon-loader spinning mr-1"></i>
+                  Chargement...
+                </span>
+                <span *ngIf="!categoriesLoading && categories.length === 0">
+                  <i class="feather icon-alert-triangle mr-1"></i>
+                  Aucune catégorie disponible. Catégorie actuelle: {{ boutique?.categoryId?.name || 'Non définie' }}
+                </span>
+                <span *ngIf="!categoriesLoading && categories.length > 0">
+                  {{ categories.length }} catégorie(s) disponible(s)
+                </span>
+              </small>
+            </div>
+          </div>
+
+          <!-- Images -->
+          <div class="col-md-4">
+            <h5 class="mb-3">
+              <i class="feather icon-image mr-2"></i>
+              Images
+            </h5>
+
+            <div class="form-group">
+              <label for="logo">Logo</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="logo" 
+                formControlName="logo"
+                placeholder="URL du logo">
+              <small class="form-text text-muted">URL de votre logo</small>
+              
+              <!-- Aperçu du logo -->
+              <div class="mt-2" *ngIf="boutiqueForm.get('logo')?.value">
+                <img 
+                  [src]="boutiqueForm.get('logo')?.value" 
+                  alt="Logo" 
+                  class="img-thumbnail"
+                  style="max-height: 150px; max-width: 100%;"
+                  (error)="$any($event.target).src='assets/images/default-shop.png'">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="coverImage">Image de couverture</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="coverImage" 
+                formControlName="coverImage"
+                placeholder="URL de l'image de couverture">
+              <small class="form-text text-muted">URL de votre image de couverture</small>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- Informations de contact -->
+        <h5 class="mb-3">
+          <i class="feather icon-phone mr-2"></i>
+          Informations de contact
+        </h5>
+
+        <div formGroupName="contact" class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="phone">Téléphone <span class="text-danger">*</span></label>
+              <input 
+                type="tel" 
+                class="form-control" 
+                id="phone" 
+                formControlName="phone"
+                [class.is-invalid]="hasError('contact.phone')"
+                placeholder="Ex: +261 34 00 000 00">
+              <div class="invalid-feedback" *ngIf="hasError('contact.phone')">
+                {{ getErrorMessage('contact.phone') }}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email <span class="text-danger">*</span></label>
+              <input 
+                type="email" 
+                class="form-control" 
+                id="email" 
+                formControlName="email"
+                [class.is-invalid]="hasError('contact.email')"
+                placeholder="contact@boutique.com">
+              <div class="invalid-feedback" *ngIf="hasError('contact.email')">
+                {{ getErrorMessage('contact.email') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="website">Site web</label>
+              <input 
+                type="url" 
+                class="form-control" 
+                id="website" 
+                formControlName="website"
+                placeholder="https://www.votresite.com">
+            </div>
+
+            <div class="form-group">
+              <label for="facebook">Facebook</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="facebook" 
+                formControlName="facebook"
+                placeholder="https://facebook.com/votreboutique">
+            </div>
+
+            <div class="form-group">
+              <label for="instagram">Instagram</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                id="instagram" 
+                formControlName="instagram"
+                placeholder="@votreboutique">
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- Horaires d'ouverture -->
+        <h5 class="mb-3">
+          <i class="feather icon-clock mr-2"></i>
+          Horaires d'ouverture
+        </h5>
+
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th style="width: 20%;">Jour</th>
+                <th style="width: 20%;">Fermé</th>
+                <th style="width: 30%;">Ouverture</th>
+                <th style="width: 30%;">Fermeture</th>
+              </tr>
+            </thead>
+            <tbody formArrayName="openingHours">
+              <tr *ngFor="let hour of openingHours.controls; let i = index" [formGroupName]="i">
+                <td>
+                  <strong>{{ daysOfWeek[i].label }}</strong>
+                </td>
+                <td>
+                  <div class="custom-control custom-switch">
+                    <input 
+                      type="checkbox" 
+                      class="custom-control-input" 
+                      [id]="'closed-' + i"
+                      formControlName="isClosed">
+                    <label class="custom-control-label" [for]="'closed-' + i"></label>
+                  </div>
+                </td>
+                <td>
+                  <input 
+                    type="time" 
+                    class="form-control" 
+                    formControlName="open"
+                    [disabled]="hour.get('isClosed')?.value"
+                    placeholder="--:--">
+                </td>
+                <td>
+                  <input 
+                    type="time" 
+                    class="form-control" 
+                    formControlName="close"
+                    [disabled]="hour.get('isClosed')?.value"
+                    placeholder="--:--">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <hr class="my-4">
+
+        <!-- Informations de l'emplacement (lecture seule) -->
+        <h5 class="mb-3">
+          <i class="feather icon-map-pin mr-2"></i>
+          Emplacement
+        </h5>
+
+        <div class="alert alert-info">
+          <p class="mb-2">
+            <strong>Étage:</strong> {{ boutique.location?.floor || 0 }} &nbsp;|&nbsp;
+            <strong>Zone:</strong> {{ boutique.location?.zone || 'N/A' }} &nbsp;|&nbsp;
+            <strong>Numéro:</strong> {{ boutique.location?.number || 'N/A' }}
+          </p>
+          <p class="mb-0">
+            <strong>Surface:</strong> {{ boutique.surface || 'N/A' }} m² &nbsp;|&nbsp;
+            <strong>Prix:</strong> {{ formatPrice(boutique.price) }}
+          </p>
+          <small class="text-muted">
+            <i class="feather icon-info mr-1"></i>
+            Pour modifier l'emplacement, contactez l'administration.
+          </small>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="form-group mt-4">
+          <button 
+            type="submit" 
+            class="btn btn-primary mr-2"
+            [disabled]="saving || boutiqueForm.invalid">
+            <i class="feather icon-save mr-1"></i>
+            {{ saving ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-secondary"
+            (click)="onCancel()"
+            [disabled]="saving">
+            <i class="feather icon-x mr-1"></i>
+            Annuler
+          </button>
+        </div>
+      </form>
+    </app-card>
+  </div>
+</div>
