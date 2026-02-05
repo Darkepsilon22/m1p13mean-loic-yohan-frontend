@@ -16,6 +16,8 @@ export class AuthSignupComponent implements OnInit {
   fieldErrors: Record<string, string> = {};
   /** Type d'inscription : acheteur | boutique | admin */
   signupType: 'acheteur' | 'boutique' | 'admin' = 'acheteur';
+  hidePassword = true;
+  hideAdminKey = true;
 
   constructor(
     private fb: FormBuilder,

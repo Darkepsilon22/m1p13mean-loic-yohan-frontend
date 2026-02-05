@@ -15,6 +15,9 @@ export class AuthChangePasswordComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
   fieldErrors: Record<string, string> = {};
+  hideCurrentPassword = true;
+  hideNewPassword = true;
+  hideConfirmPassword = true;
 
   constructor(
     private fb: FormBuilder,

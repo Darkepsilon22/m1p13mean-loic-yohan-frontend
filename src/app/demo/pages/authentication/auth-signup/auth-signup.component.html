@@ -3,8 +3,9 @@
     <div class="card auth-card" [ngClass]="'auth-card--' + signupType">
       <div class="card-header auth-card-header" [ngClass]="'auth-card-header--' + signupType">
         <div class="auth-card-header-inner">
-          <img src="assets/images/logo-dark.png" alt="" class="auth-logo img-fluid mb-3">
+          <img src="assets/images/logo-dark.png" alt="" class="auth-logo img-fluid">
           <h4 class="auth-title">{{ getTitle() }}</h4>
+          <span class="auth-type-badge" [ngClass]="'auth-type-badge--' + signupType">{{ signupType === 'admin' ? 'Admin' : signupType === 'boutique' ? 'Boutique' : 'Acheteur' }}</span>
           <p class="auth-subtitle text-muted mb-0">{{ getSubtitle() }}</p>
         </div>
       </div>
@@ -62,7 +63,12 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="feather icon-lock"></i></span>
               </div>
-              <input type="password" class="form-control" formControlName="password" placeholder="8 car. min., maj., min., chiffre">
+              <input [attr.type]="hidePassword ? 'password' : 'text'" class="form-control" formControlName="password" placeholder="8 car. min., maj., min., chiffre">
+              <div class="input-group-append">
+                <span class="input-group-text password-toggle" (click)="hidePassword = !hidePassword" (keydown.enter)="hidePassword = !hidePassword" role="button" tabindex="0" [attr.aria-label]="hidePassword ? 'Afficher le mot de passe' : 'Masquer le mot de passe'">
+                  <i class="feather" [ngClass]="hidePassword ? 'icon-eye' : 'icon-eye-off'"></i>
+                </span>
+              </div>
             </div>
             <small class="text-danger" *ngIf="getError('password')">{{ getError('password') }}</small>
             <small class="text-danger" *ngIf="form.get('password')?.invalid && form.get('password')?.touched && !getError('password')">
@@ -76,7 +82,12 @@
               <div class="input-group-prepend">
                 <span class="input-group-text"><i class="feather icon-shield"></i></span>
               </div>
-              <input type="password" class="form-control" formControlName="adminSecretKey" placeholder="Clé secrète (voir config backend)">
+              <input [attr.type]="hideAdminKey ? 'password' : 'text'" class="form-control" formControlName="adminSecretKey" placeholder="Clé secrète (voir config backend)">
+              <div class="input-group-append">
+                <span class="input-group-text password-toggle" (click)="hideAdminKey = !hideAdminKey" (keydown.enter)="hideAdminKey = !hideAdminKey" role="button" tabindex="0" [attr.aria-label]="hideAdminKey ? 'Afficher' : 'Masquer'">
+                  <i class="feather" [ngClass]="hideAdminKey ? 'icon-eye' : 'icon-eye-off'"></i>
+                </span>
+              </div>
             </div>
             <small class="text-danger" *ngIf="getError('adminSecretKey')">{{ getError('adminSecretKey') }}</small>
             <small class="text-muted d-block mt-1">Valeur de <code>ADMIN_SECRET_KEY</code> dans le .env du backend (défaut : admin-secret-2024)</small>
@@ -105,11 +116,11 @@
           </div>
           <br>
 
-          <div class="auth-submit-wrap">
-          <button type="submit" class="btn btn-primary btn-lg" [disabled]="loading">
-            {{ loading ? 'Création...' : getSubmitLabel() }}
-          </button>
-        </div>
+          <div class="auth-submit-wrap" [ngClass]="'auth-submit-wrap--' + signupType">
+            <button type="submit" class="btn btn-auth" [disabled]="loading">
+              {{ loading ? 'Création...' : getSubmitLabel() }}
+            </button>
+          </div>
         </form>
 
         <div class="auth-links">

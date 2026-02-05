@@ -25,6 +25,7 @@
           <img *ngIf="!isAdmin() && currentUser?.avatar" [src]="currentUser.avatar" class="img-radius" alt="Profil">
           <i *ngIf="!isAdmin() && !currentUser?.avatar" class="feather icon-user img-radius pro-icon"></i>
           <span>{{ getDisplayName() }}</span>
+          <span class="pro-head-role" *ngIf="getRoleLabel()">— {{ getRoleLabel() }}</span>
         </div>
         <ul class="pro-body">
           <li><a routerLink="/auth/profile" class="dropdown-item" ngbDropdownItem><i class="feather icon-user"></i> Modifier profil</a></li>

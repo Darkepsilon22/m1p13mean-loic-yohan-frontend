@@ -168,6 +168,24 @@ export class AuthService {
     );
   }
 
+  /** Mot de passe oublié : envoi du lien par email */
+  forgotPassword(email: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.base}/auth/forgot-password`, { email }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /** Réinitialisation du mot de passe avec le token reçu par email */
+  resetPassword(token: string, newPassword: string, confirmPassword: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(`${this.base}/auth/reset-password`, {
+      token,
+      newPassword,
+      confirmPassword
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   /** Admin: list users awaiting approval (status=pending & email verified) */
   getPendingUsers(): Observable<{ success: boolean; count: number; data: { users: any[] } }> {
     return this.http.get<{ success: boolean; count: number; data: { users: any[] } }>(`${this.base}/auth/users/pending`).pipe(
