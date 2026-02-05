@@ -1,0 +1,71 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Mes produits" [options]="false">
+      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+        <a routerLink="/products/my/create" class="btn btn-sm btn-primary">Nouveau produit</a>
+        <a routerLink="/products/stock" class="btn btn-sm btn-outline-secondary">Vue stock</a>
+        <input type="text" class="form-control form-control-sm ml-2" style="max-width: 180px;" placeholder="Recherche..."
+               [(ngModel)]="filters.search" (keyup.enter)="onFilterChange()">
+        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.availability" (ngModelChange)="onFilterChange()">
+          <option value="">Disponibilité</option>
+          <option value="available">Disponible</option>
+          <option value="outOfStock">Rupture</option>
+          <option value="onOrder">Sur commande</option>
+        </select>
+        <label class="mb-0 ml-2"><input type="checkbox" [(ngModel)]="filters.includeArchived" (ngModelChange)="onFilterChange()"> Archivés</label>
+        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.sort" (ngModelChange)="onFilterChange()">
+          <option value="-createdAt">Plus récents</option>
+          <option value="createdAt">Plus anciens</option>
+          <option value="name">Nom A-Z</option>
+          <option value="-price">Prix décroissant</option>
+        </select>
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="onFilterChange()">Filtrer</button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
+
+      <div *ngIf="!loading && products.length === 0" class="text-muted py-4 text-center">
+        Aucun produit. <a routerLink="/products/my/create">Créer un produit</a>
+      </div>
+
+      <div *ngIf="!loading && products.length > 0" class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Catégorie</th>
+              <th>Prix</th>
+              <th>Stock</th>
+              <th>Disponibilité</th>
+              <th>Archivé</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of products">
+              <td><strong>{{ p.name }}</strong></td>
+              <td>{{ p.categoryInternal || '—' }}</td>
+              <td>{{ p.price != null ? (p.price | number:'1.2-2') + ' €' : '—' }}</td>
+              <td>{{ p.stock ?? 0 }}</td>
+              <td><span class="badge" [ngClass]="getAvailabilityClass(p.availability)">{{ getAvailabilityLabel(p.availability) }}</span></td>
+              <td>{{ p.isArchived ? 'Oui' : 'Non' }}</td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-primary mr-1" (click)="goToEdit(p._id)">Modifier</button>
+                <a [routerLink]="['/products/view', p._id]" class="btn btn-sm btn-outline-secondary">Voir</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!loading && pagination.pages > 1" class="d-flex justify-content-between align-items-center mt-3">
+        <span class="text-muted">Page {{ pagination.page }} / {{ pagination.pages }}</span>
+        <div>
+          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>
