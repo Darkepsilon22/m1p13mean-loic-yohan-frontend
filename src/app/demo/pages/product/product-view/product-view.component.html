@@ -1,0 +1,46 @@
+<div class="row" *ngIf="loading">
+  <div class="col-12 text-center py-5">Chargement...</div>
+</div>
+<div class="row" *ngIf="errorMessage && !product">
+  <div class="col-12">
+    <div class="alert alert-danger">{{ errorMessage }}</div>
+    <a routerLink="/home" class="btn btn-secondary">Retour à l'accueil</a>
+  </div>
+</div>
+
+<div class="row" *ngIf="product && !loading">
+  <div class="col-md-4 mb-3">
+    <div class="card h-100">
+      <img *ngIf="getMainPhoto()" [src]="getMainPhoto()" class="card-img-top" alt="{{ product.name }}" style="object-fit: cover; max-height: 280px;">
+      <div class="card-body" *ngIf="!getMainPhoto()">
+        <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height: 200px;">
+          <i class="feather icon-image text-muted" style="font-size: 3rem;"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card h-100">
+      <div class="card-body">
+        <h4 class="card-title">{{ product.name }}</h4>
+        <p class="text-muted mb-2" *ngIf="product.boutiqueId">
+          <i class="feather icon-shopping-bag mr-1"></i>{{ product.boutiqueId.name }}
+        </p>
+        <p class="card-text mb-3" *ngIf="product.description">{{ product.description }}</p>
+        <div class="mb-2">
+          <span class="h4 text-primary">{{ product.price != null ? (product.price | number:'1.2-2') : '—' }} €</span>
+          <span class="text-muted text-decoration-line-through ml-2" *ngIf="product.originalPrice">{{ product.originalPrice | number:'1.2-2' }} €</span>
+        </div>
+        <p class="mb-2">
+          <span class="badge" [ngClass]="product.availability === 'available' ? 'badge-success' : product.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
+            {{ getAvailabilityLabel(product.availability) }}
+          </span>
+          <span class="badge badge-info ml-1" *ngIf="product.isFeatured">En vedette</span>
+        </p>
+        <p class="text-muted small mb-0" *ngIf="product.categoryInternal">Catégorie : {{ product.categoryInternal }}</p>
+        <hr>
+        <a routerLink="/home" class="btn btn-outline-secondary">Retour</a>
+      </div>
+    </div>
+  </div>
+</div>

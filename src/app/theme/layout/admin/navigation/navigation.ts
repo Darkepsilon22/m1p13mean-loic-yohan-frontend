@@ -97,6 +97,21 @@ const AdminNavigationItems: NavigationItem[] = [
     ]
   },
   {
+    id: 'admin-products',
+    title: 'Produits',
+    type: 'group',
+    icon: 'feather icon-package',
+    children: [
+      {
+        id: 'product-list',
+        title: 'Liste des produits',
+        type: 'item',
+        url: '/products/list',
+        icon: 'feather icon-list'
+      }
+    ]
+  },
+  {
     id: 'admin-users',
     title: 'Gestion Utilisateurs',
     type: 'group',
@@ -134,6 +149,35 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/dashboard/analytics',
         icon: 'feather icon-bar-chart-2'
+      }
+    ]
+  },
+  {
+    id: 'boutique-products',
+    title: 'Produits & Stock',
+    type: 'group',
+    icon: 'feather icon-package',
+    children: [
+      {
+        id: 'my-products',
+        title: 'Mes produits',
+        type: 'item',
+        url: '/products/my',
+        icon: 'feather icon-list'
+      },
+      {
+        id: 'product-create',
+        title: 'Nouveau produit',
+        type: 'item',
+        url: '/products/my/create',
+        icon: 'feather icon-plus-square'
+      },
+      {
+        id: 'stock-list',
+        title: 'Vue stock',
+        type: 'item',
+        url: '/products/stock',
+        icon: 'feather icon-trending-up'
       }
     ]
   },

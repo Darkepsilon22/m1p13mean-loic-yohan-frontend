@@ -1,8 +1,7 @@
-<!-- Sidebar déjà dans le layout AdminComponent -->
-<div class="home-page">
+<!-- Non connecté : inviter à se connecter -->
+<div class="home-page" *ngIf="!isLoggedIn">
   <div class="home-corner">
-    <!-- Non connecté : inviter à se connecter -->
-    <div *ngIf="!isLoggedIn" class="card home-connect-card">
+    <div class="card home-connect-card">
       <div class="card-body text-center">
         <i class="feather icon-user home-connect-icon"></i>
         <h5 class="card-title mt-2 mb-2">Bienvenue</h5>
@@ -13,8 +12,13 @@
         </p>
       </div>
     </div>
-    <!-- Connecté : carte de bienvenue -->
-    <div *ngIf="isLoggedIn" class="card home-welcome-card">
+  </div>
+</div>
+
+<!-- Admin / Boutique : carte de bienvenue -->
+<div class="home-page" *ngIf="isLoggedIn && currentUser?.role !== 'acheteur'">
+  <div class="home-corner">
+    <div class="card home-welcome-card">
       <div class="card-body">
         <h5 class="card-title mb-2">
           <i class="feather icon-home mr-2"></i>Bienvenue
@@ -31,5 +35,99 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Acheteur : catalogue produits (cards + filtres) -->
+<div class="home-catalog" *ngIf="isLoggedIn && currentUser?.role === 'acheteur'">
+  <h5 class="mb-3">Catalogue produits</h5>
+
+  <div class="home-filters card mb-3">
+    <div class="card-body py-2">
+      <div class="row align-items-center flex-wrap">
+        <div class="col-auto mb-2 mb-md-0">
+          <input type="text" class="form-control form-control-sm" placeholder="Recherche..." style="width: 160px;"
+                 [(ngModel)]="filters.search" (keyup.enter)="onFilterChange()">
+        </div>
+        <div class="col-auto">
+          <input type="text" class="form-control form-control-sm" placeholder="Catégorie" style="width: 120px;"
+                 [(ngModel)]="filters.category" (keyup.enter)="onFilterChange()">
+        </div>
+        <div class="col-auto">
+          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.boutiqueId" (ngModelChange)="onFilterChange()">
+            <option value="">Toutes les boutiques</option>
+            <option *ngFor="let b of boutiques" [value]="b._id">{{ b.name }}</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.availability" (ngModelChange)="onFilterChange()">
+            <option value="">Disponibilité</option>
+            <option value="available">Disponible</option>
+            <option value="outOfStock">Rupture</option>
+            <option value="onOrder">Sur commande</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <input type="number" class="form-control form-control-sm" placeholder="Prix min" style="width: 90px;" min="0" step="0.01"
+                 [(ngModel)]="filters.minPrice" (keyup.enter)="onFilterChange()">
+        </div>
+        <div class="col-auto">
+          <input type="number" class="form-control form-control-sm" placeholder="Prix max" style="width: 90px;" min="0" step="0.01"
+                 [(ngModel)]="filters.maxPrice" (keyup.enter)="onFilterChange()">
+        </div>
+        <div class="col-auto">
+          <label class="mb-0"><input type="checkbox" [(ngModel)]="filters.isFeatured" (ngModelChange)="onFilterChange()"> Vedette</label>
+        </div>
+        <div class="col-auto">
+          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.sort" (ngModelChange)="onFilterChange()">
+            <option value="-createdAt">Récents</option>
+            <option value="price">Prix croissant</option>
+            <option value="-price">Prix décroissant</option>
+            <option value="name">Nom A-Z</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <button type="button" class="btn btn-sm btn-primary" (click)="onFilterChange()">Filtrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="productError" class="alert alert-danger">{{ productError }}</div>
+  <div *ngIf="loadingProducts" class="text-center py-5">Chargement...</div>
+
+  <div *ngIf="!loadingProducts && products.length === 0" class="text-muted py-5 text-center">
+    Aucun produit ne correspond aux critères.
+  </div>
+
+  <div class="row" *ngIf="!loadingProducts && products.length > 0">
+    <div class="col-sm-6 col-md-4 col-lg-3 mb-4" *ngFor="let p of products">
+      <div class="card h-100 product-card">
+        <a [routerLink]="['/products/view', p._id]" class="text-decoration-none text-dark">
+          <div class="card-img-wrap" *ngIf="getProductMainPhoto(p)">
+            <img [src]="getProductMainPhoto(p)" class="card-img-top" alt="{{ p.name }}" style="height: 180px; object-fit: cover;">
+          </div>
+          <div class="card-img-wrap bg-light d-flex align-items-center justify-content-center" *ngIf="!getProductMainPhoto(p)" style="height: 180px;">
+            <i class="feather icon-image text-muted" style="font-size: 2.5rem;"></i>
+          </div>
+          <div class="card-body">
+            <h6 class="card-title text-truncate">{{ p.name }}</h6>
+            <p class="card-text small text-muted mb-1" *ngIf="p.boutiqueId">{{ p.boutiqueId.name }}</p>
+            <p class="mb-2">
+              <span class="font-weight-bold text-primary">{{ p.price != null ? (p.price | number:'1.2-2') : '—' }} €</span>
+              <span class="badge ml-1" [ngClass]="p.availability === 'available' ? 'badge-success' : p.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
+                {{ getAvailabilityLabel(p.availability) }}
+              </span>
+            </p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loadingProducts && pagination.pages > 1" class="d-flex justify-content-center mt-3">
+    <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
+    <span class="align-self-center mx-2">Page {{ pagination.page }} / {{ pagination.pages }}</span>
+    <button type="button" class="btn btn-sm btn-outline-secondary ml-1" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>
   </div>
 </div>

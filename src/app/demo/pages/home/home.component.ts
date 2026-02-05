@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { ProductService, ProductListParams } from '../../../core/services/product.service';
+import { BoutiqueService } from '../../../core/services/boutique.service';
+import { ApiErrorBody } from '../../../core/services/auth.service';
 
 /**
- * Page d'accueil une fois connecté : sidebar + Next shop, contenu dans le coin opposé au logo (haut droit).
+ * Page d'accueil : pour acheteur = catalogue produits (cards + filtres), pour admin/boutique = carte de bienvenue.
  */
 @Component({
   selector: 'app-home',
@@ -14,11 +17,87 @@ export class HomeComponent implements OnInit {
   currentUser: any = null;
   isLoggedIn = false;
 
-  constructor(private auth: AuthService) {}
+  // Catalogue (acheteur)
+  products: any[] = [];
+  boutiques: any[] = [];
+  loadingProducts = false;
+  productError = '';
+  filters: ProductListParams = {
+    search: '',
+    category: '',
+    availability: '',
+    minPrice: undefined,
+    maxPrice: undefined,
+    isFeatured: undefined,
+    boutiqueId: '',
+    sort: '-createdAt',
+    page: 1,
+    limit: 12
+  };
+  pagination: { page: number; limit: number; total: number; pages: number } = { page: 1, limit: 12, total: 0, pages: 0 };
+
+  constructor(
+    private auth: AuthService,
+    private productService: ProductService,
+    private boutiqueService: BoutiqueService
+  ) {}
 
   ngOnInit(): void {
     this.isLoggedIn = this.auth.isLoggedIn();
     this.currentUser = this.auth.getStoredUser();
+    if (this.isLoggedIn && this.currentUser?.role === 'acheteur') {
+      this.loadBoutiques();
+      this.loadProducts();
+    }
+  }
+
+  loadBoutiques(): void {
+    this.boutiqueService.getAll({ limit: 100 }).subscribe({
+      next: (res) => {
+        this.boutiques = res.data?.boutiques ?? [];
+      },
+      error: () => {}
+    });
+  }
+
+  loadProducts(): void {
+    this.loadingProducts = true;
+    this.productError = '';
+    const params: ProductListParams = {
+      page: this.filters.page,
+      limit: this.filters.limit,
+      sort: this.filters.sort || '-createdAt'
+    };
+    if (this.filters.search) params.search = this.filters.search;
+    if (this.filters.category) params.category = this.filters.category;
+    if (this.filters.availability) params.availability = this.filters.availability;
+    if (this.filters.minPrice != null) params.minPrice = this.filters.minPrice;
+    if (this.filters.maxPrice != null) params.maxPrice = this.filters.maxPrice;
+    if (this.filters.isFeatured === true) params.isFeatured = true;
+    if (this.filters.boutiqueId) params.boutiqueId = this.filters.boutiqueId;
+
+    this.productService.getAll(params).subscribe({
+      next: (res) => {
+        this.products = res.data ?? [];
+        this.pagination = res.pagination ?? this.pagination;
+        this.loadingProducts = false;
+      },
+      error: (err: ApiErrorBody) => {
+        this.productError = err.message || 'Erreur chargement.';
+        this.loadingProducts = false;
+      }
+    });
+  }
+
+  onFilterChange(): void {
+    this.filters.page = 1;
+    this.loadProducts();
+  }
+
+  goToPage(p: number): void {
+    if (p < 1 || p > this.pagination.pages) return;
+    this.filters.page = p;
+    this.loadProducts();
   }
 
   getWelcomeName(): string {
@@ -36,5 +115,14 @@ export class HomeComponent implements OnInit {
       case 'acheteur': return 'Acheteur';
       default: return this.currentUser.role;
     }
+  }
+
+  getProductMainPhoto(p: any): string {
+    return p?.mainPhoto || (p?.photos && p.photos[0]) || '';
+  }
+
+  getAvailabilityLabel(a: string): string {
+    const map: Record<string, string> = { available: 'Disponible', outOfStock: 'Rupture', onOrder: 'Sur commande' };
+    return map[a] || a;
   }
 }

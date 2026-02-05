@@ -1,0 +1,47 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Vue stock" [options]="false">
+      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+        <label class="mb-0"><input type="checkbox" [(ngModel)]="lowStockOnly" (ngModelChange)="onFilterChange()"> Stock bas uniquement</label>
+        <label class="mb-0"><input type="checkbox" [(ngModel)]="outOfStockOnly" (ngModelChange)="onFilterChange()"> Rupture uniquement</label>
+        <a routerLink="/products/my" class="btn btn-sm btn-outline-secondary ml-2">Mes produits</a>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
+
+      <div *ngIf="!loading && products.length === 0" class="text-muted py-4 text-center">
+        Aucun produit.
+      </div>
+
+      <div *ngIf="!loading && products.length > 0" class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Stock</th>
+              <th>Seuil alerte</th>
+              <th>Disponibilité</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of products" [class.table-warning]="isLowStock(p)" [class.table-danger]="p.stock === 0">
+              <td><strong>{{ p.name }}</strong></td>
+              <td>{{ p.stock ?? 0 }}</td>
+              <td>{{ p.lowStockThreshold ?? '—' }}</td>
+              <td>
+                <span class="badge" [ngClass]="p.availability === 'available' ? 'badge-success' : p.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
+                  {{ p.availability === 'available' ? 'Disponible' : p.availability === 'outOfStock' ? 'Rupture' : 'Sur commande' }}
+                </span>
+              </td>
+              <td>
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="goToEdit(p._id)">Gérer le stock</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </app-card>
+  </div>
+</div>
