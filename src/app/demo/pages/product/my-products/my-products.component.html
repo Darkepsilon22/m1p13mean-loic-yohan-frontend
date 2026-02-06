@@ -4,7 +4,11 @@
       <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
         <a routerLink="/products/my/create" class="btn btn-sm btn-primary">Nouveau produit</a>
         <a routerLink="/products/stock" class="btn btn-sm btn-outline-secondary">Vue stock</a>
-        <input type="text" class="form-control form-control-sm ml-2" style="max-width: 180px;" placeholder="Recherche..."
+        <span class="text-muted small ml-2">Afficher :</span>
+        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
+          <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+        </select>
+        <input type="text" class="form-control form-control-sm" style="max-width: 180px;" placeholder="Recherche..."
                [(ngModel)]="filters.search" (keyup.enter)="onFilterChange()">
         <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.availability" (ngModelChange)="onFilterChange()">
           <option value="">Disponibilité</option>
@@ -59,8 +63,8 @@
         </table>
       </div>
 
-      <div *ngIf="!loading && pagination.pages > 1" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Page {{ pagination.page }} / {{ pagination.pages }}</span>
+      <div *ngIf="!loading && (pagination.pages > 1 || pagination.total > 0)" class="d-flex justify-content-between align-items-center mt-3">
+        <span class="text-muted">Page {{ pagination.page }} / {{ pagination.pages || 1 }} ({{ pagination.total }} produit(s))</span>
         <div>
           <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
           <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>

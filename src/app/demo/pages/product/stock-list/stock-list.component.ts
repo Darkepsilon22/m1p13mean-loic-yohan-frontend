@@ -34,12 +34,6 @@ export class StockListComponent implements OnInit {
   exportCategoriesList: string[] = [];
   exportLoading = false;
   exportError = '';
-  pagination: { page: number; limit: number; total: number; pages: number } = { 
-    page: 1, 
-    limit: 50, 
-    total: 0, 
-    pages: 0 
-  };
 
   constructor(
     private productService: ProductService,
@@ -287,5 +281,4 @@ export class StockListComponent implements OnInit {
     a.click();
     window.URL.revokeObjectURL(url);
   }
-}
 }

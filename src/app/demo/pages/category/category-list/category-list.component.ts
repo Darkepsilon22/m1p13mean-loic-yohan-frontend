@@ -18,6 +18,9 @@ export class CategoryListComponent implements OnInit {
   loading = false;
   errorMessage = '';
   activeFilter: boolean | '' = '';
+  searchQuery = '';
+  pageSizeOptions = [5, 10, 20, 50, 100];
+  selectedPageSize = 20;
 
   categoryToDelete: Category | null = null;
   deleteLoading = false;
@@ -41,8 +44,9 @@ export class CategoryListComponent implements OnInit {
   loadCategories(page = 1): void {
     this.loading = true;
     this.errorMessage = '';
-    const params: { page: number; limit: number; active?: boolean } = { page, limit: 20 };
+    const params: { page: number; limit: number; active?: boolean; search?: string } = { page, limit: this.selectedPageSize };
     if (this.activeFilter !== '') params.active = this.activeFilter as boolean;
+    if (this.searchQuery.trim()) params.search = this.searchQuery.trim();
     this.categoryService.getAll(params).subscribe({
       next: (res) => {
         this.loading = false;
@@ -57,6 +61,10 @@ export class CategoryListComponent implements OnInit {
   }
 
   onFilterChange(): void {
+    this.loadCategories(1);
+  }
+
+  onPageSizeChange(): void {
     this.loadCategories(1);
   }
 

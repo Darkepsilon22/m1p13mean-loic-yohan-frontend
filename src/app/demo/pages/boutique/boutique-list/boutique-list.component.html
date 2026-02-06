@@ -1,7 +1,9 @@
 <div class="row">
   <div class="col-sm-12">
-    <app-card cardTitle="Liste des emplacements" [options]="false">
+    <app-card cardTitle="Liste des boutiques" [options]="false">
       <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+        <input type="text" class="form-control form-control-sm" style="max-width: 180px;" placeholder="Recherche par nom..."
+               [(ngModel)]="searchQuery" (keyup.enter)="onFilterChange()">
         <label class="mb-0 mr-2">Statut :</label>
         <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
           <option value="">Tous</option>
@@ -10,6 +12,11 @@
           <option value="inactive">Inactive</option>
           <option value="rejected">Refusée</option>
         </select>
+        <span class="text-muted small">Afficher :</span>
+        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
+          <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+        </select>
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="onFilterChange()">Filtrer</button>
       </div>
 
       <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>

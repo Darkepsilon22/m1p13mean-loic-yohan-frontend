@@ -48,13 +48,14 @@ export class CategoryService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(params?: { active?: boolean; root?: boolean; parent?: string; page?: number; limit?: number; sort?: string }): Observable<CategoriesResponse> {
+  getAll(params?: { active?: boolean; root?: boolean; parent?: string; search?: string; page?: number; limit?: number; sort?: string }): Observable<CategoriesResponse> {
     let query = '';
     if (params) {
       const q = new URLSearchParams();
       if (params.active != null) q.set('active', String(params.active));
       if (params.root != null) q.set('root', String(params.root));
       if (params.parent) q.set('parent', params.parent);
+      if (params.search && params.search.trim()) q.set('search', params.search.trim());
       if (params.page != null) q.set('page', String(params.page));
       if (params.limit != null) q.set('limit', String(params.limit));
       if (params.sort) q.set('sort', params.sort);

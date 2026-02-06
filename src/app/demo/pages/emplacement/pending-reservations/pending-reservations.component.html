@@ -1,7 +1,15 @@
 <div class="row">
   <div class="col-sm-12">
     <app-card cardTitle="Demandes de réservation en attente" [options]="false">
-      
+      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+        <input type="text" class="form-control form-control-sm" style="max-width: 220px;" placeholder="Recherche (emplacement, demandeur)..."
+               [(ngModel)]="searchQuery">
+        <span class="text-muted small">Afficher :</span>
+        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
+          <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+        </select>
+        <button type="button" class="btn btn-sm btn-outline-primary" (click)="onFilterChange()">Filtrer</button>
+      </div>
       <!-- Statistiques rapides -->
       <div class="row mb-4" *ngIf="!loading">
         <div class="col-md-3">
@@ -69,8 +77,13 @@
         <p class="text-muted">Toutes les demandes de réservation ont été traitées.</p>
       </div>
 
+      <!-- Aucun résultat recherche -->
+      <div *ngIf="!loading && pendingReservations.length > 0 && filteredReservations.length === 0" class="text-center py-4 text-muted">
+        Aucun résultat pour cette recherche.
+      </div>
+
       <!-- Liste des demandes -->
-      <div *ngIf="!loading && pendingReservations.length > 0">
+      <div *ngIf="!loading && paginatedReservations.length > 0">
         <div class="table-responsive">
           <table class="table table-hover">
             <thead>
@@ -83,7 +96,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let reservation of pendingReservations" [class.table-warning]="isOld(reservation.requestedAt)">
+              <tr *ngFor="let reservation of paginatedReservations" [class.table-warning]="isOld(reservation.requestedAt)">
                 <td>
                   <div>
                     <strong>{{ reservation.boutique?.name || 'N/A' }}</strong>
@@ -144,6 +157,13 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <span class="text-muted">Page {{ currentPage }} / {{ totalReservationPages }} ({{ filteredReservations.length }} demande(s))</span>
+          <div>
+            <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">Précédent</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="currentPage >= totalReservationPages" (click)="goToPage(currentPage + 1)">Suivant</button>
+          </div>
         </div>
       </div>
     </app-card>

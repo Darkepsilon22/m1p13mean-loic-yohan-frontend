@@ -23,6 +23,12 @@ export class EmplacementAvailableComponent implements OnInit {
   filterMinPrice: number | null = null;
   filterMaxPrice: number | null = null;
 
+  // Pagination côté client
+  searchName = '';
+  pageSizeOptions = [6, 12, 24, 48];
+  selectedPageSize = 12;
+  currentPage = 1;
+
   // Modal
   selectedEmplacement: any = null;
   reserveLoading = false;
@@ -69,7 +75,37 @@ export class EmplacementAvailableComponent implements OnInit {
     this.filterZone = '';
     this.filterMinPrice = null;
     this.filterMaxPrice = null;
+    this.searchName = '';
+    this.currentPage = 1;
     this.loadEmplacements();
+  }
+
+  get filteredEmplacements(): any[] {
+    let list = this.emplacements;
+    const q = this.searchName.trim().toLowerCase();
+    if (q) {
+      list = list.filter((e: any) => (e.name || '').toLowerCase().includes(q));
+    }
+    return list;
+  }
+
+  get paginatedEmplacements(): any[] {
+    const list = this.filteredEmplacements;
+    const start = (this.currentPage - 1) * this.selectedPageSize;
+    return list.slice(start, start + this.selectedPageSize);
+  }
+
+  get totalEmplacementPages(): number {
+    const total = this.filteredEmplacements.length;
+    return Math.max(1, Math.ceil(total / this.selectedPageSize));
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+  }
+
+  goToPage(p: number): void {
+    if (p >= 1 && p <= this.totalEmplacementPages) this.currentPage = p;
   }
 
   openReserveModal(emplacement: any): void {

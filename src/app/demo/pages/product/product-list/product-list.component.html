@@ -4,6 +4,10 @@
       <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
         <input type="text" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Recherche..."
                [(ngModel)]="filters.search" (keyup.enter)="onFilterChange()">
+        <span class="text-muted small">Afficher :</span>
+        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
+          <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+        </select>
         <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.boutiqueId" (ngModelChange)="onFilterChange()">
           <option value="">Toutes les boutiques</option>
           <option *ngFor="let b of boutiques" [value]="b._id">{{ b.name }}</option>
@@ -78,8 +82,8 @@
         </table>
       </div>
 
-      <div *ngIf="!loading && pagination.pages > 1" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Page {{ pagination.page }} / {{ pagination.pages }} ({{ pagination.total }} produits)</span>
+      <div *ngIf="!loading && (pagination.pages > 1 || pagination.total > 0)" class="d-flex justify-content-between align-items-center mt-3">
+        <span class="text-muted">Page {{ pagination.page }} / {{ pagination.pages || 1 }} ({{ pagination.total }} produit(s))</span>
         <div>
           <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
           <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>

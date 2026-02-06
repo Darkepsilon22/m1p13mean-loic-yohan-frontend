@@ -14,6 +14,11 @@ export class PendingBoutiquesComponent implements OnInit {
   pendingLoading = false;
   pendingError = '';
 
+  searchQuery = '';
+  pageSizeOptions = [5, 10, 20, 50];
+  selectedPageSize = 10;
+  currentPage = 1;
+
   actionLoading = false;
   actionError = '';
   selectedUser: any = null;
@@ -56,6 +61,42 @@ export class PendingBoutiquesComponent implements OnInit {
     this.selectedUser = null;
     this.actionError = '';
     this.rejectReason = '';
+  }
+
+  get filteredUsers(): any[] {
+    let list = this.pendingBoutiqueUsers;
+    const q = this.searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter((u: any) => {
+        const name = `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase();
+        const email = (u.email || '').toLowerCase();
+        return name.includes(q) || email.includes(q);
+      });
+    }
+    return list;
+  }
+
+  get paginatedUsers(): any[] {
+    const list = this.filteredUsers;
+    const start = (this.currentPage - 1) * this.selectedPageSize;
+    return list.slice(start, start + this.selectedPageSize);
+  }
+
+  get totalFilteredPages(): number {
+    const total = this.filteredUsers.length;
+    return Math.max(1, Math.ceil(total / this.selectedPageSize));
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+  }
+
+  goToPage(p: number): void {
+    if (p >= 1 && p <= this.totalFilteredPages) this.currentPage = p;
   }
 
   confirmPendingAction(): void {
