@@ -51,9 +51,9 @@
 
         <!-- Prix -->
         <div class="mb-3">
-          <span class="h3 text-primary font-weight-bold">{{ product.price != null ? (product.price | number:'1.2-2') : '—' }} €</span>
+          <span class="h3 text-primary font-weight-bold">{{ product.price != null ? (product.price | number:'1.0-0') : '—' }} Ar</span>
           <span class="text-muted text-decoration-line-through ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
-            {{ product.originalPrice | number:'1.2-2' }} €
+            {{ product.originalPrice | number:'1.0-0' }} Ar
           </span>
           <span class="badge badge-danger ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
             -{{ ((1 - product.price / product.originalPrice) * 100) | number:'1.0-0' }}%
@@ -72,14 +72,20 @@
           <strong>Catégorie :</strong> {{ product.categoryInternal }}
         </p>
 
-        <p class="text-muted small mb-3" *ngIf="product.stock != null">
+        <p class="text-muted small mb-3" *ngIf="product.stock != null && product.stock > 0">
           <strong>Stock :</strong> {{ product.stock }} unité(s)
         </p>
+
+        <!-- Message rupture de stock -->
+        <div class="alert alert-danger mb-3" *ngIf="product.stock != null && product.stock <= 0">
+          <i class="feather icon-alert-triangle mr-1"></i>
+          <strong>Rupture de stock</strong> — Ce produit n'est plus disponible pour le moment.
+        </div>
 
         <!-- Section Panier (acheteur uniquement) -->
         <div class="mt-4" *ngIf="isAcheteur">
           <hr>
-          <div class="d-flex align-items-center mb-3">
+          <div class="d-flex align-items-center mb-3" *ngIf="product.stock > 0">
             <label class="mb-0 mr-3"><strong>Quantité :</strong></label>
             <div class="input-group" style="width: 140px;">
               <div class="input-group-prepend">
@@ -99,7 +105,7 @@
           </div>
 
           <button class="btn btn-primary btn-lg mr-2" (click)="addToCart()"
-                  [disabled]="addingToCart || product.availability === 'outOfStock'">
+                  [disabled]="addingToCart || product.stock <= 0 || product.availability === 'outOfStock'">
             <i class="feather icon-shopping-cart mr-1"></i>
             <span *ngIf="!addingToCart">Ajouter au panier</span>
             <span *ngIf="addingToCart">Ajout...</span>
