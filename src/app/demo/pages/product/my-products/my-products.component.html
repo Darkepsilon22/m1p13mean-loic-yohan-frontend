@@ -46,7 +46,7 @@
             <tr *ngFor="let p of products">
               <td><strong>{{ p.name }}</strong></td>
               <td>{{ p.categoryInternal || '—' }}</td>
-              <td>{{ p.price != null ? (p.price | number:'1.2-2') + ' €' : '—' }}</td>
+              <td>{{ p.price != null ? (p.price | number:'1.0-0') + ' Ar' : '—' }}</td>
               <td>{{ p.stock ?? 0 }}</td>
               <td><span class="badge" [ngClass]="getAvailabilityClass(p.availability)">{{ getAvailabilityLabel(p.availability) }}</span></td>
               <td>{{ p.isArchived ? 'Oui' : 'Non' }}</td>
