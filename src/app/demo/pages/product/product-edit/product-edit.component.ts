@@ -25,6 +25,7 @@ export class ProductEditComponent implements OnInit {
   stockActionType: 'add' | 'remove' | 'adjust' | 'initial' | null = null;
   stockQuantity = 0;
   stockReason = '';
+  imageError = false;
 
   constructor(
     private fb: FormBuilder,
@@ -37,6 +38,7 @@ export class ProductEditComponent implements OnInit {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(200)]],
       description: ['', Validators.maxLength(2000)],
+      photoUrl: [''],  // Nouveau champ pour l'URL de la photo
       price: [null, [Validators.required, Validators.min(0)]],
       originalPrice: [null, Validators.min(0)],
       categoryInternal: ['', Validators.maxLength(100)],
@@ -44,6 +46,11 @@ export class ProductEditComponent implements OnInit {
       lowStockThreshold: [5, [Validators.min(0)]],
       availability: ['available'],
       isFeatured: [false]
+    });
+
+    // Écouter les changements sur l'URL de la photo
+    this.form.get('photoUrl')?.valueChanges.subscribe(() => {
+      this.imageError = false;
     });
   }
 
@@ -60,9 +67,14 @@ export class ProductEditComponent implements OnInit {
       next: (res) => {
         this.product = res.data;
         this.loadProduct = false;
+        
+        // Récupérer la photo actuelle (mainPhoto ou première photo du tableau)
+        const currentPhoto = this.product.mainPhoto || (this.product.photos && this.product.photos.length > 0 ? this.product.photos[0] : '');
+        
         this.form.patchValue({
           name: this.product.name,
           description: this.product.description || '',
+          photoUrl: currentPhoto,
           price: this.product.price,
           originalPrice: this.product.originalPrice ?? '',
           categoryInternal: this.product.categoryInternal || '',
@@ -71,6 +83,7 @@ export class ProductEditComponent implements OnInit {
           availability: this.product.availability || 'available',
           isFeatured: !!this.product.isFeatured
         });
+        
         this.loadStockHistory();
       },
       error: (err: ApiErrorBody) => {
@@ -93,30 +106,50 @@ export class ProductEditComponent implements OnInit {
     });
   }
 
+  onImageError(): void {
+    this.imageError = true;
+  }
+
   onSubmit(): void {
     if (this.form.invalid || !this.productId) return;
+    
     this.loading = true;
     this.errorMessage = '';
     const v = this.form.value;
+
+    // Préparer le tableau photos et mainPhoto
+    const photos: string[] = [];
+    const photoUrl = v.photoUrl?.trim();
+    if (photoUrl) {
+      photos.push(photoUrl);
+    }
+
     const body: UpdateProductBody = {
       name: v.name,
       description: v.description || undefined,
       price: Number(v.price),
       originalPrice: v.originalPrice != null && v.originalPrice !== '' ? Number(v.originalPrice) : undefined,
+      photos: photos.length > 0 ? photos : undefined,
+      mainPhoto: photos.length > 0 ? photos[0] : undefined,
       categoryInternal: v.categoryInternal || undefined,
-      stock: v.stock != null ? Number(v.stock) : undefined,
       lowStockThreshold: v.lowStockThreshold != null ? Number(v.lowStockThreshold) : undefined,
       availability: v.availability,
       isFeatured: !!v.isFeatured
     };
+
+    console.log('📝 Mise à jour du produit:', body);
+
     this.productService.update(this.productId, body).subscribe({
       next: (res) => {
         this.product = res.data;
         this.loading = false;
+        this.errorMessage = '';
+        console.log('✅ Produit mis à jour avec succès');
       },
       error: (err: ApiErrorBody) => {
         this.loading = false;
         this.errorMessage = err.message || 'Erreur lors de l\'enregistrement.';
+        console.error('❌ Erreur mise à jour produit:', err);
       }
     });
   }

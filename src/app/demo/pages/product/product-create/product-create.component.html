@@ -21,17 +21,36 @@
           <textarea class="form-control" formControlName="description" rows="3" placeholder="Description"></textarea>
         </div>
 
+        <!-- Photo du produit -->
+        <div class="form-group">
+          <label class="form-label">Photo du produit (URL)</label>
+          <input type="url" class="form-control" formControlName="photoUrl" placeholder="https://exemple.com/image.jpg">
+          <small class="form-text text-muted">Entrez l'URL complète de l'image du produit</small>
+          
+          <!-- Aperçu de l'image -->
+          <div *ngIf="form.get('photoUrl')?.value" class="mt-2">
+            <img [src]="form.get('photoUrl')?.value" 
+                 alt="Aperçu" 
+                 class="img-thumbnail" 
+                 style="max-width: 200px; max-height: 200px;"
+                 (error)="onImageError()">
+            <div *ngIf="imageError" class="text-danger mt-1">
+              <small>⚠️ Impossible de charger l'image. Vérifiez l'URL.</small>
+            </div>
+          </div>
+        </div>
+
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
-              <label class="form-label">Prix (€) <span class="text-danger">*</span></label>
+              <label class="form-label">Prix (Ar) <span class="text-danger">*</span></label>
               <input type="number" step="0.01" min="0" class="form-control" formControlName="price" placeholder="0.00">
               <small class="text-danger" *ngIf="form.get('price')?.invalid && form.get('price')?.touched">Prix requis, min 0</small>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <label class="form-label">Prix barré (€)</label>
+              <label class="form-label">Prix barré (Ar)</label>
               <input type="number" step="0.01" min="0" class="form-control" formControlName="originalPrice" placeholder="Optionnel">
             </div>
           </div>

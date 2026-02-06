@@ -9,37 +9,265 @@
 </div>
 
 <div class="row" *ngIf="product && !loading">
-  <div class="col-md-4 mb-3">
+  <!-- Image du produit -->
+  <div class="col-md-5 mb-3">
     <div class="card h-100">
-      <img *ngIf="getMainPhoto()" [src]="getMainPhoto()" class="card-img-top" alt="{{ product.name }}" style="object-fit: cover; max-height: 280px;">
+      <img *ngIf="getMainPhoto()" [src]="getMainPhoto()" class="card-img-top" alt="{{ product.name }}" style="object-fit: cover; max-height: 350px;">
       <div class="card-body" *ngIf="!getMainPhoto()">
-        <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height: 200px;">
+        <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height: 280px;">
           <i class="feather icon-image text-muted" style="font-size: 3rem;"></i>
+        </div>
+      </div>
+      <!-- Galerie secondaire -->
+      <div class="card-body pt-2" *ngIf="product.photos?.length > 1">
+        <div class="d-flex flex-wrap gap-2">
+          <img *ngFor="let photo of product.photos" [src]="photo" class="img-thumbnail"
+               style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;">
         </div>
       </div>
     </div>
   </div>
-  <div class="col-md-8">
+
+  <!-- Détails du produit -->
+  <div class="col-md-7">
     <div class="card h-100">
       <div class="card-body">
-        <h4 class="card-title">{{ product.name }}</h4>
-        <p class="text-muted mb-2" *ngIf="product.boutiqueId">
+        <h4 class="card-title mb-2">{{ product.name }}</h4>
+
+        <p class="text-muted mb-2" *ngIf="product.boutiqueId?.name">
           <i class="feather icon-shopping-bag mr-1"></i>{{ product.boutiqueId.name }}
         </p>
-        <p class="card-text mb-3" *ngIf="product.description">{{ product.description }}</p>
-        <div class="mb-2">
-          <span class="h4 text-primary">{{ product.price != null ? (product.price | number:'1.2-2') : '—' }} €</span>
-          <span class="text-muted text-decoration-line-through ml-2" *ngIf="product.originalPrice">{{ product.originalPrice | number:'1.2-2' }} €</span>
+
+        <!-- Note moyenne -->
+        <div class="mb-2" *ngIf="reviews.length > 0">
+          <span class="text-warning">
+            <i *ngFor="let s of [1,2,3,4,5]" class="fa"
+               [ngClass]="s <= averageRating ? 'fa-star' : (s - 0.5 <= averageRating ? 'fa-star-half-o' : 'fa-star-o')"></i>
+          </span>
+          <span class="ml-2 text-muted small">{{ averageRating }} / 5 ({{ reviews.length }} avis)</span>
         </div>
-        <p class="mb-2">
-          <span class="badge" [ngClass]="product.availability === 'available' ? 'badge-success' : product.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
+
+        <p class="card-text mb-3" *ngIf="product.description">{{ product.description }}</p>
+
+        <!-- Prix -->
+        <div class="mb-3">
+          <span class="h3 text-primary font-weight-bold">{{ product.price != null ? (product.price | number:'1.0-0') : '—' }} Ar</span>
+          <span class="text-muted text-decoration-line-through ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
+            {{ product.originalPrice | number:'1.0-0' }} Ar
+          </span>
+          <span class="badge badge-danger ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
+            -{{ ((1 - product.price / product.originalPrice) * 100) | number:'1.0-0' }}%
+          </span>
+        </div>
+
+        <!-- Badges -->
+        <p class="mb-3">
+          <span class="badge badge-lg" [ngClass]="product.availability === 'available' ? 'badge-success' : product.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
             {{ getAvailabilityLabel(product.availability) }}
           </span>
           <span class="badge badge-info ml-1" *ngIf="product.isFeatured">En vedette</span>
         </p>
-        <p class="text-muted small mb-0" *ngIf="product.categoryInternal">Catégorie : {{ product.categoryInternal }}</p>
-        <hr>
-        <a routerLink="/home" class="btn btn-outline-secondary">Retour</a>
+
+        <p class="text-muted small mb-3" *ngIf="product.categoryInternal">
+          <strong>Catégorie :</strong> {{ product.categoryInternal }}
+        </p>
+
+        <p class="text-muted small mb-3" *ngIf="product.stock != null && product.stock > 0">
+          <strong>Stock :</strong> {{ product.stock }} unité(s)
+        </p>
+
+        <!-- Message rupture de stock -->
+        <div class="alert alert-danger mb-3" *ngIf="product.stock != null && product.stock <= 0">
+          <i class="feather icon-alert-triangle mr-1"></i>
+          <strong>Rupture de stock</strong> — Ce produit n'est plus disponible pour le moment.
+        </div>
+
+        <!-- Section Panier (acheteur uniquement) -->
+        <div class="mt-4" *ngIf="isAcheteur">
+          <hr>
+          <div class="d-flex align-items-center mb-3" *ngIf="product.stock > 0">
+            <label class="mb-0 mr-3"><strong>Quantité :</strong></label>
+            <div class="input-group" style="width: 140px;">
+              <div class="input-group-prepend">
+                <button class="btn btn-outline-secondary" type="button" (click)="decrementQuantity()" [disabled]="quantity <= 1">
+                  <i class="feather icon-minus"></i>
+                </button>
+              </div>
+              <input type="text" class="form-control text-center" [value]="quantity" readonly style="background-color: #fff;">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" (click)="incrementQuantity()"
+                        [disabled]="product.stock && quantity >= product.stock">
+                  <i class="feather icon-plus"></i>
+                </button>
+              </div>
+            </div>
+            <span class="ml-3 text-muted small" *ngIf="product.stock != null">Max: {{ product.stock }}</span>
+          </div>
+
+          <button class="btn btn-primary btn-lg mr-2" (click)="addToCart()"
+                  [disabled]="addingToCart || product.stock <= 0 || product.availability === 'outOfStock'">
+            <i class="feather icon-shopping-cart mr-1"></i>
+            <span *ngIf="!addingToCart">Ajouter au panier</span>
+            <span *ngIf="addingToCart">Ajout...</span>
+          </button>
+
+          <a routerLink="/cart" class="btn btn-outline-secondary btn-lg">
+            <i class="feather icon-eye mr-1"></i> Voir le panier
+          </a>
+
+          <!-- Message panier -->
+          <div class="mt-3" *ngIf="cartMessage">
+            <div class="alert" [ngClass]="cartMessageType === 'success' ? 'alert-success' : 'alert-danger'">
+              {{ cartMessage }}
+            </div>
+          </div>
+        </div>
+
+        <hr class="mt-4">
+        <a routerLink="/home" class="btn btn-outline-secondary">
+          <i class="feather icon-arrow-left mr-1"></i> Retour
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section Avis -->
+<div class="row mt-4" *ngIf="product && !loading">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="feather icon-message-square mr-2"></i>Avis clients
+        </h5>
+        <button class="btn btn-primary btn-sm" (click)="openReviewForm()" *ngIf="isAcheteur && !userReview">
+          <i class="feather icon-edit-2 mr-1"></i> Écrire un avis
+        </button>
+        <button class="btn btn-outline-primary btn-sm" (click)="openReviewForm()" *ngIf="isAcheteur && userReview">
+          <i class="feather icon-edit mr-1"></i> Modifier mon avis
+        </button>
+      </div>
+      <div class="card-body">
+        <!-- Statistiques des avis -->
+        <div class="row mb-4" *ngIf="reviews.length > 0">
+          <div class="col-md-4 text-center">
+            <div class="display-4 text-primary font-weight-bold">{{ averageRating }}</div>
+            <div class="text-warning mb-2">
+              <i *ngFor="let s of [1,2,3,4,5]" class="fa fa-lg"
+                 [ngClass]="s <= averageRating ? 'fa-star' : (s - 0.5 <= averageRating ? 'fa-star-half-o' : 'fa-star-o')"></i>
+            </div>
+            <div class="text-muted">Basé sur {{ reviews.length }} avis</div>
+          </div>
+          <div class="col-md-8">
+            <div *ngFor="let count of [5,4,3,2,1]; let i = index" class="d-flex align-items-center mb-1">
+              <span class="mr-2" style="width: 20px;">{{ count }}</span>
+              <i class="fa fa-star text-warning mr-2"></i>
+              <div class="progress flex-grow-1" style="height: 10px;">
+                <div class="progress-bar bg-warning" [style.width.%]="reviews.length > 0 ? (ratingCounts[count-1] / reviews.length * 100) : 0"></div>
+              </div>
+              <span class="ml-2 text-muted" style="width: 30px;">{{ ratingCounts[count-1] }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message si utilisateur a déjà un avis -->
+        <div class="alert alert-info mb-3" *ngIf="userReview">
+          <i class="feather icon-check-circle mr-1"></i>
+          Vous avez déjà laissé un avis pour cette boutique.
+        </div>
+
+        <!-- Chargement des avis -->
+        <div *ngIf="loadingReviews" class="text-center py-4">
+          <i class="feather icon-loader"></i> Chargement des avis...
+        </div>
+
+        <!-- Liste des avis -->
+        <div *ngIf="!loadingReviews && reviews.length === 0" class="text-center text-muted py-4">
+          <i class="feather icon-message-circle" style="font-size: 2rem;"></i>
+          <p class="mt-2">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
+        </div>
+
+        <div *ngIf="!loadingReviews && reviews.length > 0">
+          <div class="border-bottom pb-3 mb-3" *ngFor="let review of reviews">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <strong>{{ getReviewerName(review) }}</strong>
+                <span class="text-muted small ml-2">{{ formatDate(review.createdAt) }}</span>
+              </div>
+              <div class="text-warning">
+                <i *ngFor="let s of [1,2,3,4,5]" class="fa" [ngClass]="s <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
+              </div>
+            </div>
+            <p class="mt-2 mb-1">{{ review.comment }}</p>
+            <!-- Réponse de la boutique -->
+            <div class="bg-light p-2 rounded mt-2" *ngIf="review.response?.text">
+              <small class="text-muted"><strong>Réponse de la boutique :</strong></small>
+              <p class="mb-0 small">{{ review.response.text }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Avis -->
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showReviewForm" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="feather icon-edit-2 mr-2"></i>
+          {{ userReview ? 'Modifier mon avis' : 'Écrire un avis' }}
+        </h5>
+        <button type="button" class="close" (click)="closeReviewForm()">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Note -->
+        <div class="form-group">
+          <label><strong>Votre note *</strong></label>
+          <div class="text-center py-3">
+            <span *ngFor="let star of [1,2,3,4,5]" 
+                  (click)="setRating(star)" 
+                  (mouseenter)="hoverStar = star"
+                  (mouseleave)="hoverStar = 0"
+                  style="cursor: pointer; font-size: 2.5rem; margin: 0 5px; display: inline-block; user-select: none;"
+                  [style.color]="(hoverStar > 0 ? star <= hoverStar : star <= reviewRating) ? '#ffc107' : '#dee2e6'"
+                  [style.transform]="hoverStar === star ? 'scale(1.2)' : 'scale(1)'"
+                  [style.transition]="'all 0.2s'">
+              ★
+            </span>
+          </div>
+          <div class="text-center text-muted small">
+            {{ reviewRating > 0 ? reviewRating + '/5' : 'Cliquez sur les étoiles' }}
+          </div>
+        </div>
+
+        <!-- Commentaire -->
+        <div class="form-group">
+          <label><strong>Votre avis *</strong></label>
+          <textarea class="form-control" rows="4" [(ngModel)]="reviewComment"
+                    placeholder="Décrivez votre expérience... (minimum 10 caractères)"
+                    maxlength="1000"></textarea>
+          <small class="text-muted">{{ reviewComment.length }}/1000 caractères</small>
+        </div>
+
+        <!-- Message -->
+        <div *ngIf="reviewMessage" class="alert" [ngClass]="reviewMessageType === 'success' ? 'alert-success' : 'alert-danger'">
+          {{ reviewMessage }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger mr-auto" (click)="deleteReview()" *ngIf="userReview">
+          <i class="feather icon-trash-2 mr-1"></i> Supprimer
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="closeReviewForm()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="submitReview()" [disabled]="submittingReview">
+          <span *ngIf="!submittingReview">{{ userReview ? 'Mettre à jour' : 'Publier' }}</span>
+          <span *ngIf="submittingReview">Envoi...</span>
+        </button>
       </div>
     </div>
   </div>
