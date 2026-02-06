@@ -65,7 +65,7 @@
                 <span *ngIf="!p.boutiqueId">—</span>
               </td>
               <td>{{ p.categoryInternal || '—' }}</td>
-              <td>{{ p.price != null ? (p.price | number:'1.2-2') + ' €' : '—' }}</td>
+              <td>{{ p.price != null ? (p.price | number:'1.0-0') + ' Ar' : '—' }}</td>
               <td>{{ p.stock ?? 0 }}</td>
               <td><span class="badge" [ngClass]="getAvailabilityClass(p.availability)">{{ getAvailabilityLabel(p.availability) }}</span></td>
               <td><span class="badge" [ngClass]="p.isArchived ? 'badge-secondary' : 'badge-light'">{{ p.isArchived ? 'Oui' : 'Non' }}</span></td>

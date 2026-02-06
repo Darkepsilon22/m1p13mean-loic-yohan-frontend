@@ -227,13 +227,6 @@ const AcheteurNavigationItems: NavigationItem[] = [
         exactMatch: true
       },
       {
-        id: 'boutiques',
-        title: 'Boutiques',
-        type: 'item',
-        url: '/boutique/list',
-        icon: 'feather icon-shopping-bag'
-      },
-      {
         id: 'cart',
         title: 'Mon Panier',
         type: 'item',

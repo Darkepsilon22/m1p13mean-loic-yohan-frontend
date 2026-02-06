@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CartService, Cart, CartItem } from '../../../core/services/cart.service';
 import { OrderService, CreateOrderBody } from '../../../core/services/order.service';
+import { PaymentService } from '../../../core/services/payment.service';
 import { AuthService, ApiErrorBody } from '../../../core/services/auth.service';
 
 @Component({
@@ -22,6 +23,9 @@ export class CartComponent implements OnInit {
   checkoutSuccess = '';
   orderReference = '';
 
+  // Stripe payment verification
+  stripeVerifying = false;
+
   // Formulaire checkout
   customerName = '';
   customerEmail = '';
@@ -38,8 +42,10 @@ export class CartComponent implements OnInit {
   constructor(
     private cartService: CartService,
     private orderService: OrderService,
+    private paymentService: PaymentService,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -48,7 +54,51 @@ export class CartComponent implements OnInit {
       this.customerName = `${this.currentUser.firstName || ''} ${this.currentUser.lastName || ''}`.trim();
       this.customerEmail = this.currentUser.email || '';
     }
-    this.loadCart();
+
+    // Vérifier si on revient de Stripe
+    this.route.queryParams.subscribe(params => {
+      if (params['payment'] === 'success' && params['session_id']) {
+        this.verifyStripePayment(params['session_id']);
+      } else if (params['payment'] === 'cancelled') {
+        this.errorMessage = 'Le paiement a été annulé.';
+        this.loadCart();
+        // Nettoyer les query params
+        this.router.navigate([], { queryParams: {}, replaceUrl: true });
+      } else {
+        this.loadCart();
+      }
+    });
+  }
+
+  /** Vérifie le paiement Stripe après redirection */
+  verifyStripePayment(sessionId: string): void {
+    this.stripeVerifying = true;
+    this.loading = true;
+    this.paymentService.verifyStripePayment(sessionId).subscribe({
+      next: (data) => {
+        this.stripeVerifying = false;
+        this.loading = false;
+        if (data.stripeStatus === 'paid' || data.payment.status === 'success') {
+          this.successMessage = 'Paiement effectué avec succès !';
+          this.orderReference = data.order?.orderReference || '';
+          this.cart = null;
+          this.cartService.resetCartCount();
+          // Nettoyer les query params
+          this.router.navigate([], { queryParams: {}, replaceUrl: true });
+        } else {
+          this.errorMessage = 'Le paiement est en cours de traitement. Veuillez patienter.';
+          this.loadCart();
+          this.router.navigate([], { queryParams: {}, replaceUrl: true });
+        }
+      },
+      error: (err: ApiErrorBody) => {
+        this.stripeVerifying = false;
+        this.loading = false;
+        this.errorMessage = err.message || 'Erreur lors de la vérification du paiement.';
+        this.loadCart();
+        this.router.navigate([], { queryParams: {}, replaceUrl: true });
+      }
+    });
   }
 
   loadCart(): void {
@@ -180,22 +230,38 @@ export class CartComponent implements OnInit {
         country: this.shippingCountry,
         additionalInfo: this.shippingAdditionalInfo.trim()
       },
-      paymentMethod: this.paymentMethod
+      paymentMethod: this.paymentMethod === 'stripe' ? 'card' : this.paymentMethod
     };
 
     this.orderService.createOrder(orderData).subscribe({
       next: (res) => {
-        this.checkoutLoading = false;
-        this.checkoutSuccess = 'Commande créée avec succès !';
-        this.orderReference = res.data?.orderReference || '';
-        this.cart = null;
-        this.cartService.resetCartCount();
-        setTimeout(() => {
-          this.closeCheckout();
-          if (this.orderReference) {
+        const orderId = res.data?._id || res.data?.order?._id;
+        this.orderReference = res.data?.orderReference || res.data?.order?.orderReference || '';
+
+        if (this.paymentMethod === 'stripe' && orderId) {
+          // Paiement Stripe : créer la session checkout et rediriger
+          this.paymentService.createStripeCheckout(orderId).subscribe({
+            next: (stripeData) => {
+              this.checkoutLoading = false;
+              // Rediriger vers Stripe Checkout
+              window.location.href = stripeData.url;
+            },
+            error: (err: ApiErrorBody) => {
+              this.checkoutLoading = false;
+              this.checkoutError = err.message || 'Erreur lors de la création du paiement Stripe.';
+            }
+          });
+        } else {
+          // Paiement classique (cash, mvola, etc.)
+          this.checkoutLoading = false;
+          this.checkoutSuccess = 'Commande créée avec succès !';
+          this.cart = null;
+          this.cartService.resetCartCount();
+          setTimeout(() => {
+            this.closeCheckout();
             this.router.navigate(['/home']);
-          }
-        }, 3000);
+          }, 3000);
+        }
       },
       error: (err: ApiErrorBody) => {
         this.checkoutLoading = false;
@@ -210,7 +276,6 @@ export class CartComponent implements OnInit {
   }
 
   getItemImage(item: CartItem): string {
-    // Le backend peut retourner productImage directement ou productId.mainPhoto
     if (item.productImage) return item.productImage;
     if (typeof item.productId === 'object' && item.productId?.mainPhoto) {
       return item.productId.mainPhoto;

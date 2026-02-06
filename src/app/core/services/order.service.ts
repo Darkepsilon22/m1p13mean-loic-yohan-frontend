@@ -42,7 +42,7 @@ export interface Order {
   currency: string;
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'completed' | 'cancelled' | 'refunded';
   paymentStatus: 'pending' | 'processing' | 'success' | 'failed' | 'refunded';
-  paymentMethod: 'mvola' | 'orange' | 'airtel' | 'card' | 'cash' | 'pending';
+  paymentMethod: 'mvola' | 'orange' | 'airtel' | 'card' | 'cash' | 'stripe' | 'pending';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -71,7 +71,7 @@ export interface OrdersResponse {
 
 export interface OrderResponse {
   success: boolean;
-  data: Order;
+  data: { order: Order } & Partial<Order>;
   message?: string;
 }
 

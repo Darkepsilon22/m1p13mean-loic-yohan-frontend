@@ -15,9 +15,17 @@
           <i class="feather icon-loader"></i> Chargement du panier...
         </div>
 
+        <!-- Vérification Stripe en cours -->
+        <div *ngIf="stripeVerifying" class="text-center py-5">
+          <i class="feather icon-loader"></i> Vérification du paiement en cours...
+        </div>
+
         <!-- Messages -->
         <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-        <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+        <div *ngIf="successMessage" class="alert alert-success">
+          <i class="feather icon-check-circle mr-1"></i> {{ successMessage }}
+          <span *ngIf="orderReference"> - Référence : <strong>{{ orderReference }}</strong></span>
+        </div>
 
         <!-- Panier vide -->
         <div *ngIf="!loading && (!cart || !cart.items || cart.items.length === 0)" class="text-center py-5">
@@ -58,7 +66,7 @@
                       {{ getItemName(item) }}
                     </a>
                   </td>
-                  <td>{{ item.unitPrice | number:'1.2-2' }} €</td>
+                  <td>{{ item.unitPrice | number:'1.0-0' }} Ar</td>
                   <td>
                     <div class="input-group input-group-sm" style="width: 110px;">
                       <div class="input-group-prepend">
@@ -80,7 +88,7 @@
                     </div>
                   </td>
                   <td class="font-weight-bold text-primary">
-                    {{ (item.unitPrice * item.quantity) | number:'1.2-2' }} €
+                    {{ (item.unitPrice * item.quantity) | number:'1.0-0' }} Ar
                   </td>
                   <td>
                     <button class="btn btn-sm btn-outline-danger" (click)="removeItem(item)" title="Supprimer">
@@ -106,7 +114,7 @@
                   <hr>
                   <div class="d-flex justify-content-between mb-2">
                     <span>Articles ({{ getItemsCount() }})</span>
-                    <span>{{ getSubtotal() | number:'1.2-2' }} €</span>
+                    <span>{{ getSubtotal() | number:'1.0-0' }} Ar</span>
                   </div>
                   <div class="d-flex justify-content-between mb-2">
                     <span>Livraison</span>
@@ -115,7 +123,7 @@
                   <hr>
                   <div class="d-flex justify-content-between mb-3">
                     <strong class="h5">Total</strong>
-                    <strong class="h5 text-primary">{{ getSubtotal() | number:'1.2-2' }} €</strong>
+                    <strong class="h5 text-primary">{{ getSubtotal() | number:'1.0-0' }} Ar</strong>
                   </div>
                   <button class="btn btn-primary btn-lg btn-block" (click)="openCheckout()">
                     <i class="feather icon-credit-card mr-1"></i> Commander
@@ -212,26 +220,15 @@
                 <i class="feather icon-dollar-sign mr-1"></i> Paiement à la livraison
               </label>
             </div>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="radio" name="paymentMethod" id="payMvola"
-                     value="mvola" [(ngModel)]="paymentMethod">
-              <label class="form-check-label" for="payMvola">
-                <i class="feather icon-smartphone mr-1"></i> MVola
-              </label>
-            </div>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="radio" name="paymentMethod" id="payOrange"
-                     value="orange" [(ngModel)]="paymentMethod">
-              <label class="form-check-label" for="payOrange">
-                <i class="feather icon-smartphone mr-1"></i> Orange Money
-              </label>
-            </div>
             <div class="form-check">
-              <input class="form-check-input" type="radio" name="paymentMethod" id="payAirtel"
-                     value="airtel" [(ngModel)]="paymentMethod">
-              <label class="form-check-label" for="payAirtel">
-                <i class="feather icon-smartphone mr-1"></i> Airtel Money
+              <input class="form-check-input" type="radio" name="paymentMethod" id="payStripe"
+                     value="stripe" [(ngModel)]="paymentMethod">
+              <label class="form-check-label" for="payStripe">
+                <i class="feather icon-credit-card mr-1"></i> Carte bancaire (Stripe)
               </label>
+              <small *ngIf="paymentMethod === 'stripe'" class="form-text text-muted">
+                Vous serez redirigé vers la page de paiement sécurisée Stripe.
+              </small>
             </div>
           </div>
 
@@ -241,11 +238,11 @@
           <div class="bg-light p-3 rounded">
             <div class="d-flex justify-content-between mb-2">
               <span>Sous-total</span>
-              <span>{{ getSubtotal() | number:'1.2-2' }} €</span>
+              <span>{{ getSubtotal() | number:'1.0-0' }} Ar</span>
             </div>
             <div class="d-flex justify-content-between">
               <strong>Total à payer</strong>
-              <strong class="text-primary h5 mb-0">{{ getSubtotal() | number:'1.2-2' }} €</strong>
+              <strong class="text-primary h5 mb-0">{{ getSubtotal() | number:'1.0-0' }} Ar</strong>
             </div>
           </div>
         </div>
@@ -255,8 +252,11 @@
           Annuler
         </button>
         <button type="button" class="btn btn-primary" (click)="submitOrder()" [disabled]="checkoutLoading">
-          <span *ngIf="!checkoutLoading">
+          <span *ngIf="!checkoutLoading && paymentMethod !== 'stripe'">
             <i class="feather icon-check mr-1"></i> Confirmer la commande
+          </span>
+          <span *ngIf="!checkoutLoading && paymentMethod === 'stripe'">
+            <i class="feather icon-credit-card mr-1"></i> Payer avec Stripe
           </span>
           <span *ngIf="checkoutLoading">
             <i class="feather icon-loader"></i> Traitement...
