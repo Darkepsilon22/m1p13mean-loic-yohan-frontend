@@ -4,6 +4,9 @@ import { ProductService } from '../../../../core/services/product.service';
 import { StockService } from '../../../../core/services/stock.service';
 import { AuthService, ApiErrorBody } from '../../../../core/services/auth.service';
 
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100];
+const PAGE_SIZE_ALL = 9999;
+
 @Component({
   selector: 'app-stock-list',
   templateUrl: './stock-list.component.html',
@@ -16,6 +19,21 @@ export class StockListComponent implements OnInit {
   errorMessage = '';
   lowStockOnly = false;
   outOfStockOnly = false;
+  pagination: { page: number; limit: number; total: number; pages: number } = { page: 1, limit: 20, total: 0, pages: 0 };
+
+  pageSizeOptions = PAGE_SIZE_OPTIONS;
+  pageSizeAllValue = PAGE_SIZE_ALL;
+  selectedPageSize: number | 'all' = 20;
+
+  exportModalVisible = false;
+  exportDateDebut = '';
+  exportDateFin = '';
+  exportProductIds: string[] = [];
+  exportCategory = '';
+  exportProductsList: any[] = [];
+  exportCategoriesList: string[] = [];
+  exportLoading = false;
+  exportError = '';
   pagination: { page: number; limit: number; total: number; pages: number } = { 
     page: 1, 
     limit: 50, 
@@ -87,6 +105,10 @@ export class StockListComponent implements OnInit {
     });
   }
 
+  get effectiveLimit(): number {
+    return this.selectedPageSize === 'all' ? PAGE_SIZE_ALL : Number(this.selectedPageSize);
+  }
+
   loadStock(): void {
     if (!this.boutiqueId) {
       console.error('❌ loadStock appelé sans boutiqueId');
@@ -98,7 +120,7 @@ export class StockListComponent implements OnInit {
     
     const params = {
       page: this.pagination.page,
-      limit: this.pagination.limit,
+      limit: this.effectiveLimit,
       lowStock: this.lowStockOnly,
       outOfStock: this.outOfStockOnly
     };
@@ -145,6 +167,18 @@ export class StockListComponent implements OnInit {
     this.loadStock();
   }
 
+  onPageSizeChange(): void {
+    this.pagination.page = 1;
+    this.pagination.limit = this.effectiveLimit;
+    this.loadStock();
+  }
+
+  goToPage(p: number): void {
+    if (p < 1 || p > this.pagination.pages) return;
+    this.pagination.page = p;
+    this.loadStock();
+  }
+
   goToEdit(id: string): void {
     console.log('🔧 Navigation vers édition produit:', id);
     this.router.navigate(['/products/my/edit', id]);
@@ -154,4 +188,104 @@ export class StockListComponent implements OnInit {
     if (p.stock == null || p.lowStockThreshold == null) return false;
     return p.stock > 0 && p.stock <= p.lowStockThreshold;
   }
+
+  openExportModal(): void {
+    this.exportModalVisible = true;
+    this.exportError = '';
+    const today = new Date().toISOString().slice(0, 10);
+    this.exportDateDebut = today;
+    this.exportDateFin = today;
+    this.exportProductIds = [];
+    this.exportCategory = '';
+    this.productService.getMyProducts({ limit: 500 }).subscribe({
+      next: (res) => {
+        this.exportProductsList = res.data ?? [];
+        const cats = new Set<string>();
+        this.exportProductsList.forEach((p: any) => {
+          if (p.categoryInternal && p.categoryInternal.trim()) cats.add(p.categoryInternal.trim());
+        });
+        this.exportCategoriesList = Array.from(cats).sort();
+      },
+      error: () => { this.exportProductsList = []; this.exportCategoriesList = []; }
+    });
+  }
+
+  closeExportModal(): void {
+    this.exportModalVisible = false;
+    this.exportError = '';
+  }
+
+  isProductSelected(id: string): boolean {
+    return this.exportProductIds.includes(id);
+  }
+
+  toggleExportProduct(id: string): void {
+    const i = this.exportProductIds.indexOf(id);
+    if (i >= 0) this.exportProductIds.splice(i, 1);
+    else this.exportProductIds.push(id);
+  }
+
+  selectAllProducts(): void {
+    this.exportProductIds = this.exportProductsList.map((p: any) => p._id);
+  }
+
+  selectNoProducts(): void {
+    this.exportProductIds = [];
+  }
+
+  doExportPDF(): void {
+    if (!this.exportDateDebut || !this.exportDateFin) {
+      this.exportError = 'Veuillez renseigner la date de début et la date de fin.';
+      return;
+    }
+    this.exportLoading = true;
+    this.exportError = '';
+    const params: any = { dateDebut: this.exportDateDebut, dateFin: this.exportDateFin };
+    if (this.exportProductIds.length > 0) params.productIds = this.exportProductIds;
+    if (this.exportCategory) params.category = this.exportCategory;
+    this.stockService.exportPDF(params).subscribe({
+      next: (blob) => {
+        this.exportLoading = false;
+        this.downloadBlob(blob, `export-stock-${this.exportDateDebut}-${this.exportDateFin}.pdf`);
+        this.closeExportModal();
+      },
+      error: (err: ApiErrorBody) => {
+        this.exportLoading = false;
+        this.exportError = err.message || 'Erreur lors de l\'export PDF.';
+      }
+    });
+  }
+
+  doExportExcel(): void {
+    if (!this.exportDateDebut || !this.exportDateFin) {
+      this.exportError = 'Veuillez renseigner la date de début et la date de fin.';
+      return;
+    }
+    this.exportLoading = true;
+    this.exportError = '';
+    const params: any = { dateDebut: this.exportDateDebut, dateFin: this.exportDateFin };
+    if (this.exportProductIds.length > 0) params.productIds = this.exportProductIds;
+    if (this.exportCategory) params.category = this.exportCategory;
+    this.stockService.exportExcel(params).subscribe({
+      next: (blob) => {
+        this.exportLoading = false;
+        this.downloadBlob(blob, `export-stock-${this.exportDateDebut}-${this.exportDateFin}.xlsx`);
+        this.closeExportModal();
+      },
+      error: (err: ApiErrorBody) => {
+        this.exportLoading = false;
+        this.exportError = err.message || 'Erreur lors de l\'export Excel.';
+      }
+    });
+  }
+
+  private downloadBlob(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+}
 }

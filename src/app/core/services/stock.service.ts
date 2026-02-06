@@ -92,4 +92,25 @@ export class StockService {
   setInitialStock(productId: string, body: { quantity: number; reason?: string }): Observable<any> {
     return this.http.post(`${API}/stock/${productId}/initial`, body).pipe(catchError(handleError));
   }
+
+  /** Export stock movements as PDF (blob for download) */
+  exportPDF(params: { dateDebut: string; dateFin: string; productIds?: string[]; category?: string }): Observable<Blob> {
+    const q = new URLSearchParams();
+    q.set('dateDebut', params.dateDebut);
+    q.set('dateFin', params.dateFin);
+    if (params.productIds && params.productIds.length > 0) q.set('productIds', params.productIds.join(','));
+    if (params.category) q.set('category', params.category);
+    return this.http.get(`${API}/stock/export/pdf?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
+  }
+
+  /** Export stock movements as Excel (blob for download) */
+  exportExcel(params: { dateDebut: string; dateFin: string; productIds?: string[]; category?: string }): Observable<Blob> {
+    const q = new URLSearchParams();
+    q.set('dateDebut', params.dateDebut);
+    q.set('dateFin', params.dateFin);
+    if (params.productIds && params.productIds.length > 0) q.set('productIds', params.productIds.join(','));
+    if (params.category) q.set('category', params.category);
+    return this.http.get(`${API}/stock/export/excel?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
+  }
+}
 }
