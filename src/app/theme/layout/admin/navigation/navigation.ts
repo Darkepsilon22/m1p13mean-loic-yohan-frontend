@@ -34,7 +34,8 @@ const AdminNavigationItems: NavigationItem[] = [
         title: 'Accueil',
         type: 'item',
         url: '/home',
-        icon: 'feather icon-home'
+        icon: 'feather icon-home',
+        exactMatch: true
       },
       {
         id: 'dashboard',
@@ -141,7 +142,8 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         title: 'Accueil',
         type: 'item',
         url: '/home',
-        icon: 'feather icon-home'
+        icon: 'feather icon-home',
+        exactMatch: true
       },
       {
         id: 'dashboard',
@@ -163,21 +165,24 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         title: 'Mes produits',
         type: 'item',
         url: '/products/my',
-        icon: 'feather icon-list'
+        icon: 'feather icon-list',
+        exactMatch: true  // ← CORRECTION : exactMatch pour éviter activation sur /products/my/create
       },
       {
         id: 'product-create',
         title: 'Nouveau produit',
         type: 'item',
         url: '/products/my/create',
-        icon: 'feather icon-plus-square'
+        icon: 'feather icon-plus-square',
+        exactMatch: true
       },
       {
         id: 'stock-list',
         title: 'Vue stock',
         type: 'item',
         url: '/products/stock',
-        icon: 'feather icon-trending-up'
+        icon: 'feather icon-trending-up',
+        exactMatch: true  // ← CORRECTION : exactMatch pour éviter activation sur d'autres URLs /products/
       }
     ]
   },
@@ -218,7 +223,8 @@ const AcheteurNavigationItems: NavigationItem[] = [
         title: 'Accueil',
         type: 'item',
         url: '/home',
-        icon: 'feather icon-home'
+        icon: 'feather icon-home',
+        exactMatch: true
       },
       {
         id: 'boutiques',
@@ -259,7 +265,8 @@ const DefaultNavigationItems: NavigationItem[] = [
         title: 'Accueil',
         type: 'item',
         url: '/home',
-        icon: 'feather icon-home'
+        icon: 'feather icon-home',
+        exactMatch: true
       },
       {
         id: 'boutiques',
