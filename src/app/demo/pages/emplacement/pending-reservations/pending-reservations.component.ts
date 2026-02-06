@@ -15,6 +15,11 @@ export class PendingReservationsComponent implements OnInit, OnDestroy {
 
   pendingReservations: any[] = [];
   validatedThisWeek = 0;
+
+  searchQuery = '';
+  pageSizeOptions = [5, 10, 20, 50];
+  selectedPageSize = 10;
+  currentPage = 1;
   
   loading = false;
   errorMessage = '';
@@ -77,6 +82,42 @@ export class PendingReservationsComponent implements OnInit, OnDestroy {
         this.loadPendingReservations();
       }
     }, 30000); // 30 secondes
+  }
+
+  get filteredReservations(): any[] {
+    let list = this.pendingReservations;
+    const q = this.searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter((r: any) => {
+        const userName = this.getUserName(r.user).toLowerCase();
+        const boutiqueName = (r.boutique?.name || '').toLowerCase();
+        return userName.includes(q) || boutiqueName.includes(q);
+      });
+    }
+    return list;
+  }
+
+  get paginatedReservations(): any[] {
+    const list = this.filteredReservations;
+    const start = (this.currentPage - 1) * this.selectedPageSize;
+    return list.slice(start, start + this.selectedPageSize);
+  }
+
+  get totalReservationPages(): number {
+    const total = this.filteredReservations.length;
+    return Math.max(1, Math.ceil(total / this.selectedPageSize));
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1;
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+  }
+
+  goToPage(p: number): void {
+    if (p >= 1 && p <= this.totalReservationPages) this.currentPage = p;
   }
 
   /**

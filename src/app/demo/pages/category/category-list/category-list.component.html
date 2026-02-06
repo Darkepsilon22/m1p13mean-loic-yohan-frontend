@@ -2,13 +2,20 @@
   <div class="col-sm-12">
     <app-card cardTitle="Catégories" [options]="false">
       <div class="mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <input type="text" class="form-control form-control-sm" style="max-width: 180px;" placeholder="Recherche par nom..."
+                 [(ngModel)]="searchQuery" (keyup.enter)="onFilterChange()">
           <label class="mb-0">Statut :</label>
           <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="activeFilter" (ngModelChange)="onFilterChange()">
             <option value="">Toutes</option>
             <option [value]="true">Actives</option>
             <option [value]="false">Inactives</option>
           </select>
+          <span class="text-muted small">Afficher :</span>
+          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
+            <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+          </select>
+          <button type="button" class="btn btn-sm btn-outline-primary" (click)="onFilterChange()">Filtrer</button>
         </div>
         <button *ngIf="isAdmin" class="btn btn-primary btn-sm" (click)="goToCreate()">Nouvelle catégorie</button>
       </div>

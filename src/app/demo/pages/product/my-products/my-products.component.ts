@@ -12,6 +12,8 @@ export class MyProductsComponent implements OnInit {
   products: any[] = [];
   loading = false;
   errorMessage = '';
+  pageSizeOptions = [5, 10, 20, 50, 100];
+  selectedPageSize = 20;
   pagination: { page: number; limit: number; total: number; pages: number } = { page: 1, limit: 20, total: 0, pages: 0 };
 
   filters: MyProductsParams = {
@@ -37,9 +39,10 @@ export class MyProductsComponent implements OnInit {
   loadProducts(): void {
     this.loading = true;
     this.errorMessage = '';
+    const limit = this.selectedPageSize;
     const params: MyProductsParams = {
       page: this.filters.page,
-      limit: this.filters.limit,
+      limit,
       sort: this.filters.sort || '-createdAt',
       includeArchived: this.filters.includeArchived
     };
@@ -61,6 +64,11 @@ export class MyProductsComponent implements OnInit {
   }
 
   onFilterChange(): void {
+    this.filters.page = 1;
+    this.loadProducts();
+  }
+
+  onPageSizeChange(): void {
     this.filters.page = 1;
     this.loadProducts();
   }

@@ -15,6 +15,9 @@ export class BoutiqueListComponent implements OnInit {
   loading = false;
   errorMessage = '';
   statusFilter = '';
+  searchQuery = '';
+  pageSizeOptions = [5, 10, 20, 50, 100];
+  selectedPageSize = 20;
 
   constructor(
     private boutiqueService: BoutiqueService,
@@ -29,8 +32,9 @@ export class BoutiqueListComponent implements OnInit {
   loadBoutiques(page = 1): void {
     this.loading = true;
     this.errorMessage = '';
-    const params: { status?: string; page?: number; limit?: number } = { page, limit: 20 };
+    const params: { status?: string; search?: string; page?: number; limit?: number } = { page, limit: this.selectedPageSize };
     if (this.statusFilter) params.status = this.statusFilter;
+    if (this.searchQuery.trim()) params.search = this.searchQuery.trim();
     this.boutiqueService.getAll(params).subscribe({
       next: (res) => {
         this.loading = false;
@@ -45,6 +49,10 @@ export class BoutiqueListComponent implements OnInit {
   }
 
   onFilterChange(): void {
+    this.loadBoutiques(1);
+  }
+
+  onPageSizeChange(): void {
     this.loadBoutiques(1);
   }
 

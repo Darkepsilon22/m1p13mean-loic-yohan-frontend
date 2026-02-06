@@ -113,4 +113,3 @@ export class StockService {
     return this.http.get(`${API}/stock/export/excel?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
   }
 }
-}

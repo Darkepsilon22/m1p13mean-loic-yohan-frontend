@@ -19,6 +19,11 @@ export class MyReservationComponent implements OnInit, OnDestroy {
   boutique: any = null;
   history: any[] = [];
 
+  historySearchQuery = '';
+  historyPageSizeOptions = [5, 10, 20, 50];
+  historyPageSize = 10;
+  historyCurrentPage = 1;
+
   loading = false;
   historyLoading = false;
   errorMessage = '';
@@ -264,6 +269,39 @@ export class MyReservationComponent implements OnInit, OnDestroy {
     
     // Navigation vers la page d'édition
     this.router.navigate(['/boutique/edit', this.boutique._id]);
+  }
+
+  // ==================== HISTORIQUE PAGINATION ====================
+
+  get filteredHistory(): any[] {
+    let list = this.history;
+    const q = this.historySearchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter((h: any) => {
+        const name = (h.boutique?.name || h.boutiqueSnapshot?.name || '').toLowerCase();
+        return name.includes(q);
+      });
+    }
+    return list;
+  }
+
+  get paginatedHistory(): any[] {
+    const list = this.filteredHistory;
+    const start = (this.historyCurrentPage - 1) * this.historyPageSize;
+    return list.slice(start, start + this.historyPageSize);
+  }
+
+  get totalHistoryPages(): number {
+    const total = this.filteredHistory.length;
+    return Math.max(1, Math.ceil(total / this.historyPageSize));
+  }
+
+  onHistoryPageSizeChange(): void {
+    this.historyCurrentPage = 1;
+  }
+
+  goToHistoryPage(p: number): void {
+    if (p >= 1 && p <= this.totalHistoryPages) this.historyCurrentPage = p;
   }
 
   // ==================== HELPERS ====================

@@ -3,6 +3,8 @@ import { ProductService, AdminProductListParams } from '../../../../core/service
 import { BoutiqueService } from '../../../../core/services/boutique.service';
 import { AuthService, ApiErrorBody } from '../../../../core/services/auth.service';
 
+const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100];
+
 @Component({
   selector: 'app-product-list',
   templateUrl: './product-list.component.html',
@@ -13,6 +15,8 @@ export class ProductListComponent implements OnInit {
   boutiques: any[] = [];
   loading = false;
   errorMessage = '';
+  pageSizeOptions = PAGE_SIZE_OPTIONS;
+  selectedPageSize = 20;
   pagination: { page: number; limit: number; total: number; pages: number } = { page: 1, limit: 20, total: 0, pages: 0 };
 
   filters: AdminProductListParams = {
@@ -52,9 +56,10 @@ export class ProductListComponent implements OnInit {
   loadProducts(): void {
     this.loading = true;
     this.errorMessage = '';
+    const limit = this.selectedPageSize;
     const params: AdminProductListParams = {
       page: this.filters.page,
-      limit: this.filters.limit,
+      limit,
       sort: this.filters.sort || '-createdAt'
     };
     if (this.filters.boutiqueId) params.boutiqueId = this.filters.boutiqueId;
@@ -80,6 +85,12 @@ export class ProductListComponent implements OnInit {
 
   onFilterChange(): void {
     this.filters.page = 1;
+    this.loadProducts();
+  }
+
+  onPageSizeChange(): void {
+    this.filters.page = 1;
+    this.filters.limit = this.selectedPageSize;
     this.loadProducts();
   }
 

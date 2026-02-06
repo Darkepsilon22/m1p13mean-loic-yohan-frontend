@@ -83,12 +83,13 @@ export class BoutiqueService {
     );
   }
 
-  getAll(params?: { category?: string; status?: string; page?: number; limit?: number }): Observable<{ success: boolean; data: { boutiques: any[]; pagination: any } }> {
+  getAll(params?: { category?: string; status?: string; search?: string; page?: number; limit?: number }): Observable<{ success: boolean; data: { boutiques: any[]; pagination: any } }> {
     let query = '';
     if (params) {
       const q = new URLSearchParams();
       if (params.category) q.set('category', params.category);
       if (params.status) q.set('status', params.status);
+      if (params.search && params.search.trim()) q.set('search', params.search.trim());
       if (params.page != null) q.set('page', String(params.page));
       if (params.limit != null) q.set('limit', String(params.limit));
       query = '?' + q.toString();
