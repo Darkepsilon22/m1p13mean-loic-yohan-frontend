@@ -3,7 +3,7 @@
     <div class="card auth-card" [ngClass]="'auth-card--' + loginType">
       <div class="card-header auth-card-header" [ngClass]="'auth-card-header--' + loginType">
         <div class="auth-card-header-inner">
-          <img src="assets/images/logo-dark.png" alt="Next shop" class="auth-logo">
+          <img src="assets/images/logo-dark.png" alt="Smar'ket" class="auth-logo">
           <h4 class="auth-title">Connexion</h4>
           <p class="auth-title-context" [ngClass]="'auth-title-context--' + loginType">{{ loginType === 'admin' ? 'Administrateur' : loginType === 'boutique' ? 'Boutique' : 'Acheteur' }}</p>
           <p class="auth-subtitle text-muted mb-0">{{ getSubtitle() }}</p>
