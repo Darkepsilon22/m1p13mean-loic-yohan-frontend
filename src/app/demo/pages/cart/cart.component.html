@@ -1,0 +1,268 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="feather icon-shopping-cart mr-2"></i>Mon Panier
+        </h5>
+        <a routerLink="/home" class="btn btn-sm btn-outline-secondary">
+          <i class="feather icon-arrow-left mr-1"></i> Continuer mes achats
+        </a>
+      </div>
+      <div class="card-body">
+        <!-- Chargement -->
+        <div *ngIf="loading" class="text-center py-5">
+          <i class="feather icon-loader"></i> Chargement du panier...
+        </div>
+
+        <!-- Messages -->
+        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+        <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+        <!-- Panier vide -->
+        <div *ngIf="!loading && (!cart || !cart.items || cart.items.length === 0)" class="text-center py-5">
+          <i class="feather icon-shopping-bag text-muted" style="font-size: 4rem;"></i>
+          <p class="mt-3 text-muted">Votre panier est vide.</p>
+          <a routerLink="/home" class="btn btn-primary">
+            <i class="feather icon-shopping-bag mr-1"></i> Découvrir les produits
+          </a>
+        </div>
+
+        <!-- Liste des articles -->
+        <div *ngIf="!loading && cart && cart.items && cart.items.length > 0">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead class="thead-light">
+                <tr>
+                  <th style="width: 80px;">Image</th>
+                  <th>Produit</th>
+                  <th style="width: 120px;">Prix unitaire</th>
+                  <th style="width: 150px;">Quantité</th>
+                  <th style="width: 120px;">Total</th>
+                  <th style="width: 80px;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of cart.items">
+                  <td>
+                    <img *ngIf="getItemImage(item)" [src]="getItemImage(item)" alt="{{ getItemName(item) }}"
+                         class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;"
+                         (click)="goToProduct(item)">
+                    <div *ngIf="!getItemImage(item)" class="bg-light d-flex align-items-center justify-content-center rounded"
+                         style="width: 60px; height: 60px; cursor: pointer;" (click)="goToProduct(item)">
+                      <i class="feather icon-image text-muted"></i>
+                    </div>
+                  </td>
+                  <td>
+                    <a [routerLink]="['/products/view', getProductId(item)]" class="text-dark font-weight-bold">
+                      {{ getItemName(item) }}
+                    </a>
+                  </td>
+                  <td>{{ item.unitPrice | number:'1.2-2' }} €</td>
+                  <td>
+                    <div class="input-group input-group-sm" style="width: 110px;">
+                      <div class="input-group-prepend">
+                        <button class="btn btn-outline-secondary" type="button"
+                                (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 1">
+                          <i class="feather icon-minus"></i>
+                        </button>
+                      </div>
+                      <span class="form-control text-center" 
+                            style="background-color: #ffffff; color: #000000; font-weight: bold; font-size: 16px; line-height: 1.5; padding: 0.25rem 0.5rem; border: 1px solid #ced4da;">
+                        {{ item.quantity }}
+                      </span>
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button"
+                                (click)="updateQuantity(item, item.quantity + 1)">
+                          <i class="feather icon-plus"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="font-weight-bold text-primary">
+                    {{ (item.unitPrice * item.quantity) | number:'1.2-2' }} €
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-danger" (click)="removeItem(item)" title="Supprimer">
+                      <i class="feather icon-trash-2"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Résumé -->
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <button class="btn btn-outline-danger" (click)="clearCart()">
+                <i class="feather icon-trash mr-1"></i> Vider le panier
+              </button>
+            </div>
+            <div class="col-md-6">
+              <div class="card bg-light">
+                <div class="card-body">
+                  <h5 class="card-title">Résumé de la commande</h5>
+                  <hr>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Articles ({{ getItemsCount() }})</span>
+                    <span>{{ getSubtotal() | number:'1.2-2' }} €</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Livraison</span>
+                    <span class="text-success">À calculer</span>
+                  </div>
+                  <hr>
+                  <div class="d-flex justify-content-between mb-3">
+                    <strong class="h5">Total</strong>
+                    <strong class="h5 text-primary">{{ getSubtotal() | number:'1.2-2' }} €</strong>
+                  </div>
+                  <button class="btn btn-primary btn-lg btn-block" (click)="openCheckout()">
+                    <i class="feather icon-credit-card mr-1"></i> Commander
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Checkout -->
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showCheckout" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="feather icon-credit-card mr-2"></i>Finaliser la commande
+        </h5>
+        <button type="button" class="close" (click)="closeCheckout()" [disabled]="checkoutLoading">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Succès -->
+        <div *ngIf="checkoutSuccess" class="alert alert-success text-center">
+          <i class="feather icon-check-circle" style="font-size: 3rem;"></i>
+          <h4 class="mt-2">{{ checkoutSuccess }}</h4>
+          <p *ngIf="orderReference">Référence : <strong>{{ orderReference }}</strong></p>
+          <p class="text-muted">Vous allez être redirigé...</p>
+        </div>
+
+        <div *ngIf="!checkoutSuccess">
+          <!-- Erreur -->
+          <div *ngIf="checkoutError" class="alert alert-danger">{{ checkoutError }}</div>
+
+          <!-- Informations client -->
+          <h6 class="mb-3"><i class="feather icon-user mr-1"></i> Informations de contact</h6>
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <label>Nom complet *</label>
+              <input type="text" class="form-control" [(ngModel)]="customerName" placeholder="Votre nom">
+            </div>
+            <div class="col-md-6 form-group">
+              <label>Email *</label>
+              <input type="email" class="form-control" [(ngModel)]="customerEmail" placeholder="email@example.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Téléphone *</label>
+            <input type="tel" class="form-control" [(ngModel)]="customerPhone" placeholder="+261 34 00 000 00">
+          </div>
+
+          <hr>
+
+          <!-- Adresse de livraison -->
+          <h6 class="mb-3"><i class="feather icon-map-pin mr-1"></i> Adresse de livraison</h6>
+          <div class="form-group">
+            <label>Adresse *</label>
+            <input type="text" class="form-control" [(ngModel)]="shippingStreet" placeholder="Rue, numéro, quartier...">
+          </div>
+          <div class="row">
+            <div class="col-md-6 form-group">
+              <label>Ville *</label>
+              <input type="text" class="form-control" [(ngModel)]="shippingCity" placeholder="Antananarivo">
+            </div>
+            <div class="col-md-3 form-group">
+              <label>Code postal</label>
+              <input type="text" class="form-control" [(ngModel)]="shippingPostalCode" placeholder="101">
+            </div>
+            <div class="col-md-3 form-group">
+              <label>Pays</label>
+              <input type="text" class="form-control" [(ngModel)]="shippingCountry" readonly>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Informations complémentaires</label>
+            <textarea class="form-control" rows="2" [(ngModel)]="shippingAdditionalInfo"
+                      placeholder="Instructions de livraison, point de repère..."></textarea>
+          </div>
+
+          <hr>
+
+          <!-- Mode de paiement -->
+          <h6 class="mb-3"><i class="feather icon-credit-card mr-1"></i> Mode de paiement</h6>
+          <div class="form-group">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="payCash"
+                     value="cash" [(ngModel)]="paymentMethod">
+              <label class="form-check-label" for="payCash">
+                <i class="feather icon-dollar-sign mr-1"></i> Paiement à la livraison
+              </label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="payMvola"
+                     value="mvola" [(ngModel)]="paymentMethod">
+              <label class="form-check-label" for="payMvola">
+                <i class="feather icon-smartphone mr-1"></i> MVola
+              </label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="payOrange"
+                     value="orange" [(ngModel)]="paymentMethod">
+              <label class="form-check-label" for="payOrange">
+                <i class="feather icon-smartphone mr-1"></i> Orange Money
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="payAirtel"
+                     value="airtel" [(ngModel)]="paymentMethod">
+              <label class="form-check-label" for="payAirtel">
+                <i class="feather icon-smartphone mr-1"></i> Airtel Money
+              </label>
+            </div>
+          </div>
+
+          <hr>
+
+          <!-- Résumé -->
+          <div class="bg-light p-3 rounded">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Sous-total</span>
+              <span>{{ getSubtotal() | number:'1.2-2' }} €</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <strong>Total à payer</strong>
+              <strong class="text-primary h5 mb-0">{{ getSubtotal() | number:'1.2-2' }} €</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" *ngIf="!checkoutSuccess">
+        <button type="button" class="btn btn-secondary" (click)="closeCheckout()" [disabled]="checkoutLoading">
+          Annuler
+        </button>
+        <button type="button" class="btn btn-primary" (click)="submitOrder()" [disabled]="checkoutLoading">
+          <span *ngIf="!checkoutLoading">
+            <i class="feather icon-check mr-1"></i> Confirmer la commande
+          </span>
+          <span *ngIf="checkoutLoading">
+            <i class="feather icon-loader"></i> Traitement...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
