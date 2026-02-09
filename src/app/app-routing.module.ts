@@ -44,6 +44,14 @@ const routes: Routes = [
         loadChildren: () => import('./demo/pages/product/product.module').then(module => module.ProductModule)
       },
       {
+        path: 'promotions',
+        loadChildren: () => import('./demo/pages/promotion/promotion.module').then(module => module.PromotionModule)
+      },
+      {
+        path: 'events',
+        loadChildren: () => import('./demo/pages/event/event.module').then(module => module.EventModule)
+      },
+      {
         path: 'cart',
         loadChildren: () => import('./demo/pages/cart/cart.module').then(module => module.CartModule)
       },

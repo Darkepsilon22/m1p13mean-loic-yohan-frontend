@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService, ProductListParams } from '../../../core/services/product.service';
 import { BoutiqueService } from '../../../core/services/boutique.service';
+import { PromotionService } from '../../../core/services/promotion.service';
 import { ApiErrorBody } from '../../../core/services/auth.service';
 
 /**
@@ -36,10 +37,15 @@ export class HomeComponent implements OnInit {
   };
   pagination: { page: number; limit: number; total: number; pages: number } = { page: 1, limit: 12, total: 0, pages: 0 };
 
+  // Produits en promotion (acheteur)
+  promotionProducts: { product: any; promotion: any }[] = [];
+  loadingPromo = false;
+
   constructor(
     private auth: AuthService,
     private productService: ProductService,
-    private boutiqueService: BoutiqueService
+    private boutiqueService: BoutiqueService,
+    private promotionService: PromotionService
   ) {}
 
   ngOnInit(): void {
@@ -48,7 +54,51 @@ export class HomeComponent implements OnInit {
     if (this.isLoggedIn && this.currentUser?.role === 'acheteur') {
       this.loadBoutiques();
       this.loadProducts();
+      this.loadPromotionProducts();
     }
+  }
+
+  loadPromotionProducts(): void {
+    this.loadingPromo = true;
+    this.promotionService.getActive(20).subscribe({
+      next: (res) => {
+        const promotions = res.data ?? [];
+        const seen = new Set<string>();
+        this.promotionProducts = [];
+        for (const promo of promotions) {
+          const products = promo.products || [];
+          for (const prod of products) {
+            const id = typeof prod === 'string' ? prod : prod._id;
+            if (id && !seen.has(id)) {
+              seen.add(id);
+              this.promotionProducts.push({ product: prod, promotion: promo });
+            }
+          }
+        }
+        this.loadingPromo = false;
+      },
+      error: () => {
+        this.loadingPromo = false;
+      }
+    });
+  }
+
+  getPromoPrice(product: any, promotion: any): number | null {
+    const price = product?.price;
+    if (price == null) return null;
+    if (promotion.type === 'percentage' && promotion.value != null) {
+      return Math.round(price * (1 - promotion.value / 100));
+    }
+    if (promotion.type === 'fixed' && promotion.value != null) {
+      return Math.max(0, Math.round(price - promotion.value));
+    }
+    return null;
+  }
+
+  getPromoBadge(promotion: any): string {
+    if (promotion.type === 'percentage' && promotion.value != null) return `-${promotion.value}%`;
+    if (promotion.type === 'fixed' && promotion.value != null) return `-${promotion.value} Ar`;
+    return 'Offre';
   }
 
   loadBoutiques(): void {
@@ -83,7 +133,7 @@ export class HomeComponent implements OnInit {
         this.loadingProducts = false;
       },
       error: (err: ApiErrorBody) => {
-        this.productError = err.message || 'Erreur chargement.';
+        this.productError = err.message || 'Erreur lors du chargement.';
         this.loadingProducts = false;
       }
     });

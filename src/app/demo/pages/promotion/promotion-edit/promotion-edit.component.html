@@ -1,0 +1,65 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Modifier la promotion" [options]="false">
+      <div *ngIf="loadError" class="alert alert-danger">{{ loadError }}</div>
+      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading && promotion">
+        <div class="form-group">
+          <label>Titre <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="title" placeholder="Ex: Soldes d'été">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea class="form-control" formControlName="description" rows="2"></textarea>
+        </div>
+        <div class="row">
+          <div class="col-md-4 form-group">
+            <label>Type <span class="text-danger">*</span></label>
+            <select class="form-control" formControlName="type">
+              <option value="percentage">Pourcentage</option>
+              <option value="fixed">Montant fixe</option>
+              <option value="special">Spécial</option>
+            </select>
+          </div>
+          <div class="col-md-4 form-group" *ngIf="form.get('type')?.value === 'percentage'">
+            <label>Réduction (%) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="value" min="1" max="99">
+          </div>
+          <div class="col-md-4 form-group" *ngIf="form.get('type')?.value === 'fixed'">
+            <label>Réduction (Ar) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" formControlName="value" min="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Produits concernés</label>
+          <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
+            <label *ngFor="let prod of myProducts" class="d-block mb-1">
+              <input type="checkbox" [checked]="isProductSelected(prod._id)" (change)="toggleProduct(prod._id)"> {{ prod.name }} — {{ prod.price | number:'1.0-0' }} Ar
+            </label>
+            <span *ngIf="myProducts.length === 0" class="text-muted">Chargement...</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Image (URL optionnelle)</label>
+          <input type="url" class="form-control" formControlName="image">
+        </div>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label>Date de début <span class="text-danger">*</span></label>
+            <input type="datetime-local" class="form-control" formControlName="startDate">
+          </div>
+          <div class="col-md-6 form-group">
+            <label>Date de fin <span class="text-danger">*</span></label>
+            <input type="datetime-local" class="form-control" formControlName="endDate">
+          </div>
+        </div>
+        <div class="form-group mb-0">
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ loading ? 'Enregistrement...' : 'Enregistrer' }}</button>
+          <button type="button" class="btn btn-secondary ml-2" (click)="cancel()">Annuler</button>
+        </div>
+      </form>
+    </app-card>
+  </div>
+</div>

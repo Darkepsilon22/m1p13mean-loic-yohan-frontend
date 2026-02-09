@@ -92,7 +92,7 @@ export class ProductViewComponent implements OnInit {
         this.loadingReviews = false;
       },
       error: (err: ApiErrorBody) => {
-        this.reviewsError = err.message || 'Erreur chargement avis.';
+        this.reviewsError = err.message || 'Erreur lors du chargement des avis.';
         this.loadingReviews = false;
       }
     });

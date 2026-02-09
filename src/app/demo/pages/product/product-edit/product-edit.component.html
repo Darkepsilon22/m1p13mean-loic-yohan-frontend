@@ -131,7 +131,7 @@
           <input type="text" class="form-control" [(ngModel)]="stockReason" [ngModelOptions]="{standalone: true}" placeholder="Raison ou référence">
         </div>
         <div *ngIf="stockError" class="alert alert-danger">{{ stockError }}</div>
-        <button type="button" class="btn btn-primary btn-sm" [disabled]="stockActionLoading" (click)="confirmStockAction()">{{ stockActionLoading ? '...' : 'Valider' }}</button>
+        <button type="button" class="btn btn-primary btn-sm" [disabled]="stockActionLoading" (click)="confirmStockAction()">{{ stockActionLoading ? 'Enregistrement...' : 'Valider' }}</button>
         <button type="button" class="btn btn-secondary btn-sm ml-2" (click)="cancelStockAction()">Annuler</button>
       </div>
 

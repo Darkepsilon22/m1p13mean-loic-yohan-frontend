@@ -113,6 +113,28 @@ const AdminNavigationItems: NavigationItem[] = [
     ]
   },
   {
+    id: 'admin-events',
+    title: 'Événements',
+    type: 'group',
+    icon: 'feather icon-calendar',
+    children: [
+      {
+        id: 'event-list',
+        title: 'Liste des événements',
+        type: 'item',
+        url: '/events/list',
+        icon: 'feather icon-list'
+      },
+      {
+        id: 'event-create',
+        title: 'Nouvel événement',
+        type: 'item',
+        url: '/events/create',
+        icon: 'feather icon-plus-square'
+      }
+    ]
+  },
+  {
     id: 'admin-users',
     title: 'Gestion Utilisateurs',
     type: 'group',
@@ -166,7 +188,7 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/products/my',
         icon: 'feather icon-list',
-        exactMatch: true  // ← CORRECTION : exactMatch pour éviter activation sur /products/my/create
+        exactMatch: true
       },
       {
         id: 'product-create',
@@ -182,7 +204,29 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/products/stock',
         icon: 'feather icon-trending-up',
-        exactMatch: true  // ← CORRECTION : exactMatch pour éviter activation sur d'autres URLs /products/
+        exactMatch: true
+      }
+    ]
+  },
+  {
+    id: 'boutique-promotions',
+    title: 'Promotions',
+    type: 'group',
+    icon: 'feather icon-percent',
+    children: [
+      {
+        id: 'promotion-list',
+        title: 'Mes promotions',
+        type: 'item',
+        url: '/promotions/list',
+        icon: 'feather icon-list'
+      },
+      {
+        id: 'promotion-create',
+        title: 'Nouvelle promotion',
+        type: 'item',
+        url: '/promotions/create',
+        icon: 'feather icon-plus-square'
       }
     ]
   },
