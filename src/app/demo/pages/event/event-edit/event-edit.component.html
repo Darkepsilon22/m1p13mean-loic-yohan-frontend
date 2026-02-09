@@ -1,0 +1,54 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Modifier l'événement" [options]="false">
+      <div *ngIf="loadError" class="alert alert-danger">{{ loadError }}</div>
+      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading && event">
+        <div class="form-group">
+          <label>Titre <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" formControlName="title">
+        </div>
+        <div class="form-group">
+          <label>Description courte</label>
+          <input type="text" class="form-control" formControlName="shortDescription">
+        </div>
+        <div class="form-group">
+          <label>Description <span class="text-danger">*</span></label>
+          <textarea class="form-control" formControlName="description" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Image (URL) <span class="text-danger">*</span></label>
+          <input type="url" class="form-control" formControlName="image">
+        </div>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label>Date de début <span class="text-danger">*</span></label>
+            <input type="datetime-local" class="form-control" formControlName="startDate">
+          </div>
+          <div class="col-md-6 form-group">
+            <label>Date de fin <span class="text-danger">*</span></label>
+            <input type="datetime-local" class="form-control" formControlName="endDate">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 form-group">
+            <label>Visibilité</label>
+            <select class="form-control" formControlName="visibility">
+              <option value="public">Public</option>
+              <option value="boutiques">Boutiques uniquement</option>
+            </select>
+          </div>
+          <div class="col-md-6 form-group d-flex align-items-end">
+            <label class="mb-0"><input type="checkbox" formControlName="isFeatured"> Mettre en vedette</label>
+          </div>
+        </div>
+        <div class="form-group mb-0">
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ loading ? 'Enregistrement...' : 'Enregistrer' }}</button>
+          <button type="button" class="btn btn-secondary ml-2" (click)="cancel()">Annuler</button>
+        </div>
+      </form>
+    </app-card>
+  </div>
+</div>

@@ -40,6 +40,46 @@
 
 <!-- Acheteur : catalogue produits (cards + filtres) -->
 <div class="home-catalog" *ngIf="isLoggedIn && currentUser?.role === 'acheteur'">
+  <!-- Section Produits en promotion -->
+  <div class="mb-4" *ngIf="loadingPromo || promotionProducts.length > 0">
+    <h5 class="mb-3">Produits en promotion</h5>
+    <div *ngIf="loadingPromo" class="text-center py-3 text-muted">Chargement des promotions...</div>
+    <div class="row" *ngIf="!loadingPromo && promotionProducts.length > 0">
+      <div class="col-sm-6 col-md-4 col-lg-3 mb-4" *ngFor="let item of promotionProducts">
+        <div class="card h-100 product-card border-warning">
+          <a [routerLink]="['/products/view', item.product._id]" class="text-decoration-none text-dark">
+            <div class="card-img-wrap position-relative" *ngIf="getProductMainPhoto(item.product)">
+              <img [src]="getProductMainPhoto(item.product)" class="card-img-top" alt="{{ item.product.name }}" style="height: 180px; object-fit: cover;">
+              <span class="badge badge-danger position-absolute" style="top: 8px; right: 8px;">{{ getPromoBadge(item.promotion) }}</span>
+            </div>
+            <div class="card-img-wrap bg-light d-flex align-items-center justify-content-center position-relative" *ngIf="!getProductMainPhoto(item.product)" style="height: 180px;">
+              <i class="feather icon-image text-muted" style="font-size: 2.5rem;"></i>
+              <span class="badge badge-danger position-absolute" style="top: 8px; right: 8px;">{{ getPromoBadge(item.promotion) }}</span>
+            </div>
+            <div class="card-body">
+              <h6 class="card-title text-truncate">{{ item.product.name }}</h6>
+              <p class="card-text small text-muted mb-1" *ngIf="item.promotion.boutiqueId">{{ item.promotion.boutiqueId.name }}</p>
+              <p class="mb-2">
+                <span class="font-weight-bold text-primary" *ngIf="getPromoPrice(item.product, item.promotion) != null">
+                  {{ getPromoPrice(item.product, item.promotion) | number:'1.0-0' }} Ar
+                </span>
+                <span class="small text-muted text-decoration-line-through ml-1" *ngIf="item.product.price != null">
+                  {{ item.product.price | number:'1.0-0' }} Ar
+                </span>
+                <span class="font-weight-bold text-primary ml-1" *ngIf="getPromoPrice(item.product, item.promotion) == null && item.product.price != null">
+                  {{ item.product.price | number:'1.0-0' }} Ar
+                </span>
+                <span class="badge ml-1" [ngClass]="item.product.availability === 'available' ? 'badge-success' : item.product.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
+                  {{ getAvailabilityLabel(item.product.availability) }}
+                </span>
+              </p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <h5 class="mb-3">Catalogue produits</h5>
 
   <div class="home-filters card mb-3">

@@ -102,8 +102,8 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeExportModal()" [disabled]="exportLoading">Annuler</button>
-        <button type="button" class="btn btn-danger" (click)="doExportPDF()" [disabled]="exportLoading">{{ exportLoading ? 'Export...' : 'Exporter en PDF' }}</button>
-        <button type="button" class="btn btn-success" (click)="doExportExcel()" [disabled]="exportLoading">{{ exportLoading ? 'Export...' : 'Exporter en Excel' }}</button>
+        <button type="button" class="btn btn-danger" (click)="doExportPDF()" [disabled]="exportLoading">{{ exportLoading ? 'Export en cours...' : 'Exporter en PDF' }}</button>
+        <button type="button" class="btn btn-success" (click)="doExportExcel()" [disabled]="exportLoading">{{ exportLoading ? 'Export en cours...' : 'Exporter en Excel' }}</button>
       </div>
     </div>
   </div>
