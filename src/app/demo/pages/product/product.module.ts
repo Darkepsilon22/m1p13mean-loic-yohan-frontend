@@ -12,6 +12,7 @@ import { ProductCreateComponent } from './product-create/product-create.componen
 import { ProductEditComponent } from './product-edit/product-edit.component';
 import { ProductViewComponent } from './product-view/product-view.component';
 import { StockListComponent } from './stock-list/stock-list.component';
+import { StockMovementsHistoryComponent } from './stock-movements-history/stock-movements-history.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { StockListComponent } from './stock-list/stock-list.component';
     ProductCreateComponent,
     ProductEditComponent,
     ProductViewComponent,
-    StockListComponent
+    StockListComponent,
+    StockMovementsHistoryComponent
   ],
   imports: [
     CommonModule,

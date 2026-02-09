@@ -6,6 +6,7 @@ import { ProductCreateComponent } from './product-create/product-create.componen
 import { ProductEditComponent } from './product-edit/product-edit.component';
 import { ProductViewComponent } from './product-view/product-view.component';
 import { StockListComponent } from './stock-list/stock-list.component';
+import { StockMovementsHistoryComponent } from './stock-movements-history/stock-movements-history.component';
 
 const routes: Routes = [
   {
@@ -17,6 +18,7 @@ const routes: Routes = [
       { path: 'my/create', component: ProductCreateComponent },
       { path: 'my/edit/:id', component: ProductEditComponent },
       { path: 'stock', component: StockListComponent },
+      { path: 'stock-movements', component: StockMovementsHistoryComponent },
       { path: 'view/:id', component: ProductViewComponent }
     ]
   }

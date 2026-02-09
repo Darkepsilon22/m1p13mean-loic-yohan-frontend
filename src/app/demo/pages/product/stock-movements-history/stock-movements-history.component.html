@@ -1,0 +1,171 @@
+<div class="row">
+  <div class="col-sm-12">
+    <app-card cardTitle="Historique des mouvements de stock" [options]="false">
+      <!-- Filtres -->
+      <div class="mb-3 p-3 border rounded bg-light">
+        <div class="row">
+          <div class="col-md-3 mb-2">
+            <label class="form-label small mb-1">Date de début</label>
+            <input type="date" class="form-control form-control-sm" [(ngModel)]="filterDateDebut" (ngModelChange)="onFilterChange()">
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="form-label small mb-1">Date de fin</label>
+            <input type="date" class="form-control form-control-sm" [(ngModel)]="filterDateFin" (ngModelChange)="onFilterChange()">
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="form-label small mb-1">Type de mouvement</label>
+            <select class="form-control form-control-sm" [(ngModel)]="filterType" (ngModelChange)="onFilterChange()">
+              <option value="">Tous</option>
+              <option value="in">Entrée</option>
+              <option value="out">Sortie</option>
+              <option value="adjustment">Ajustement</option>
+              <option value="initial">Stock initial</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="form-label small mb-1">Produit</label>
+            <select class="form-control form-control-sm" [(ngModel)]="filterProductId" (ngModelChange)="onFilterChange()">
+              <option value="">Tous les produits</option>
+              <option *ngFor="let p of productsList" [value]="p._id">{{ p.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row mt-2">
+          <div class="col-md-12 d-flex">
+            <button type="button" class="btn btn-sm btn-secondary mr-2" (click)="clearFilters()">Réinitialiser</button>
+            <button type="button" class="btn btn-sm btn-danger" (click)="openExportModal()">Exporter PDF / Excel</button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
+
+      <div *ngIf="!loading && movements.length === 0" class="text-muted py-4 text-center">
+        Aucun mouvement trouvé.
+      </div>
+
+      <div *ngIf="!loading && movements.length > 0" class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Produit</th>
+              <th>Type</th>
+              <th>Quantité</th>
+              <th>Stock avant</th>
+              <th>Stock après</th>
+              <th>Motif</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of movements">
+              <td>{{ m.createdAt | date:'short' }}</td>
+              <td>
+                <strong>{{ m.productId?.name || '—' }}</strong>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getMovementTypeBadge(m.type)">
+                  {{ getMovementTypeLabel(m.type) }}
+                </span>
+              </td>
+              <td [ngClass]="m.quantity > 0 ? 'text-success' : m.quantity < 0 ? 'text-danger' : ''">
+                {{ m.quantity > 0 ? '+' + m.quantity : (m.quantity < 0 ? m.quantity : '—') }}
+              </td>
+              <td>{{ m.previousStock }}</td>
+              <td>{{ m.newStock }}</td>
+              <td>{{ m.reason || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!loading && movements.length > 0" class="d-flex justify-content-between align-items-center mt-3">
+        <div class="d-flex align-items-center">
+          <span class="text-muted mr-3">{{ pagination.total }} mouvement(s)</span>
+          <span class="mr-2 small">Afficher :</span>
+          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="pagination.limit" (ngModelChange)="onPageSizeChange()">
+            <option [ngValue]="5">5</option>
+            <option [ngValue]="10">10</option>
+            <option [ngValue]="20">20</option>
+            <option [ngValue]="50">50</option>
+          </select>
+          <span class="text-muted ml-3" *ngIf="pagination.pages > 0">Page {{ pagination.page }} / {{ pagination.pages }}</span>
+        </div>
+        <div>
+          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(1)">
+            &laquo;
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">
+            Précédent
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">
+            Suivant
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.pages)">
+            &raquo;
+          </button>
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal Export -->
+<div class="modal fade" [class.show]="exportModalVisible" [style.display]="exportModalVisible ? 'block' : 'none'" tabindex="-1" role="dialog" style="background: rgba(0,0,0,0.5);" (click)="closeExportModal()">
+  <div class="modal-dialog modal-dialog-centered" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Exporter les mouvements de stock</h5>
+        <button type="button" class="close" (click)="closeExportModal()"><span>&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Date de début <span class="text-danger">*</span></label>
+          <input type="date" class="form-control" [(ngModel)]="exportDateDebut">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date de fin <span class="text-danger">*</span></label>
+          <input type="date" class="form-control" [(ngModel)]="exportDateFin">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type de mouvement</label>
+          <select class="form-control" [(ngModel)]="exportType">
+            <option value="">Tous</option>
+            <option value="in">Entrée uniquement</option>
+            <option value="out">Sortie uniquement</option>
+            <option value="adjustment">Ajustement uniquement</option>
+            <option value="initial">Stock initial uniquement</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Produit(s)</label>
+          <p class="small text-muted mb-1">Ne rien sélectionner = tous les produits</p>
+          <div class="d-flex gap-2 mb-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="selectAllProducts()">Tout sélectionner</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="selectNoProducts()">Aucun</button>
+          </div>
+          <div class="border rounded p-2" style="max-height: 160px; overflow-y: auto;">
+            <label *ngFor="let p of exportProductsList" class="d-block mb-1">
+              <input type="checkbox" [checked]="isProductSelected(p._id)" (change)="toggleExportProduct(p._id)"> {{ p.name }}
+            </label>
+            <span *ngIf="exportProductsList.length === 0" class="text-muted">Chargement...</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Catégorie</label>
+          <select class="form-control" [(ngModel)]="exportCategory">
+            <option value="">Toutes les catégories</option>
+            <option *ngFor="let c of exportCategoriesList" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+        <div *ngIf="exportError" class="alert alert-danger">{{ exportError }}</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeExportModal()" [disabled]="exportLoading">Annuler</button>
+        <button type="button" class="btn btn-danger" (click)="doExportPDF()" [disabled]="exportLoading">{{ exportLoading ? 'Export...' : 'Exporter en PDF' }}</button>
+        <button type="button" class="btn btn-success" (click)="doExportExcel()" [disabled]="exportLoading">{{ exportLoading ? 'Export...' : 'Exporter en Excel' }}</button>
+      </div>
+    </div>
+  </div>
+</div>
