@@ -48,6 +48,10 @@ export interface ProductHistoryResponse {
 }
 
 function handleError(err: any): Observable<never> {
+  // Handle blob responses (from export endpoints) - err.error is a Blob, not JSON
+  if (err.error instanceof Blob) {
+    return throwError(() => ({ success: false, message: err.statusText || 'Erreur lors de l\'export', errors: [] } as ApiErrorBody));
+  }
   if (err.error && typeof err.error === 'object' && 'message' in err.error) {
     return throwError(() => err.error as ApiErrorBody);
   }
@@ -89,7 +93,7 @@ export class StockService {
     return this.http.post(`${API}/stock/${productId}/adjust`, body).pipe(catchError(handleError));
   }
 
-  setInitialStock(productId: string, body: { quantity: number; reason?: string }): Observable<any> {
+  setInitialStock(productId: string, body: { stock: number; reason?: string }): Observable<any> {
     return this.http.post(`${API}/stock/${productId}/initial`, body).pipe(catchError(handleError));
   }
 
@@ -100,7 +104,7 @@ export class StockService {
     q.set('dateFin', params.dateFin);
     if (params.productIds && params.productIds.length > 0) q.set('productIds', params.productIds.join(','));
     if (params.category) q.set('category', params.category);
-    return this.http.get(`${API}/stock/export/pdf?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
+    return this.http.get(`${API}/stock/download/pdf?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
   }
 
   /** Export stock movements as Excel (blob for download) */
@@ -110,6 +114,62 @@ export class StockService {
     q.set('dateFin', params.dateFin);
     if (params.productIds && params.productIds.length > 0) q.set('productIds', params.productIds.join(','));
     if (params.category) q.set('category', params.category);
-    return this.http.get(`${API}/stock/export/excel?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
+    return this.http.get(`${API}/stock/download/excel?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
+  }
+
+  /** Get all stock movements for a boutique with filters */
+  getBoutiqueMovements(boutiqueId: string, params?: {
+    page?: number;
+    limit?: number;
+    startDate?: string;
+    endDate?: string;
+    type?: string;
+    productId?: string;
+    search?: string;
+  }): Observable<any> {
+    const q = new URLSearchParams();
+    if (params?.page != null) q.set('page', String(params.page));
+    if (params?.limit != null) q.set('limit', String(params.limit));
+    if (params?.startDate) q.set('startDate', params.startDate);
+    if (params?.endDate) q.set('endDate', params.endDate);
+    if (params?.type) q.set('type', params.type);
+    if (params?.productId) q.set('productId', params.productId);
+    if (params?.search) q.set('search', params.search);
+    const query = q.toString() ? '?' + q.toString() : '';
+    return this.http.get(`${API}/stock/boutique/${boutiqueId}/movements${query}`).pipe(catchError(handleError));
+  }
+
+  /** Export movements with type filter */
+  exportMovementsPDF(params: {
+    dateDebut: string;
+    dateFin: string;
+    productIds?: string[];
+    category?: string;
+    type?: string;
+  }): Observable<Blob> {
+    const q = new URLSearchParams();
+    q.set('dateDebut', params.dateDebut);
+    q.set('dateFin', params.dateFin);
+    if (params.productIds && params.productIds.length > 0) q.set('productIds', params.productIds.join(','));
+    if (params.category) q.set('category', params.category);
+    if (params.type) q.set('type', params.type);
+    return this.http.get(`${API}/stock/download/pdf?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
+  }
+
+  /** Export movements as Excel with type filter */
+  exportMovementsExcel(params: {
+    dateDebut: string;
+    dateFin: string;
+    productIds?: string[];
+    category?: string;
+    type?: string;
+  }): Observable<Blob> {
+    const q = new URLSearchParams();
+    q.set('dateDebut', params.dateDebut);
+    q.set('dateFin', params.dateFin);
+    if (params.productIds && params.productIds.length > 0) q.set('productIds', params.productIds.join(','));
+    if (params.category) q.set('category', params.category);
+    if (params.type) q.set('type', params.type);
+    return this.http.get(`${API}/stock/download/excel?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
   }
 }
