@@ -71,6 +71,36 @@ export class EventListComponent implements OnInit {
     this.router.navigate(['/events/edit', id]);
   }
 
+  publishEvent(id: string): void {
+    if (!confirm('Publier cet événement ?')) return;
+    this.eventService.publish(id).subscribe({
+      next: () => this.loadEvents(),
+      error: (err: ApiErrorBody) => {
+        this.errorMessage = err.message || 'Erreur lors de la publication.';
+      }
+    });
+  }
+
+  cancelEvent(id: string): void {
+    if (!confirm('Annuler cet événement ?')) return;
+    this.eventService.cancel(id).subscribe({
+      next: () => this.loadEvents(),
+      error: (err: ApiErrorBody) => {
+        this.errorMessage = err.message || 'Erreur lors de l\'annulation.';
+      }
+    });
+  }
+
+  deleteEvent(id: string): void {
+    if (!confirm('Supprimer définitivement cet événement ?')) return;
+    this.eventService.delete(id).subscribe({
+      next: () => this.loadEvents(),
+      error: (err: ApiErrorBody) => {
+        this.errorMessage = err.message || 'Erreur lors de la suppression.';
+      }
+    });
+  }
+
   getStatusLabel(s: string): string {
     const map: Record<string, string> = { draft: 'Brouillon', published: 'Publié', ended: 'Terminé', cancelled: 'Annulé' };
     return map[s] || s;

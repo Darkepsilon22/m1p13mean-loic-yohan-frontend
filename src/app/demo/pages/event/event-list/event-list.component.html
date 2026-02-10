@@ -36,7 +36,7 @@
               <th>Visibilité</th>
               <th>Vedette</th>
               <th>Statut</th>
-              <th></th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -46,8 +46,19 @@
               <td>{{ e.visibility === 'public' ? 'Public' : 'Boutiques' }}</td>
               <td>{{ e.isFeatured ? 'Oui' : 'Non' }}</td>
               <td><span class="badge" [ngClass]="getStatusClass(e.status)">{{ getStatusLabel(e.status) }}</span></td>
-              <td>
-                <button type="button" class="btn btn-sm btn-outline-primary" (click)="goToEdit(e._id)">Modifier</button>
+              <td class="text-nowrap">
+                <button type="button" class="btn btn-sm btn-outline-primary" style="margin-right: 4px;" (click)="goToEdit(e._id)" title="Modifier">
+                  <i class="feather icon-edit"></i> Modifier
+                </button>
+                <button *ngIf="e.status === 'draft'" type="button" class="btn btn-sm btn-outline-success" style="margin-right: 4px;" (click)="publishEvent(e._id)" title="Publier">
+                  <i class="feather icon-send"></i> Publier
+                </button>
+                <button *ngIf="e.status === 'draft' || e.status === 'published'" type="button" class="btn btn-sm btn-outline-warning" style="margin-right: 4px;" (click)="cancelEvent(e._id)" title="Annuler">
+                  <i class="feather icon-x-circle"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteEvent(e._id)" title="Supprimer">
+                  <i class="feather icon-trash-2"></i>
+                </button>
               </td>
             </tr>
           </tbody>
