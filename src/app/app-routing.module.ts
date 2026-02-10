@@ -75,6 +75,10 @@ const routes: Routes = [
         loadChildren: () => import('./demo/pages/my-profile/my-profile.module').then(module => module.MyProfileModule)
       },
       {
+        path: 'boutique-stats',
+        loadChildren: () => import('./demo/pages/boutique-stats/boutique-stats.module').then(module => module.BoutiqueStatsModule)
+      },
+      {
         path: 'layout',
         loadChildren: () => import('./demo/pages/layout/layout.module').then(module => module.LayoutModule)
       },

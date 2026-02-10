@@ -173,6 +173,13 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/dashboard/analytics',
         icon: 'feather icon-bar-chart-2'
+      },
+      {
+        id: 'boutique-stats',
+        title: 'Statistiques',
+        type: 'item',
+        url: '/boutique-stats',
+        icon: 'feather icon-pie-chart'
       }
     ]
   },
