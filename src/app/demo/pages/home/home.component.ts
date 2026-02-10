@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService, ProductListParams } from '../../../core/services/product.service';
 import { BoutiqueService } from '../../../core/services/boutique.service';
@@ -42,6 +43,7 @@ export class HomeComponent implements OnInit {
   loadingPromo = false;
 
   constructor(
+    private route: ActivatedRoute,
     private auth: AuthService,
     private productService: ProductService,
     private boutiqueService: BoutiqueService,
@@ -51,6 +53,13 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.isLoggedIn = this.auth.isLoggedIn();
     this.currentUser = this.auth.getStoredUser();
+
+    // Pré-remplir le filtre boutique si queryParam présent (ex: depuis page boutique)
+    const qBoutiqueId = this.route.snapshot.queryParamMap.get('boutiqueId');
+    if (qBoutiqueId) {
+      this.filters.boutiqueId = qBoutiqueId;
+    }
+
     if (this.isLoggedIn && this.currentUser?.role === 'acheteur') {
       this.loadBoutiques();
       this.loadProducts();

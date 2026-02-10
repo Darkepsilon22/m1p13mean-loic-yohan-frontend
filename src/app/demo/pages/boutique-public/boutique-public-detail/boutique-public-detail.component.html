@@ -1,0 +1,346 @@
+<!-- Bouton retour -->
+<div class="mb-3">
+  <button class="btn btn-outline-secondary btn-sm" (click)="goBack()">
+    <i class="feather icon-arrow-left mr-1"></i> Retour aux boutiques
+  </button>
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading" class="text-center py-5">
+  <div class="spinner-border text-primary" role="status"></div>
+  <p class="mt-2 text-muted">Chargement de la boutique...</p>
+</div>
+
+<!-- Erreur -->
+<div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+<!-- Détail de la boutique -->
+<div *ngIf="!loading && boutique">
+
+  <!-- ============ EN-TÊTE BOUTIQUE ============ -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <!-- Logo / Image -->
+            <div class="col-md-4 text-center mb-3">
+              <div *ngIf="boutique.logo" style="max-height: 250px; overflow: hidden; border-radius: 8px;">
+                <img [src]="boutique.logo" [alt]="boutique.name" class="img-fluid" style="max-height: 250px; object-fit: cover;">
+              </div>
+              <div *ngIf="!boutique.logo" class="d-flex align-items-center justify-content-center" style="height: 200px; background-color: #f0f0f0; border-radius: 8px;">
+                <i class="feather icon-shopping-bag" style="font-size: 4rem; color: #ccc;"></i>
+              </div>
+            </div>
+
+            <!-- Infos -->
+            <div class="col-md-8">
+              <h3 class="mb-2">{{ boutique.name || 'Boutique' }}</h3>
+
+              <!-- Catégorie -->
+              <p class="mb-2" *ngIf="boutique.categoryId?.name">
+                <span class="badge badge-primary">{{ boutique.categoryId.name }}</span>
+              </p>
+
+              <!-- Rating -->
+              <div class="d-flex align-items-center mb-3">
+                <span class="text-warning mr-2">
+                  <i *ngFor="let s of [1,2,3,4,5]" class="fa fa-lg"
+                     [ngClass]="s <= (boutique.rating?.average || 0) ? 'fa-star' : (s - 0.5 <= (boutique.rating?.average || 0) ? 'fa-star-half-o' : 'fa-star-o')"></i>
+                </span>
+                <span class="font-weight-bold mr-1">{{ boutique.rating?.average ? (boutique.rating.average | number:'1.1-1') : '0' }} / 5</span>
+                <span class="text-muted">({{ boutique.rating?.count || 0 }} avis)</span>
+              </div>
+
+              <!-- Description -->
+              <p *ngIf="boutique.description" class="text-muted">{{ boutique.description }}</p>
+
+              <!-- Localisation -->
+              <p *ngIf="getLocationText()" class="mb-2">
+                <i class="feather icon-map-pin text-primary mr-1"></i>
+                <strong>Localisation :</strong> {{ getLocationText() }}
+              </p>
+
+              <!-- Contact -->
+              <div *ngIf="boutique.contact">
+                <p *ngIf="boutique.contact.phone" class="mb-1">
+                  <i class="feather icon-phone text-primary mr-1"></i> {{ boutique.contact.phone }}
+                </p>
+                <p *ngIf="boutique.contact.email" class="mb-1">
+                  <i class="feather icon-mail text-primary mr-1"></i> {{ boutique.contact.email }}
+                </p>
+                <p *ngIf="boutique.contact.website" class="mb-1">
+                  <i class="feather icon-globe text-primary mr-1"></i>
+                  <a [href]="boutique.contact.website" target="_blank">{{ boutique.contact.website }}</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HORAIRES + PHOTOS ============ -->
+  <div class="row mt-3" *ngIf="boutique.openingHours?.length > 0 || (boutique.photos?.length > 0)">
+    <div class="col-md-6" *ngIf="boutique.openingHours?.length > 0">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="feather icon-clock mr-2"></i>Horaires d'ouverture</h5>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-striped mb-0">
+            <tbody>
+              <tr *ngFor="let h of boutique.openingHours">
+                <td class="font-weight-bold">{{ getDayName(h.day) }}</td>
+                <td *ngIf="!h.isClosed" class="text-success">{{ h.open }} - {{ h.close }}</td>
+                <td *ngIf="h.isClosed" class="text-danger">Fermé</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6" *ngIf="boutique.photos?.length > 0">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="feather icon-image mr-2"></i>Photos</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-4 mb-2" *ngFor="let photo of boutique.photos">
+              <img [src]="photo" class="img-fluid rounded" style="height: 100px; width: 100%; object-fit: cover;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PRODUITS DE LA BOUTIQUE ============ -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="feather icon-package mr-2"></i>Produits ({{ totalProducts }})
+          </h5>
+          <button class="btn btn-outline-primary btn-sm" (click)="goToAllProducts()" *ngIf="totalProducts > 0">
+            Voir tous les produits <i class="feather icon-arrow-right ml-1"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <div *ngIf="loadingProducts" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm text-primary"></div> Chargement...
+          </div>
+
+          <div *ngIf="!loadingProducts && products.length === 0" class="text-center text-muted py-3">
+            <i class="feather icon-package" style="font-size: 2rem;"></i>
+            <p class="mt-2">Aucun produit pour le moment.</p>
+          </div>
+
+          <div class="row" *ngIf="!loadingProducts && products.length > 0">
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-3" *ngFor="let p of products">
+              <div class="card h-100 shadow-sm product-card" style="cursor: pointer;" (click)="goToProduct(p._id)">
+                <div style="height: 140px; overflow: hidden; background-color: #f8f8f8;">
+                  <img *ngIf="p.mainPhoto" [src]="p.mainPhoto" [alt]="p.name" style="height: 100%; width: 100%; object-fit: cover;">
+                  <div *ngIf="!p.mainPhoto" class="d-flex align-items-center justify-content-center h-100">
+                    <i class="feather icon-image" style="font-size: 2rem; color: #ccc;"></i>
+                  </div>
+                </div>
+                <div class="card-body p-2">
+                  <h6 class="card-title mb-1" style="font-size: 0.85rem;">{{ p.name }}</h6>
+                  <span class="text-primary font-weight-bold">{{ p.price | number:'1.0-0' }} Ar</span>
+                  <br>
+                  <small [ngClass]="p.stock > 0 ? 'text-success' : 'text-danger'">
+                    {{ p.stock > 0 ? 'En stock (' + p.stock + ')' : 'Rupture de stock' }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PROMOTIONS EN COURS ============ -->
+  <div class="row mt-3" *ngIf="promotions.length > 0">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="feather icon-percent mr-2"></i>Promotions en cours ({{ promotions.length }})
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3" *ngFor="let promo of promotions">
+              <div class="border rounded p-3 h-100">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="mb-1">{{ promo.title }}</h6>
+                    <p class="text-muted small mb-2" *ngIf="promo.description">{{ promo.description }}</p>
+                  </div>
+                  <span class="badge badge-danger" style="font-size: 1rem;">{{ getDiscountLabel(promo) }}</span>
+                </div>
+                <small class="text-muted">
+                  Du {{ formatDate(promo.startDate) }} au {{ formatDate(promo.endDate) }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SECTION AVIS CLIENTS ============ -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="feather icon-message-square mr-2"></i>Avis clients ({{ reviews.length }})
+          </h5>
+          <button class="btn btn-primary btn-sm" (click)="openReviewForm()" *ngIf="isAcheteur && !userReview">
+            <i class="feather icon-edit-2 mr-1"></i> Laisser un avis
+          </button>
+          <button class="btn btn-outline-primary btn-sm" (click)="openReviewForm()" *ngIf="isAcheteur && userReview">
+            <i class="feather icon-edit mr-1"></i> Modifier mon avis
+          </button>
+        </div>
+        <div class="card-body">
+          <!-- Statistiques des avis -->
+          <div class="row mb-4" *ngIf="reviews.length > 0">
+            <div class="col-md-4 text-center">
+              <div class="display-4 text-primary font-weight-bold">{{ averageRating }}</div>
+              <div class="text-warning mb-2">
+                <i *ngFor="let s of [1,2,3,4,5]" class="fa fa-lg"
+                   [ngClass]="s <= averageRating ? 'fa-star' : (s - 0.5 <= averageRating ? 'fa-star-half-o' : 'fa-star-o')"></i>
+              </div>
+              <div class="text-muted">Basé sur {{ reviews.length }} avis</div>
+            </div>
+            <div class="col-md-8">
+              <div *ngFor="let count of [5,4,3,2,1]" class="d-flex align-items-center mb-1">
+                <span class="mr-2" style="width: 20px;">{{ count }}</span>
+                <i class="fa fa-star text-warning mr-2"></i>
+                <div class="progress flex-grow-1" style="height: 10px;">
+                  <div class="progress-bar bg-warning" [style.width.%]="reviews.length > 0 ? (ratingCounts[count-1] / reviews.length * 100) : 0"></div>
+                </div>
+                <span class="ml-2 text-muted" style="width: 30px;">{{ ratingCounts[count-1] }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message si utilisateur a déjà un avis -->
+          <div class="alert alert-info mb-3" *ngIf="userReview">
+            <i class="feather icon-check-circle mr-1"></i>
+            Vous avez déjà laissé un avis pour cette boutique.
+          </div>
+
+          <!-- Message si non connecté -->
+          <div class="alert alert-light mb-3" *ngIf="!isLoggedIn">
+            <i class="feather icon-info mr-1"></i>
+            Connectez-vous pour laisser un avis.
+          </div>
+
+          <!-- Chargement des avis -->
+          <div *ngIf="loadingReviews" class="text-center py-4">
+            <i class="feather icon-loader"></i> Chargement des avis...
+          </div>
+
+          <!-- Aucun avis -->
+          <div *ngIf="!loadingReviews && reviews.length === 0" class="text-center text-muted py-4">
+            <i class="feather icon-message-circle" style="font-size: 2rem;"></i>
+            <p class="mt-2">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
+          </div>
+
+          <!-- Liste des avis -->
+          <div *ngIf="!loadingReviews && reviews.length > 0">
+            <div class="border-bottom pb-3 mb-3" *ngFor="let review of reviews">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ getReviewerName(review) }}</strong>
+                  <span class="text-muted small ml-2">{{ formatDate(review.createdAt) }}</span>
+                </div>
+                <div class="text-warning">
+                  <i *ngFor="let s of [1,2,3,4,5]" class="fa" [ngClass]="s <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
+                </div>
+              </div>
+              <p class="mt-2 mb-1">{{ review.comment }}</p>
+              <!-- Réponse de la boutique -->
+              <div class="bg-light p-2 rounded mt-2" *ngIf="review.response?.text">
+                <small class="text-muted"><i class="feather icon-corner-down-right mr-1"></i><strong>Réponse de {{ boutique?.name || 'la boutique' }} :</strong></small>
+                <p class="mb-0 small mt-1">{{ review.response.text }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL AVIS ============ -->
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showReviewForm" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="feather icon-edit-2 mr-2"></i>
+          {{ userReview ? 'Modifier mon avis' : 'Laisser un avis' }}
+        </h5>
+        <button type="button" class="close" (click)="closeReviewForm()">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Note -->
+        <div class="form-group">
+          <label><strong>Votre note *</strong></label>
+          <div class="text-center py-3">
+            <span *ngFor="let star of [1,2,3,4,5]"
+                  (click)="setRating(star)"
+                  (mouseenter)="hoverStar = star"
+                  (mouseleave)="hoverStar = 0"
+                  style="cursor: pointer; font-size: 2.5rem; margin: 0 5px; display: inline-block; user-select: none;"
+                  [style.color]="(hoverStar > 0 ? star <= hoverStar : star <= reviewRating) ? '#ffc107' : '#dee2e6'"
+                  [style.transform]="hoverStar === star ? 'scale(1.2)' : 'scale(1)'"
+                  [style.transition]="'all 0.2s'">
+              &#9733;
+            </span>
+          </div>
+          <div class="text-center text-muted small">
+            {{ reviewRating > 0 ? reviewRating + '/5' : 'Cliquez sur les étoiles' }}
+          </div>
+        </div>
+
+        <!-- Commentaire -->
+        <div class="form-group">
+          <label><strong>Votre avis *</strong></label>
+          <textarea class="form-control" rows="4" [(ngModel)]="reviewComment"
+                    placeholder="Décrivez votre expérience... (minimum 10 caractères)"
+                    maxlength="1000"></textarea>
+          <small class="text-muted">{{ reviewComment.length }}/1000 caractères</small>
+        </div>
+
+        <!-- Message -->
+        <div *ngIf="reviewMessage" class="alert" [ngClass]="reviewMessageType === 'success' ? 'alert-success' : 'alert-danger'">
+          {{ reviewMessage }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger mr-auto" (click)="deleteReview()" *ngIf="userReview">
+          <i class="feather icon-trash-2 mr-1"></i> Supprimer
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="closeReviewForm()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="submitReview()" [disabled]="submittingReview">
+          <span *ngIf="!submittingReview">{{ userReview ? 'Mettre à jour' : 'Publier' }}</span>
+          <span *ngIf="submittingReview">Envoi...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -14,6 +14,13 @@ const routes: Routes = [
     ]
   },
   {
+    path: 'boutiques',
+    component: AdminComponent,
+    children: [
+      { path: '', loadChildren: () => import('./demo/pages/boutique-public/boutique-public.module').then(module => module.BoutiquePublicModule) }
+    ]
+  },
+  {
     path: '',
     component: AdminComponent,
     canActivate: [AuthGuard],
@@ -46,6 +53,10 @@ const routes: Routes = [
       {
         path: 'promotions',
         loadChildren: () => import('./demo/pages/promotion/promotion.module').then(module => module.PromotionModule)
+      },
+      {
+        path: 'reviews',
+        loadChildren: () => import('./demo/pages/review-management/review-management.module').then(module => module.ReviewManagementModule)
       },
       {
         path: 'events',

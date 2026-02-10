@@ -231,6 +231,21 @@ const BoutiqueNavigationItems: NavigationItem[] = [
     ]
   },
   {
+    id: 'boutique-reviews',
+    title: 'Avis',
+    type: 'group',
+    icon: 'feather icon-message-square',
+    children: [
+      {
+        id: 'reviews-manage',
+        title: 'Avis clients',
+        type: 'item',
+        url: '/reviews/manage',
+        icon: 'feather icon-message-square'
+      }
+    ]
+  },
+  {
     id: 'boutique-emplacements',
     title: 'Emplacements',
     type: 'group',
@@ -276,6 +291,13 @@ const AcheteurNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/cart',
         icon: 'feather icon-shopping-cart'
+      },
+      {
+        id: 'boutiques',
+        title: 'Voir les boutiques',
+        type: 'item',
+        url: '/boutiques',
+        icon: 'feather icon-grid'
       }
     ]
   },
