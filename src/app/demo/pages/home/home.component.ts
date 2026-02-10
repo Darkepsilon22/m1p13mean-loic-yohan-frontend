@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService, ProductListParams } from '../../../core/services/product.service';
 import { BoutiqueService } from '../../../core/services/boutique.service';
 import { PromotionService } from '../../../core/services/promotion.service';
+import { EventService, EventItem } from '../../../core/services/event.service';
 import { ApiErrorBody } from '../../../core/services/auth.service';
 
 /**
@@ -14,10 +15,16 @@ import { ApiErrorBody } from '../../../core/services/auth.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
   currentUser: any = null;
   isLoggedIn = false;
+
+  // Event banners
+  eventBanners: EventItem[] = [];
+  currentBannerIndex = 0;
+  private bannerInterval: any = null;
+  dismissedBanners: Set<string> = new Set();
 
   // Catalogue (acheteur)
   products: any[] = [];
@@ -47,7 +54,8 @@ export class HomeComponent implements OnInit {
     private auth: AuthService,
     private productService: ProductService,
     private boutiqueService: BoutiqueService,
-    private promotionService: PromotionService
+    private promotionService: PromotionService,
+    private eventService: EventService
   ) {}
 
   ngOnInit(): void {
@@ -60,11 +68,91 @@ export class HomeComponent implements OnInit {
       this.filters.boutiqueId = qBoutiqueId;
     }
 
+    // Charger les bannières pour tous les utilisateurs connectés (acheteur et boutique)
+    if (this.isLoggedIn) {
+      this.loadBanners();
+    }
+
     if (this.isLoggedIn && this.currentUser?.role === 'acheteur') {
       this.loadBoutiques();
       this.loadProducts();
       this.loadPromotionProducts();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.stopBannerRotation();
+  }
+
+  // ========== EVENT BANNERS ==========
+
+  loadBanners(): void {
+    this.eventService.getBanners(50).subscribe({
+      next: (res) => {
+        this.eventBanners = (res.data ?? []).filter(e => !this.dismissedBanners.has(e._id));
+        if (this.eventBanners.length > 1) {
+          this.startBannerRotation();
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  startBannerRotation(): void {
+    this.stopBannerRotation();
+    this.bannerInterval = setInterval(() => {
+      if (this.eventBanners.length > 1) {
+        this.currentBannerIndex = (this.currentBannerIndex + 1) % this.eventBanners.length;
+      }
+    }, 6000);
+  }
+
+  stopBannerRotation(): void {
+    if (this.bannerInterval) {
+      clearInterval(this.bannerInterval);
+      this.bannerInterval = null;
+    }
+  }
+
+  goToBanner(index: number): void {
+    this.currentBannerIndex = index;
+    if (this.eventBanners.length > 1) {
+      this.startBannerRotation();
+    }
+  }
+
+  prevBanner(): void {
+    this.currentBannerIndex = (this.currentBannerIndex - 1 + this.eventBanners.length) % this.eventBanners.length;
+    if (this.eventBanners.length > 1) {
+      this.startBannerRotation();
+    }
+  }
+
+  nextBanner(): void {
+    this.currentBannerIndex = (this.currentBannerIndex + 1) % this.eventBanners.length;
+    if (this.eventBanners.length > 1) {
+      this.startBannerRotation();
+    }
+  }
+
+  dismissBanner(eventId: string): void {
+    this.dismissedBanners.add(eventId);
+    this.eventBanners = this.eventBanners.filter(e => e._id !== eventId);
+    if (this.currentBannerIndex >= this.eventBanners.length) {
+      this.currentBannerIndex = 0;
+    }
+    if (this.eventBanners.length <= 1) {
+      this.stopBannerRotation();
+    }
+  }
+
+  getRemainingDays(endDate: string): string {
+    const end = new Date(endDate);
+    const now = new Date();
+    const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    if (diff <= 0) return 'Dernier jour !';
+    if (diff === 1) return 'Plus que 1 jour';
+    return `Plus que ${diff} jours`;
   }
 
   loadPromotionProducts(): void {

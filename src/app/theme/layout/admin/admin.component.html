@@ -11,58 +11,6 @@
   <div class="pcoded-wrapper" [ngClass]="{'container': this.nextConfig.layout === 'horizontal' && this.nextConfig.subLayout === 'horizontal-2'}">
     <div class="pcoded-content">
       <div class="pcoded-inner-content">
-        <!-- Event Banner Pub -->
-        <div class="event-banner-container" *ngIf="eventBanners.length > 0">
-          <div class="event-banner" *ngFor="let event of eventBanners; let i = index"
-               [class.active]="i === currentBannerIndex">
-            <img [src]="event.image" [alt]="event.title" class="event-banner-img">
-            <div class="event-banner-info">
-              <div class="event-banner-badges">
-                <span class="event-banner-badge" *ngIf="event.isFeatured">
-                  <i class="feather icon-star"></i> A la une
-                </span>
-                <span class="event-banner-badge event-banner-badge-visibility" *ngIf="event.visibility === 'boutiques'">
-                  <i class="feather icon-lock"></i> Boutiques
-                </span>
-              </div>
-              <h4 class="event-banner-title">{{ event.title }}</h4>
-              <p class="event-banner-desc" *ngIf="event.shortDescription">{{ event.shortDescription }}</p>
-              <p class="event-banner-desc" *ngIf="!event.shortDescription && event.description">
-                {{ event.description.length > 120 ? (event.description | slice:0:120) + '...' : event.description }}
-              </p>
-              <div class="event-banner-meta">
-                <span>
-                  <i class="feather icon-calendar"></i>
-                  {{ event.startDate | date:'dd/MM/yyyy' }} - {{ event.endDate | date:'dd/MM/yyyy' }}
-                </span>
-                <span class="event-banner-countdown">
-                  <i class="feather icon-clock"></i>
-                  {{ getRemainingDays(event.endDate) }}
-                </span>
-              </div>
-            </div>
-            <button class="event-banner-close" (click)="dismissBanner(event._id)" title="Fermer">
-              <i class="feather icon-x"></i>
-            </button>
-          </div>
-
-          <!-- Navigation arrows -->
-          <button class="event-banner-nav event-banner-prev" *ngIf="eventBanners.length > 1" (click)="prevBanner()">
-            <i class="feather icon-chevron-left"></i>
-          </button>
-          <button class="event-banner-nav event-banner-next" *ngIf="eventBanners.length > 1" (click)="nextBanner()">
-            <i class="feather icon-chevron-right"></i>
-          </button>
-
-          <!-- Dots indicator -->
-          <div class="event-banner-dots" *ngIf="eventBanners.length > 1">
-            <span *ngFor="let event of eventBanners; let i = index"
-                  class="event-banner-dot"
-                  [class.active]="i === currentBannerIndex"
-                  (click)="goToBanner(i)"></span>
-          </div>
-        </div>
-
         <div class="main-body">
           <div class="page-wrapper">
             <app-breadcrumb></app-breadcrumb>
