@@ -1,0 +1,111 @@
+<div class="row">
+  <div class="col-12">
+    <app-card cardTitle="Les Boutiques" [options]="false">
+      <!-- Barre de recherche -->
+      <div class="mb-4">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Rechercher une boutique..." [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+              <div class="input-group-append">
+                <button class="btn btn-primary" (click)="onSearch()">
+                  <i class="feather icon-search"></i>
+                </button>
+                <button class="btn btn-secondary" (click)="clearSearch()" *ngIf="searchTerm">
+                  <i class="feather icon-x"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 text-right">
+            <span class="text-muted">{{ pagination.total }} boutique(s) trouvée(s)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2 text-muted">Chargement des boutiques...</p>
+      </div>
+
+      <!-- Erreur -->
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+      <!-- Aucune boutique -->
+      <div *ngIf="!loading && boutiques.length === 0 && !errorMessage" class="text-center py-5">
+        <i class="feather icon-shopping-bag" style="font-size: 3rem; color: #ccc;"></i>
+        <p class="mt-3 text-muted">Aucune boutique disponible pour le moment.</p>
+      </div>
+
+      <!-- Grille de boutiques -->
+      <div class="row" *ngIf="!loading && boutiques.length > 0">
+        <div class="col-md-4 col-sm-6 mb-4" *ngFor="let b of boutiques">
+          <div class="card h-100 shadow-sm boutique-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" (click)="goToDetail(b._id)">
+            <!-- Image -->
+            <div class="card-img-top-wrapper" style="height: 180px; overflow: hidden; background-color: #f0f0f0;">
+              <img *ngIf="b.logo" [src]="b.logo" [alt]="b.name" class="card-img-top" style="height: 100%; width: 100%; object-fit: cover;">
+              <div *ngIf="!b.logo" class="d-flex align-items-center justify-content-center h-100">
+                <i class="feather icon-shopping-bag" style="font-size: 3rem; color: #ccc;"></i>
+              </div>
+            </div>
+
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title mb-1">{{ b.name || 'Boutique sans nom' }}</h5>
+
+              <!-- Catégorie -->
+              <small class="text-muted mb-2" *ngIf="b.categoryId?.name">
+                <i class="feather icon-tag mr-1"></i>{{ b.categoryId.name }}
+              </small>
+
+              <!-- Localisation -->
+              <small class="text-muted mb-2" *ngIf="getLocationText(b)">
+                <i class="feather icon-map-pin mr-1"></i>{{ getLocationText(b) }}
+              </small>
+
+              <!-- Description courte -->
+              <p class="card-text text-muted small flex-grow-1" *ngIf="b.shortDescription || b.description">
+                {{ (b.shortDescription || b.description) | slice:0:100 }}{{ (b.shortDescription || b.description)?.length > 100 ? '...' : '' }}
+              </p>
+
+              <!-- Rating -->
+              <div class="mt-auto">
+                <div class="d-flex align-items-center">
+                  <span class="text-warning mr-1">
+                    <i *ngFor="let s of getStars(b.rating?.average || 0)" class="fa"
+                       [ngClass]="s <= (b.rating?.average || 0) ? 'fa-star' : (s - 0.5 <= (b.rating?.average || 0) ? 'fa-star-half-o' : 'fa-star-o')"></i>
+                  </span>
+                  <small class="text-muted">
+                    {{ b.rating?.average ? (b.rating.average | number:'1.1-1') : '0' }} / 5
+                    ({{ b.rating?.count || 0 }} avis)
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="d-flex justify-content-between align-items-center mt-3" *ngIf="!loading && pagination.pages > 1">
+        <span class="text-muted small">Page {{ pagination.page }} / {{ pagination.pages }}</span>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="pagination.page <= 1">
+              <a class="page-link" (click)="goToPage(1)"><i class="feather icon-chevrons-left"></i></a>
+            </li>
+            <li class="page-item" [class.disabled]="pagination.page <= 1">
+              <a class="page-link" (click)="goToPage(pagination.page - 1)"><i class="feather icon-chevron-left"></i></a>
+            </li>
+            <li class="page-item" [class.disabled]="pagination.page >= pagination.pages">
+              <a class="page-link" (click)="goToPage(pagination.page + 1)"><i class="feather icon-chevron-right"></i></a>
+            </li>
+            <li class="page-item" [class.disabled]="pagination.page >= pagination.pages">
+              <a class="page-link" (click)="goToPage(pagination.pages)"><i class="feather icon-chevrons-right"></i></a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </app-card>
+  </div>
+</div>

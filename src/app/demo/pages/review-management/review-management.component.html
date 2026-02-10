@@ -1,0 +1,185 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5><i class="feather icon-message-square mr-2"></i>Avis clients reçus</h5>
+      </div>
+      <div class="card-body">
+
+        <!-- Filtres -->
+        <div class="row mb-3">
+          <div class="col-md-3 mb-2">
+            <label class="small text-muted">Type</label>
+            <select class="form-control form-control-sm" [(ngModel)]="filterType" (change)="onFilterChange()">
+              <option value="">Tous</option>
+              <option value="boutique">Avis boutique</option>
+              <option value="product">Avis produit</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="small text-muted">Statut</label>
+            <select class="form-control form-control-sm" [(ngModel)]="filterStatus" (change)="onFilterChange()">
+              <option value="">Tous</option>
+              <option value="published">Publié</option>
+              <option value="hidden">Masqué</option>
+              <option value="reported">Signalé</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="small text-muted">Note</label>
+            <select class="form-control form-control-sm" [(ngModel)]="filterRating" (change)="onFilterChange()">
+              <option [ngValue]="null">Toutes</option>
+              <option [ngValue]="5">5 étoiles</option>
+              <option [ngValue]="4">4 étoiles</option>
+              <option [ngValue]="3">3 étoiles</option>
+              <option [ngValue]="2">2 étoiles</option>
+              <option [ngValue]="1">1 étoile</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2 d-flex align-items-end">
+            <span class="text-muted small">{{ pagination.total }} avis au total</span>
+          </div>
+        </div>
+
+        <!-- Erreur -->
+        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+        <!-- Chargement -->
+        <div *ngIf="loading" class="text-center py-4">
+          <div class="spinner-border spinner-border-sm text-primary"></div> Chargement...
+        </div>
+
+        <!-- Liste vide -->
+        <div *ngIf="!loading && reviews.length === 0 && !errorMessage" class="text-center text-muted py-4">
+          <i class="feather icon-message-circle" style="font-size: 2.5rem;"></i>
+          <p class="mt-2">Aucun avis reçu pour le moment.</p>
+        </div>
+
+        <!-- Tableau des avis -->
+        <div class="table-responsive" *ngIf="!loading && reviews.length > 0">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Auteur</th>
+                <th>Note</th>
+                <th>Commentaire</th>
+                <th>Date</th>
+                <th>Statut</th>
+                <th>Réponse</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let review of reviews">
+                <td>
+                  <span class="badge" [ngClass]="review.productId ? 'badge-info' : 'badge-primary'">
+                    {{ getTypeLabel(review) }}
+                  </span>
+                  <small class="d-block text-muted mt-1" *ngIf="review.productId">{{ getProductName(review) }}</small>
+                </td>
+                <td>{{ getReviewerName(review) }}</td>
+                <td class="text-warning text-nowrap">
+                  <i *ngFor="let s of [1,2,3,4,5]" class="fa"
+                     [ngClass]="s <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
+                </td>
+                <td style="max-width: 300px;">
+                  <span [title]="review.comment">{{ review.comment?.length > 80 ? (review.comment | slice:0:80) + '...' : review.comment }}</span>
+                </td>
+                <td class="text-nowrap">{{ formatDate(review.createdAt) }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getStatusClass(review.status)">{{ getStatusLabel(review.status) }}</span>
+                </td>
+                <td>
+                  <span *ngIf="review.response?.text" class="text-success small">
+                    <i class="feather icon-check-circle mr-1"></i>Répondu
+                  </span>
+                  <span *ngIf="!review.response?.text" class="text-muted small">—</span>
+                </td>
+                <td>
+                  <button class="btn btn-sm" [ngClass]="review.response?.text ? 'btn-outline-secondary' : 'btn-primary'" (click)="openResponseModal(review)">
+                    <i class="feather icon-message-circle mr-1"></i>
+                    {{ review.response?.text ? 'Modifier' : 'Répondre' }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-3" *ngIf="pagination.pages > 1">
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="pagination.page <= 1">
+                <a class="page-link" (click)="goToPage(pagination.page - 1)">Précédent</a>
+              </li>
+              <li class="page-item" *ngFor="let p of [].constructor(pagination.pages); let i = index"
+                  [class.active]="pagination.page === i + 1">
+                <a class="page-link" (click)="goToPage(i + 1)">{{ i + 1 }}</a>
+              </li>
+              <li class="page-item" [class.disabled]="pagination.page >= pagination.pages">
+                <a class="page-link" (click)="goToPage(pagination.page + 1)">Suivant</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Réponse -->
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showResponseModal" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="feather icon-message-circle mr-2"></i>
+          {{ selectedReview?.response?.text ? 'Modifier la réponse' : 'Répondre à l\'avis' }}
+        </h5>
+        <button type="button" class="close" (click)="closeResponseModal()">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" *ngIf="selectedReview">
+        <!-- Avis original -->
+        <div class="bg-light p-3 rounded mb-3">
+          <div class="d-flex justify-content-between">
+            <strong>{{ getReviewerName(selectedReview) }}</strong>
+            <span class="text-warning">
+              <i *ngFor="let s of [1,2,3,4,5]" class="fa"
+                 [ngClass]="s <= selectedReview.rating ? 'fa-star' : 'fa-star-o'"></i>
+            </span>
+          </div>
+          <p class="mb-0 mt-2">{{ selectedReview.comment }}</p>
+          <small class="text-muted">{{ formatDate(selectedReview.createdAt) }}</small>
+          <div *ngIf="selectedReview.productId" class="mt-1">
+            <span class="badge badge-info">Produit : {{ getProductName(selectedReview) }}</span>
+          </div>
+        </div>
+
+        <!-- Champ réponse -->
+        <div class="form-group">
+          <label><strong>Votre réponse</strong></label>
+          <textarea class="form-control" rows="4" [(ngModel)]="responseText"
+                    placeholder="Écrivez votre réponse..." maxlength="500"></textarea>
+          <small class="text-muted">{{ responseText.length }}/500 caractères</small>
+        </div>
+
+        <!-- Message -->
+        <div *ngIf="responseMessage" class="alert" [ngClass]="responseMessageType === 'success' ? 'alert-success' : 'alert-danger'">
+          {{ responseMessage }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeResponseModal()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="submitResponse()" [disabled]="submittingResponse">
+          <span *ngIf="!submittingResponse">{{ selectedReview?.response?.text ? 'Mettre à jour' : 'Publier' }}</span>
+          <span *ngIf="submittingResponse">Envoi...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -51,13 +51,22 @@
 
         <!-- Prix -->
         <div class="mb-3">
-          <span class="h3 text-primary font-weight-bold">{{ product.price != null ? (product.price | number:'1.0-0') : '—' }} Ar</span>
-          <span class="text-muted text-decoration-line-through ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
-            {{ product.originalPrice | number:'1.0-0' }} Ar
-          </span>
-          <span class="badge badge-danger ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
-            -{{ ((1 - product.price / product.originalPrice) * 100) | number:'1.0-0' }}%
-          </span>
+          <!-- Prix avec promotion active -->
+          <ng-container *ngIf="promoPrice != null; else normalPrice">
+            <span class="h3 text-primary font-weight-bold">{{ promoPrice | number:'1.0-0' }} Ar</span>
+            <span class="text-muted text-decoration-line-through ml-2">{{ product.price | number:'1.0-0' }} Ar</span>
+            <span class="badge badge-danger ml-2">{{ getPromoBadge() }}</span>
+          </ng-container>
+          <!-- Prix normal (sans promo) -->
+          <ng-template #normalPrice>
+            <span class="h3 text-primary font-weight-bold">{{ product.price != null ? (product.price | number:'1.0-0') : '—' }} Ar</span>
+            <span class="text-muted text-decoration-line-through ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
+              {{ product.originalPrice | number:'1.0-0' }} Ar
+            </span>
+            <span class="badge badge-danger ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
+              -{{ ((1 - product.price / product.originalPrice) * 100) | number:'1.0-0' }}%
+            </span>
+          </ng-template>
         </div>
 
         <!-- Badges -->
@@ -173,7 +182,7 @@
         <!-- Message si utilisateur a déjà un avis -->
         <div class="alert alert-info mb-3" *ngIf="userReview">
           <i class="feather icon-check-circle mr-1"></i>
-          Vous avez déjà laissé un avis pour cette boutique.
+          Vous avez déjà laissé un avis pour ce produit.
         </div>
 
         <!-- Chargement des avis -->
@@ -201,7 +210,7 @@
             <p class="mt-2 mb-1">{{ review.comment }}</p>
             <!-- Réponse de la boutique -->
             <div class="bg-light p-2 rounded mt-2" *ngIf="review.response?.text">
-              <small class="text-muted"><strong>Réponse de la boutique :</strong></small>
+              <small class="text-muted"><strong>Réponse de {{ product?.boutiqueId?.name || 'la boutique' }} :</strong></small>
               <p class="mb-0 small">{{ review.response.text }}</p>
             </div>
           </div>
