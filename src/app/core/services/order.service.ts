@@ -151,6 +151,16 @@ export class OrderService {
     return this.http.patch<OrderResponse>(`${API}/orders/admin/${id}/status`, { status }).pipe(catchError(handleError));
   }
 
+  /** Export PDF des commandes de l'utilisateur */
+  exportMyOrdersPDF(): Observable<Blob> {
+    return this.http.get(`${API}/orders/my-orders/export/pdf`, { responseType: 'blob' });
+  }
+
+  /** Export Excel des commandes de l'utilisateur */
+  exportMyOrdersExcel(): Observable<Blob> {
+    return this.http.get(`${API}/orders/my-orders/export/excel`, { responseType: 'blob' });
+  }
+
   /** Obtenir le libellé du statut */
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {
