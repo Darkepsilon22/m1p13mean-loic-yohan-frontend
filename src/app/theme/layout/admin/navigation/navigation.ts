@@ -311,7 +311,7 @@ const AcheteurNavigationItems: NavigationItem[] = [
         id: 'profile',
         title: 'Mon profil',
         type: 'item',
-        url: '/auth/profile',
+        url: '/my-profile',
         icon: 'feather icon-user'
       }
     ]

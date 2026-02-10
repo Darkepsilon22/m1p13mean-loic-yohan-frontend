@@ -1,1 +1,16 @@
 // Product view (public)
+
+.similar-product-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #eee;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.similar-img-wrap {
+  overflow: hidden;
+  border-radius: 4px 4px 0 0;
+}

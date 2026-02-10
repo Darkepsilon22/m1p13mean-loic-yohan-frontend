@@ -47,6 +47,10 @@ export class ProductViewComponent implements OnInit {
   promoPrice: number | null = null;
   activePromotion: any = null;
 
+  // Produits similaires
+  similarProducts: any[] = [];
+  loadingSimilar = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -75,6 +79,7 @@ export class ProductViewComponent implements OnInit {
         this.product = res.data;
         this.loading = false;
         this.loadActivePromotion();
+        this.loadSimilarProducts();
         // Charger les avis si le produit a une boutique
         if (this.product?.boutiqueId?._id) {
           this.loadReviews();
@@ -155,6 +160,58 @@ export class ProductViewComponent implements OnInit {
       },
       error: () => {}
     });
+  }
+
+  loadSimilarProducts(): void {
+    if (!this.product) return;
+    this.loadingSimilar = true;
+
+    // Chercher par même catégorie OU même boutique
+    const category = this.product.categoryInternal;
+    const boutiqueId = this.product.boutiqueId?._id;
+
+    const params: any = { limit: 8 };
+    if (category) {
+      params.category = category;
+    } else if (boutiqueId) {
+      params.boutiqueId = boutiqueId;
+    }
+
+    this.productService.getAll(params).subscribe({
+      next: (res) => {
+        const all = res.data ?? [];
+        // Exclure le produit courant
+        let filtered = all.filter((p: any) => p._id !== this.product._id);
+
+        // Si pas assez de résultats par catégorie, compléter par même boutique
+        if (filtered.length < 4 && boutiqueId && category) {
+          this.productService.getAll({ boutiqueId, limit: 8 }).subscribe({
+            next: (res2) => {
+              const extra = (res2.data ?? []).filter((p: any) =>
+                p._id !== this.product._id && !filtered.some((f: any) => f._id === p._id)
+              );
+              filtered = [...filtered, ...extra].slice(0, 8);
+              this.similarProducts = filtered;
+              this.loadingSimilar = false;
+            },
+            error: () => {
+              this.similarProducts = filtered.slice(0, 8);
+              this.loadingSimilar = false;
+            }
+          });
+        } else {
+          this.similarProducts = filtered.slice(0, 8);
+          this.loadingSimilar = false;
+        }
+      },
+      error: () => {
+        this.loadingSimilar = false;
+      }
+    });
+  }
+
+  getProductMainPhoto(p: any): string {
+    return p?.mainPhoto || (p?.photos && p.photos[0]) || '';
   }
 
   getPromoBadge(): string {
