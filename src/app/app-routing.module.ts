@@ -79,6 +79,14 @@ const routes: Routes = [
         loadChildren: () => import('./demo/pages/boutique-stats/boutique-stats.module').then(module => module.BoutiqueStatsModule)
       },
       {
+        path: 'admin-contracts',
+        loadChildren: () => import('./demo/pages/admin-contracts/admin-contracts.module').then(module => module.AdminContractsModule)
+      },
+      {
+        path: 'admin-invoices',
+        loadChildren: () => import('./demo/pages/admin-invoices/admin-invoices.module').then(module => module.AdminInvoicesModule)
+      },
+      {
         path: 'layout',
         loadChildren: () => import('./demo/pages/layout/layout.module').then(module => module.LayoutModule)
       },
