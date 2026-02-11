@@ -8,7 +8,15 @@ const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'available' },
   { path: 'available', component: EmplacementAvailableComponent },
   { path: 'my-reservation', component: MyReservationComponent },
-  { path: 'pending-reservations', component: PendingReservationsComponent }
+  { path: 'pending-reservations', component: PendingReservationsComponent },
+  {
+    path: 'my-contract',
+    loadChildren: () => import('./my-contract/my-contract.module').then(m => m.MyContractModule)
+  },
+  {
+    path: 'my-invoices',
+    loadChildren: () => import('./my-invoices/my-invoices.module').then(m => m.MyInvoicesModule)
+  }
 ];
 
 @NgModule({

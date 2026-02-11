@@ -135,6 +135,28 @@ const AdminNavigationItems: NavigationItem[] = [
     ]
   },
   {
+    id: 'admin-contracts',
+    title: 'Contrats & Factures',
+    type: 'group',
+    icon: 'feather icon-file-text',
+    children: [
+      {
+        id: 'contract-list',
+        title: 'Contrats',
+        type: 'item',
+        url: '/admin-contracts',
+        icon: 'feather icon-file-text'
+      },
+      {
+        id: 'invoice-list',
+        title: 'Factures',
+        type: 'item',
+        url: '/admin-invoices',
+        icon: 'feather icon-credit-card'
+      }
+    ]
+  },
+  {
     id: 'admin-users',
     title: 'Gestion Utilisateurs',
     type: 'group',
@@ -271,6 +293,20 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/emplacement/my-reservation',
         icon: 'feather icon-bookmark'
+      },
+      {
+        id: 'my-contract',
+        title: 'Mon contrat',
+        type: 'item',
+        url: '/emplacement/my-contract',
+        icon: 'feather icon-file-text'
+      },
+      {
+        id: 'my-invoices',
+        title: 'Mes factures',
+        type: 'item',
+        url: '/emplacement/my-invoices',
+        icon: 'feather icon-credit-card'
       }
     ]
   }
