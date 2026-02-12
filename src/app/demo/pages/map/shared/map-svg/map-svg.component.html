@@ -1,63 +1,89 @@
 <svg
   *ngIf="floor"
+  #mapSvg
   [attr.viewBox]="viewBox"
   class="map-svg"
   preserveAspectRatio="xMidYMid meet"
   (click)="$event.stopPropagation()">
   <!-- Zones -->
   <g id="zones">
-    <rect
-      *ngFor="let z of zones"
-      [attr.x]="z.x"
-      [attr.y]="z.y"
-      [attr.width]="z.width"
-      [attr.height]="z.height"
-      class="zone"
-      [class.selected]="selectedZoneId === z._id"
-      [class.editable]="isEditMode"
-      (click)="onZoneClick(z)" />
+    <g *ngFor="let z of zones">
+      <rect
+        [attr.x]="getZoneX(z)"
+        [attr.y]="getZoneY(z)"
+        [attr.width]="getZoneWidth(z)"
+        [attr.height]="getZoneHeight(z)"
+        class="zone"
+        [class.selected]="selectedZoneId === z._id"
+        [class.editable]="isEditMode"
+        [attr.cursor]="isEditMode && selectedZoneId === z._id ? 'move' : 'pointer'"
+        (click)="onZoneClick(z)"
+        (mousedown)="isEditMode && selectedZoneId === z._id ? startDragZone($event, z) : null"
+        (mousemove)="isEditMode && dragState ? onMouseMoveDrag() : null" />
+      <!-- Poignées de redimensionnement (zone sélectionnée, mode édition) -->
+      <ng-container *ngIf="isEditMode && selectedZoneId === z._id && !dragState">
+        <rect class="resize-handle" [attr.x]="getZoneX(z) + getZoneWidth(z) - HANDLE_SIZE" [attr.y]="getZoneY(z) + getZoneHeight(z) - HANDLE_SIZE" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeZone($event, z, 'se')" />
+        <rect class="resize-handle" [attr.x]="getZoneX(z)" [attr.y]="getZoneY(z) + getZoneHeight(z) - HANDLE_SIZE" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeZone($event, z, 'sw')" />
+        <rect class="resize-handle" [attr.x]="getZoneX(z) + getZoneWidth(z) - HANDLE_SIZE" [attr.y]="getZoneY(z)" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeZone($event, z, 'ne')" />
+        <rect class="resize-handle" [attr.x]="getZoneX(z)" [attr.y]="getZoneY(z)" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeZone($event, z, 'nw')" />
+      </ng-container>
+    </g>
   </g>
   <!-- Espaces spéciaux -->
   <g id="special-spaces">
-    <g
-      *ngFor="let s of specialSpaces"
-      (click)="onSpecialSpaceClick(s)"
-      class="special-space-wrapper">
+    <g *ngFor="let s of specialSpaces" class="special-space-wrapper">
       <rect
-        [attr.x]="s.x"
-        [attr.y]="s.y"
-        [attr.width]="s.width"
-        [attr.height]="s.height"
-        [attr.class]="'special-space type-' + s.type" />
+        [attr.x]="getSpaceX(s)"
+        [attr.y]="getSpaceY(s)"
+        [attr.width]="getSpaceWidth(s)"
+        [attr.height]="getSpaceHeight(s)"
+        [attr.class]="'special-space type-' + s.type"
+        [attr.cursor]="isEditMode && selectedSpecialSpaceId === s._id ? 'move' : 'pointer'"
+        (click)="onSpecialSpaceClick(s)"
+        (mousedown)="isEditMode && selectedSpecialSpaceId === s._id ? startDragSpace($event, s) : null"
+        (mousemove)="isEditMode && dragState ? onMouseMoveDrag() : null" />
       <text
-        [attr.x]="s.x + s.width / 2"
-        [attr.y]="s.y + s.height / 2"
+        [attr.x]="getSpaceX(s) + getSpaceWidth(s) / 2"
+        [attr.y]="getSpaceY(s) + getSpaceHeight(s) / 2"
         class="special-space-icon"
         text-anchor="middle"
         dominant-baseline="central">{{ getSpecialSpaceIcon(s.type) }}</text>
+      <ng-container *ngIf="isEditMode && selectedSpecialSpaceId === s._id && !dragState">
+        <rect class="resize-handle" [attr.x]="getSpaceX(s) + getSpaceWidth(s) - HANDLE_SIZE" [attr.y]="getSpaceY(s) + getSpaceHeight(s) - HANDLE_SIZE" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeSpace($event, s, 'se')" />
+        <rect class="resize-handle" [attr.x]="getSpaceX(s)" [attr.y]="getSpaceY(s) + getSpaceHeight(s) - HANDLE_SIZE" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeSpace($event, s, 'sw')" />
+        <rect class="resize-handle" [attr.x]="getSpaceX(s) + getSpaceWidth(s) - HANDLE_SIZE" [attr.y]="getSpaceY(s)" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeSpace($event, s, 'ne')" />
+        <rect class="resize-handle" [attr.x]="getSpaceX(s)" [attr.y]="getSpaceY(s)" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeSpace($event, s, 'nw')" />
+      </ng-container>
     </g>
   </g>
   <!-- Boutiques -->
   <g id="boutiques">
-    <g
-      *ngFor="let b of boutiques"
-      (click)="onBoutiqueClick(b)"
-      class="boutique-wrapper">
+    <g *ngFor="let b of boutiques" class="boutique-wrapper">
       <rect
         *ngIf="b.mapShape"
-        [attr.x]="b.mapShape.x"
-        [attr.y]="b.mapShape.y"
-        [attr.width]="b.mapShape.width"
-        [attr.height]="b.mapShape.height"
+        [attr.x]="getBoutiqueX(b)"
+        [attr.y]="getBoutiqueY(b)"
+        [attr.width]="getBoutiqueWidth(b)"
+        [attr.height]="getBoutiqueHeight(b)"
         [attr.class]="'boutique status-' + (b.emplacementStatus || 'libre')"
-        [class.selected]="selectedBoutiqueId === b._id" />
+        [class.selected]="selectedBoutiqueId === b._id"
+        [attr.cursor]="isEditMode && selectedBoutiqueId === b._id ? 'move' : 'pointer'"
+        (click)="onBoutiqueClick(b)"
+        (mousedown)="isEditMode && selectedBoutiqueId === b._id ? startDragBoutique($event, b) : null"
+        (mousemove)="isEditMode && dragState ? onMouseMoveDrag() : null" />
       <text
         *ngIf="b.mapShape"
-        [attr.x]="b.mapShape.x + b.mapShape.width / 2"
-        [attr.y]="b.mapShape.y + b.mapShape.height / 2"
+        [attr.x]="getBoutiqueX(b) + getBoutiqueWidth(b) / 2"
+        [attr.y]="getBoutiqueY(b) + getBoutiqueHeight(b) / 2"
         class="boutique-label"
         text-anchor="middle"
         dominant-baseline="central">{{ getBoutiqueLabel(b) }}</text>
+      <ng-container *ngIf="isEditMode && selectedBoutiqueId === b._id && b.mapShape && !dragState">
+        <rect class="resize-handle" [attr.x]="getBoutiqueX(b) + getBoutiqueWidth(b) - HANDLE_SIZE" [attr.y]="getBoutiqueY(b) + getBoutiqueHeight(b) - HANDLE_SIZE" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeBoutique($event, b, 'se')" />
+        <rect class="resize-handle" [attr.x]="getBoutiqueX(b)" [attr.y]="getBoutiqueY(b) + getBoutiqueHeight(b) - HANDLE_SIZE" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeBoutique($event, b, 'sw')" />
+        <rect class="resize-handle" [attr.x]="getBoutiqueX(b) + getBoutiqueWidth(b) - HANDLE_SIZE" [attr.y]="getBoutiqueY(b)" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeBoutique($event, b, 'ne')" />
+        <rect class="resize-handle" [attr.x]="getBoutiqueX(b)" [attr.y]="getBoutiqueY(b)" [attr.width]="HANDLE_SIZE" [attr.height]="HANDLE_SIZE" (mousedown)="startResizeBoutique($event, b, 'nw')" />
+      </ng-container>
     </g>
   </g>
   <!-- Itinéraire (acheteur) -->

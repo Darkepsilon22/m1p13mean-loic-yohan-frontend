@@ -135,6 +135,24 @@ const AdminNavigationItems: NavigationItem[] = [
     ]
   },
   {
+    id: 'admin-modélisation',
+    title: 'Modélisation',
+    type: 'group',
+    icon: 'feather icon-map',
+    children: [
+      {
+        id: 'map-view',
+        title: 'Plan du centre',
+        type: 'item',
+        url: '/map/view',
+        icon: 'feather icon-map'
+      },
+      {
+        id: 'map-editor',
+        title: 'Éditer le plan',
+        type: 'item',
+        url: '/map/floors',
+        icon: 'feather icon-edit-2'
     id: 'admin-contracts',
     title: 'Contrats & Factures',
     type: 'group',

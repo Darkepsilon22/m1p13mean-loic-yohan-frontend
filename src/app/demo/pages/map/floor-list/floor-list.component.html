@@ -1,0 +1,104 @@
+<div class="floor-list-page">
+  <app-card cardTitle="Étages – Modélisation" [options]="false">
+    <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+      <a routerLink="/map/view" class="btn btn-outline-secondary btn-sm">Voir le plan</a>
+      <button type="button" class="btn btn-primary btn-sm" (click)="toggleCreateForm()">
+        {{ showCreateForm ? 'Annuler' : 'Créer un étage' }}
+      </button>
+      <span class="text-muted small">Liste des étages. Cliquez sur « Éditer le plan » pour modifier zones, espaces et boutiques.</span>
+    </div>
+
+    <div *ngIf="showCreateForm" class="card card-body mb-3 bg-light">
+      <h6 class="mb-2">Nouvel étage</h6>
+      <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()" class="row g-2 align-items-end">
+        <div class="col-md-2">
+          <label class="form-label mb-0">Nom</label>
+          <input type="text" class="form-control form-control-sm" formControlName="name" placeholder="ex. RDC" />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label mb-0">Largeur</label>
+          <input type="number" class="form-control form-control-sm" formControlName="width" min="10" />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label mb-0">Hauteur</label>
+          <input type="number" class="form-control form-control-sm" formControlName="height" min="10" />
+        </div>
+        <div class="col-md-2">
+          <label class="form-label mb-0">Ordre</label>
+          <input type="number" class="form-control form-control-sm" formControlName="order" min="0" />
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-success btn-sm" [disabled]="createForm.invalid || creating">
+            {{ creating ? 'Création...' : 'Créer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="loading" class="text-center py-4">Chargement...</div>
+
+    <div *ngIf="!loading && floors.length === 0" class="alert alert-info">
+      Aucun étage. Créez-en un depuis l'éditeur de plan en sélectionnant un étage après en avoir créé un via l'API ou un outil admin.
+    </div>
+
+    <div *ngIf="!loading && floors.length" class="table-responsive">
+      <table class="table table-sm table-hover">
+        <thead>
+          <tr>
+            <th>Ordre</th>
+            <th>Nom</th>
+            <th>Dimensions (L × H)</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let f of floors">
+            <tr *ngIf="editingFloorId !== f._id">
+              <td>{{ f.order ?? 0 }}</td>
+              <td>{{ f.name }}</td>
+              <td>{{ f.width }} × {{ f.height }}</td>
+              <td>
+                <button type="button" class="btn btn-primary btn-sm me-1" (click)="goToEditor(f._id)">
+                  Éditer le plan
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm me-1" (click)="startEdit(f)">
+                  Modifier
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteFloor(f)" [disabled]="deleteId === f._id">
+                  {{ deleteId === f._id ? 'Suppression...' : 'Supprimer' }}
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="editingFloorId === f._id" class="table-light">
+              <td colspan="4">
+                <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()" class="row g-2 align-items-center flex-nowrap">
+                  <div class="col-auto">
+                    <label class="form-label mb-0 small">Nom</label>
+                    <input type="text" class="form-control form-control-sm" formControlName="name" style="width: 100px;" />
+                  </div>
+                  <div class="col-auto">
+                    <label class="form-label mb-0 small">Largeur</label>
+                    <input type="number" class="form-control form-control-sm" formControlName="width" min="10" style="width: 70px;" />
+                  </div>
+                  <div class="col-auto">
+                    <label class="form-label mb-0 small">Hauteur</label>
+                    <input type="number" class="form-control form-control-sm" formControlName="height" min="10" style="width: 70px;" />
+                  </div>
+                  <div class="col-auto">
+                    <label class="form-label mb-0 small">Ordre</label>
+                    <input type="number" class="form-control form-control-sm" formControlName="order" min="0" style="width: 60px;" />
+                  </div>
+                  <div class="col-auto pt-4">
+                    <button type="submit" class="btn btn-success btn-sm" [disabled]="editForm.invalid || updating">Enregistrer</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelEdit()">Annuler</button>
+                  </div>
+                </form>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </app-card>
+</div>
