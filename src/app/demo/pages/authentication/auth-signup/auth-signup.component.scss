@@ -1,212 +1,410 @@
-.auth-wrapper {
+// ============================================
+// PALETTE — Five Pathways / Smar'ket warm
+// ============================================
+$cream:       #fdf8f3;
+$cream-dark:  #f5ede3;
+$blue:        #1a3c8e;
+$blue-dark:   #0e2460;
+$blue-light:  #3b6cce;
+$orange:      #f5a623;
+$teal:        #0d9488;
+$black:       #1a1a1a;
+$gray:        #6b7280;
+$gray-light:  #d1d5db;
+$white:       #ffffff;
+
+$sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+$serif: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+
+$card-shadow: 6px 6px 0 0 $black;
+$card-shadow-hover: 8px 8px 0 0 $blue;
+
+// ============================================
+// ANIMATIONS
+// ============================================
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-12px) rotate(2deg); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ============================================
+// PAGE
+// ============================================
+.auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
-  background: #f5f7fa;
-}
-
-.auth-content {
-  width: 100%;
-  max-width: 420px;
-}
-
-.auth-card {
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  border: none;
+  background: $cream;
+  font-family: $sans;
+  position: relative;
   overflow: hidden;
 }
 
+// Decorative
+.auth-deco {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-deco-1 {
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba($blue, 0.06) 0%, transparent 70%);
+  top: -80px; right: -60px;
+  animation: float 8s ease-in-out infinite;
+}
+
+.auth-deco-2 {
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba($orange, 0.08) 0%, transparent 70%);
+  bottom: -40px; left: -80px;
+  animation: float 10s ease-in-out infinite 1s;
+}
+
+.auth-deco-3 {
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba($teal, 0.06) 0%, transparent 70%);
+  top: 40%; left: 10%;
+  animation: float 12s ease-in-out infinite 2s;
+}
+
+// ============================================
+// CONTAINER
+// ============================================
+.auth-container {
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  z-index: 1;
+  animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+// ============================================
+// BACK LINK
+// ============================================
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: $gray;
+  text-decoration: none;
+  margin-bottom: 1.25rem;
+  transition: color 0.2s;
+  &:hover { color: $blue; }
+}
+
+// ============================================
+// CARD
+// ============================================
+.auth-card {
+  background: $white;
+  border: 1px solid $black;
+  box-shadow: $card-shadow;
+  overflow: hidden;
+  transition: box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  &:hover { box-shadow: $card-shadow-hover; }
+}
+
+// ============================================
+// CARD HEADER
+// ============================================
 .auth-card-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #eee;
+  padding: 2rem 2rem 1.5rem;
   text-align: center;
-  background: #fff;
+  border-bottom: 1px solid rgba($black, 0.08);
+  background: $white;
 }
 
-/* Acheteur = Bleu roi | Admin = Noir | Boutique = Vert */
-.auth-card-header--acheteur {
-  border-top: 3px solid #1e3a8a;
-}
-
-.auth-card-header--boutique {
-  border-top: 3px solid #2e7d32;
-}
-
-.auth-card-header--admin {
-  border-top: 3px solid #212121;
-  background: #f5f5f5;
-}
-
-.auth-type-badge {
+.auth-logo-link {
   display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-}
-
-.auth-type-badge--acheteur {
-  background: rgba(30, 58, 138, 0.2);
-  color: #1e3a8a;
-}
-
-.auth-type-badge--boutique {
-  background: rgba(46, 125, 50, 0.15);
-  color: #1b5e20;
-}
-
-.auth-type-badge--admin {
-  background: rgba(33, 33, 33, 0.15);
-  color: #212121;
+  text-decoration: none;
+  margin-bottom: 1.25rem;
 }
 
 .auth-logo {
-  height: 36px;
-  margin-bottom: 0.75rem;
+  height: 52px;
+  width: auto;
+}
+
+.auth-separator {
+  width: 40px;
+  height: 3px;
+  background: $orange;
+  margin: 0 auto 1rem;
+}
+
+.auth-type-tag {
+  display: inline-block;
+  font-family: $sans;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.2rem 0.6rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  position: relative;
+  top: -2px;
+
+  &--acheteur {
+    color: $blue; background: rgba($blue, 0.08);
+  }
+  &--boutique {
+    color: $teal; background: rgba($teal, 0.08);
+  }
+  &--admin {
+    color: $black; background: rgba($black, 0.08);
+  }
 }
 
 .auth-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  color: #333;
+  font-family: $serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: $black;
+  margin: 0 0 0.35rem;
 }
 
 .auth-subtitle {
-  font-size: 0.875rem;
+  font-size: 0.88rem;
+  color: $gray;
+  margin: 0;
+  line-height: 1.5;
 }
 
-.auth-card .card-body {
-  padding: 1.5rem;
+// ============================================
+// CARD BODY
+// ============================================
+.auth-card-body {
+  padding: 2rem;
 }
 
-.auth-card .form-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 0.35rem;
-  color: #555;
-}
+// ============================================
+// ALERTS
+// ============================================
+.auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0.85rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  border: 1px solid;
+  margin-bottom: 1.25rem;
+  animation: slideIn 0.3s ease-out;
 
-.auth-card .input-group {
-  align-items: stretch;
-  $input-h: 38px;
+  i { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
 
-  .input-group-prepend {
-    display: flex;
-  }
-
-  .input-group-text {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f8f9fa;
-    border-color: #e9ecef;
-    padding: 0 0.75rem;
-    min-width: 48px;
-    height: $input-h;
-    min-height: $input-h;
-    box-sizing: border-box;
-
-    i, .feather {
-      font-size: 1.2rem;
-      line-height: 1;
-    }
-  }
-
-  .input-group-append .input-group-text.password-toggle {
-    cursor: pointer;
-    min-width: 48px;
-  }
-
-  .form-control {
-    padding: 0.5rem 0.75rem;
-    height: $input-h;
-    min-height: $input-h;
-    box-sizing: border-box;
+  &--error {
+    color: #b91c1c;
+    border-color: #b91c1c;
+    background: rgba(#b91c1c, 0.05);
   }
 }
 
-.auth-submit-wrap {
+// ============================================
+// FORM FIELDS
+// ============================================
+.auth-field {
+  margin-bottom: 1.15rem;
+}
+
+.auth-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.auth-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: $black;
+  margin-bottom: 0.45rem;
+  letter-spacing: 0.01em;
+}
+
+.auth-label-optional {
+  font-weight: 400;
+  color: $gray;
+}
+
+.auth-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-input-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 1.05rem;
+  color: $gray;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 0.7rem 0.9rem 0.7rem 2.75rem;
+  font-size: 0.9rem;
+  font-family: $sans;
+  color: $black;
+  background: $cream;
+  border: 1px solid $gray-light;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+
+  &::placeholder { color: darken($gray-light, 10%); }
+
+  &:focus {
+    outline: none;
+    border-color: $blue;
+    background: $white;
+    box-shadow: 0 0 0 3px rgba($blue, 0.08);
+  }
+
+  &--password { padding-right: 3rem; }
+}
+
+.auth-toggle-pw {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: $gray;
+  transition: color 0.2s;
+  &:hover { color: $blue; }
+  i { font-size: 1.05rem; }
+}
+
+.auth-error {
+  display: block;
+  font-size: 0.78rem;
+  color: #b91c1c;
+  margin-top: 0.35rem;
+}
+
+.auth-hint {
+  display: block;
+  font-size: 0.78rem;
+  color: $gray;
+  margin-top: 0.35rem;
+}
+
+// ============================================
+// SUBMIT BUTTON
+// ============================================
+.auth-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: $sans;
+  color: $white;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  margin-top: 0.5rem;
+
+  &--acheteur {
+    background: $blue; border-color: $blue-dark;
+    &:hover:not(:disabled) { background: $blue-dark; transform: translateY(-1px); box-shadow: 0 4px 12px rgba($blue, 0.3); }
+  }
+  &--boutique {
+    background: $teal; border-color: darken($teal, 8%);
+    &:hover:not(:disabled) { background: darken($teal, 8%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba($teal, 0.3); }
+  }
+  &--admin {
+    background: $black; border-color: #000;
+    &:hover:not(:disabled) { background: #000; transform: translateY(-1px); box-shadow: 0 4px 12px rgba($black, 0.3); }
+  }
+  &:disabled { opacity: 0.65; cursor: not-allowed; }
+}
+
+.auth-btn-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba($white, 0.3);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+// ============================================
+// FOOTER LINKS
+// ============================================
+.auth-footer-links {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba($black, 0.08);
   text-align: center;
-  margin-bottom: 1rem;
-  .btn-auth {
-    font-size: 0.9rem;
-    padding: 0.4rem 0.9rem;
-    min-width: 100px;
-    max-width: 200px;
-    width: auto;
-    display: inline-block;
-    border: none;
-    color: #fff;
-    border-radius: 4px;
-    cursor: pointer;
-    &:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-  }
-}
 
-.auth-submit-wrap--acheteur .btn-auth {
-  background: #1e3a8a;
-  &:hover:not(:disabled) {
-    background: #1e40af;
+  p {
+    font-size: 0.85rem;
+    color: $gray;
+    margin: 0;
   }
-}
-
-.auth-submit-wrap--boutique .btn-auth {
-  background: #2e7d32;
-  &:hover:not(:disabled) {
-    background: #1b5e20;
-  }
-}
-
-.auth-submit-wrap--admin .btn-auth {
-  background: #212121;
-  &:hover:not(:disabled) {
-    background: #000;
-  }
-}
-
-.auth-links {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
-  font-size: 0.875rem;
 }
 
 .auth-link {
-  color: #1e3a8a;
+  color: $blue;
   text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-    color: #1e40af;
-  }
+  font-weight: 600;
+  transition: color 0.2s;
+  &:hover { color: $blue-dark; text-decoration: underline; }
 }
 
-.auth-link--back {
-  color: #666;
-  &:hover {
-    color: #333;
-  }
+.auth-page--boutique .auth-link {
+  color: $teal;
+  &:hover { color: darken($teal, 10%); }
 }
 
-.auth-signup--boutique .auth-link:not(.auth-link--back) {
-  color: #2e7d32;
-  &:hover {
-    color: #1b5e20;
+// ============================================
+// RESPONSIVE
+// ============================================
+@media (max-width: 520px) {
+  .auth-page {
+    padding: 1rem 0.75rem;
+    align-items: flex-start;
+    padding-top: 2rem;
   }
-}
 
-.auth-signup--admin .auth-link:not(.auth-link--back) {
-  color: #212121;
-  &:hover {
-    color: #000;
-  }
+  .auth-card-header { padding: 1.5rem 1.25rem 1.25rem; }
+  .auth-card-body { padding: 1.5rem 1.25rem; }
+  .auth-title { font-size: 1.3rem; }
+  .auth-field-row { grid-template-columns: 1fr; gap: 0; }
+  .auth-deco { display: none; }
 }
