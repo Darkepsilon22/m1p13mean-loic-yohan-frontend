@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../../../core/services/product.service';
 import { CartService } from '../../../../core/services/cart.service';
 import { ReviewService, Review } from '../../../../core/services/review.service';
+import { PromotionService } from '../../../../core/services/promotion.service';
 import { AuthService, ApiErrorBody } from '../../../../core/services/auth.service';
 
 @Component({
@@ -42,12 +43,21 @@ export class ProductViewComponent implements OnInit {
   ratingCounts: number[] = [0, 0, 0, 0, 0]; // index 0 = 1 étoile, etc.
   hoverStar = 0; // Pour l'effet de survol des étoiles
 
+  // Promotion
+  promoPrice: number | null = null;
+  activePromotion: any = null;
+
+  // Produits similaires
+  similarProducts: any[] = [];
+  loadingSimilar = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
     private cartService: CartService,
     private reviewService: ReviewService,
+    private promotionService: PromotionService,
     private auth: AuthService
   ) {}
 
@@ -68,6 +78,8 @@ export class ProductViewComponent implements OnInit {
       next: (res) => {
         this.product = res.data;
         this.loading = false;
+        this.loadActivePromotion();
+        this.loadSimilarProducts();
         // Charger les avis si le produit a une boutique
         if (this.product?.boutiqueId?._id) {
           this.loadReviews();
@@ -84,7 +96,7 @@ export class ProductViewComponent implements OnInit {
     if (!this.product?.boutiqueId?._id) return;
 
     this.loadingReviews = true;
-    this.reviewService.getAll({ boutiqueId: this.product.boutiqueId._id, limit: 50 }).subscribe({
+    this.reviewService.getAll({ boutiqueId: this.product.boutiqueId._id, productId: this.product._id, limit: 50 }).subscribe({
       next: (res) => {
         this.reviews = res.reviews?.filter(r => r.status === 'published') || [];
         this.calculateRatingStats();
@@ -121,6 +133,92 @@ export class ProductViewComponent implements OnInit {
       this.reviewRating = this.userReview.rating;
       this.reviewComment = this.userReview.comment;
     }
+  }
+
+  loadActivePromotion(): void {
+    if (!this.product?._id) return;
+    this.promotionService.getActive(100).subscribe({
+      next: (res) => {
+        const promotions = res.data ?? [];
+        for (const promo of promotions) {
+          const products = promo.products || [];
+          const found = products.some((p: any) => {
+            const pid = typeof p === 'string' ? p : p._id;
+            return pid === this.product._id;
+          });
+          if (found) {
+            this.activePromotion = promo;
+            const price = this.product.price;
+            if (promo.type === 'percentage' && promo.value != null) {
+              this.promoPrice = Math.round(price * (1 - promo.value / 100));
+            } else if (promo.type === 'fixed' && promo.value != null) {
+              this.promoPrice = Math.max(0, Math.round(price - promo.value));
+            }
+            break;
+          }
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  loadSimilarProducts(): void {
+    if (!this.product) return;
+    this.loadingSimilar = true;
+
+    // Chercher par même catégorie OU même boutique
+    const category = this.product.categoryInternal;
+    const boutiqueId = this.product.boutiqueId?._id;
+
+    const params: any = { limit: 8 };
+    if (category) {
+      params.category = category;
+    } else if (boutiqueId) {
+      params.boutiqueId = boutiqueId;
+    }
+
+    this.productService.getAll(params).subscribe({
+      next: (res) => {
+        const all = res.data ?? [];
+        // Exclure le produit courant
+        let filtered = all.filter((p: any) => p._id !== this.product._id);
+
+        // Si pas assez de résultats par catégorie, compléter par même boutique
+        if (filtered.length < 4 && boutiqueId && category) {
+          this.productService.getAll({ boutiqueId, limit: 8 }).subscribe({
+            next: (res2) => {
+              const extra = (res2.data ?? []).filter((p: any) =>
+                p._id !== this.product._id && !filtered.some((f: any) => f._id === p._id)
+              );
+              filtered = [...filtered, ...extra].slice(0, 8);
+              this.similarProducts = filtered;
+              this.loadingSimilar = false;
+            },
+            error: () => {
+              this.similarProducts = filtered.slice(0, 8);
+              this.loadingSimilar = false;
+            }
+          });
+        } else {
+          this.similarProducts = filtered.slice(0, 8);
+          this.loadingSimilar = false;
+        }
+      },
+      error: () => {
+        this.loadingSimilar = false;
+      }
+    });
+  }
+
+  getProductMainPhoto(p: any): string {
+    return p?.mainPhoto || (p?.photos && p.photos[0]) || '';
+  }
+
+  getPromoBadge(): string {
+    if (!this.activePromotion) return '';
+    if (this.activePromotion.type === 'percentage') return `-${this.activePromotion.value}%`;
+    if (this.activePromotion.type === 'fixed') return `-${this.activePromotion.value} Ar`;
+    return 'Offre';
   }
 
   getAvailabilityLabel(a: string): string {
@@ -234,6 +332,7 @@ export class ProductViewComponent implements OnInit {
       // Création
       this.reviewService.create({
         boutiqueId: this.product.boutiqueId._id,
+        productId: this.product._id,
         rating: this.reviewRating,
         comment: this.reviewComment.trim()
       }).subscribe({

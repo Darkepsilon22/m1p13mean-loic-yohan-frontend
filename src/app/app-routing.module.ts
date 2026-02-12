@@ -14,6 +14,13 @@ const routes: Routes = [
     ]
   },
   {
+    path: 'boutiques',
+    component: AdminComponent,
+    children: [
+      { path: '', loadChildren: () => import('./demo/pages/boutique-public/boutique-public.module').then(module => module.BoutiquePublicModule) }
+    ]
+  },
+  {
     path: '',
     component: AdminComponent,
     canActivate: [AuthGuard],
@@ -48,6 +55,10 @@ const routes: Routes = [
         loadChildren: () => import('./demo/pages/promotion/promotion.module').then(module => module.PromotionModule)
       },
       {
+        path: 'reviews',
+        loadChildren: () => import('./demo/pages/review-management/review-management.module').then(module => module.ReviewManagementModule)
+      },
+      {
         path: 'events',
         loadChildren: () => import('./demo/pages/event/event.module').then(module => module.EventModule)
       },
@@ -62,6 +73,22 @@ const routes: Routes = [
       {
         path: 'users',
         loadChildren: () => import('./demo/pages/users/users.module').then(module => module.UsersModule)
+      },
+      {
+        path: 'my-profile',
+        loadChildren: () => import('./demo/pages/my-profile/my-profile.module').then(module => module.MyProfileModule)
+      },
+      {
+        path: 'boutique-stats',
+        loadChildren: () => import('./demo/pages/boutique-stats/boutique-stats.module').then(module => module.BoutiqueStatsModule)
+      },
+      {
+        path: 'admin-contracts',
+        loadChildren: () => import('./demo/pages/admin-contracts/admin-contracts.module').then(module => module.AdminContractsModule)
+      },
+      {
+        path: 'admin-invoices',
+        loadChildren: () => import('./demo/pages/admin-invoices/admin-invoices.module').then(module => module.AdminInvoicesModule)
       },
       {
         path: 'layout',

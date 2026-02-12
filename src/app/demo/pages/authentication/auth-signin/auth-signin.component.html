@@ -1,102 +1,134 @@
-<div class="auth-wrapper" [ngClass]="'auth-signin--' + loginType">
-  <div class="auth-content">
-    <div class="card auth-card" [ngClass]="'auth-card--' + loginType">
-      <div class="card-header auth-card-header" [ngClass]="'auth-card-header--' + loginType">
-        <div class="auth-card-header-inner">
+<div class="auth-page" [ngClass]="'auth-page--' + loginType">
+  <!-- Decorative elements -->
+  <div class="auth-deco auth-deco-1"></div>
+  <div class="auth-deco auth-deco-2"></div>
+  <div class="auth-deco auth-deco-3"></div>
+
+  <div class="auth-container">
+    <!-- Back link -->
+    <a routerLink="/landing" class="auth-back-link">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Retour à l'accueil
+    </a>
+
+    <div class="auth-card">
+      <!-- Header -->
+      <div class="auth-card-header">
+        <a routerLink="/landing" class="auth-logo-link">
           <img src="assets/images/logo-dark.png" alt="Smar'ket" class="auth-logo">
-          <h4 class="auth-title">Connexion</h4>
-          <p class="auth-title-context" [ngClass]="'auth-title-context--' + loginType">{{ loginType === 'admin' ? 'Administrateur' : loginType === 'boutique' ? 'Boutique' : 'Acheteur' }}</p>
-          <p class="auth-subtitle text-muted mb-0">{{ getSubtitle() }}</p>
-        </div>
+        </a>
+        <div class="auth-separator"></div>
+        <h1 class="auth-title">Connexion
+          <span class="auth-type-tag" [ngClass]="'auth-type-tag--' + loginType">{{ loginType === 'admin' ? 'Admin' : loginType === 'boutique' ? 'Boutique' : 'Acheteur' }}</span>
+        </h1>
+        <p class="auth-subtitle">{{ getSubtitle() }}</p>
       </div>
-      <div class="card-body">
-        <div *ngIf="registeredMessage && !showOtpStep" class="alert alert-success" role="alert">
+
+      <!-- Body -->
+      <div class="auth-card-body">
+        <div *ngIf="registeredMessage && !showOtpStep" class="auth-alert auth-alert--success">
+          <i class="feather icon-check-circle"></i>
           {{ registeredMessage }}
         </div>
-        <div *ngIf="resetSuccessMessage && !showOtpStep" class="alert alert-success" role="alert">
+        <div *ngIf="resetSuccessMessage && !showOtpStep" class="auth-alert auth-alert--success">
+          <i class="feather icon-check-circle"></i>
           {{ resetSuccessMessage }}
         </div>
-        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+        <div *ngIf="errorMessage" class="auth-alert auth-alert--error">
+          <i class="feather icon-alert-circle"></i>
           {{ errorMessage }}
         </div>
 
+        <!-- Login Form -->
         <ng-container *ngIf="!showOtpStep">
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
-            <div class="form-group">
-              <label class="form-label">Email</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="feather icon-mail"></i></span>
-                </div>
-                <input type="email" class="form-control" formControlName="email" placeholder="votre@email.com">
+            <div class="auth-field">
+              <label class="auth-label">Email</label>
+              <div class="auth-input-wrap">
+                <i class="feather icon-mail auth-input-icon"></i>
+                <input type="email" class="auth-input" formControlName="email" placeholder="votre@email.com">
               </div>
-              <small class="text-danger" *ngIf="getError('email')">{{ getError('email') }}</small>
+              <small class="auth-error" *ngIf="getError('email')">{{ getError('email') }}</small>
             </div>
-            <div class="form-group">
-              <label class="form-label">Mot de passe</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="feather icon-lock"></i></span>
-                </div>
-                <input [attr.type]="hidePassword ? 'password' : 'text'" class="form-control" formControlName="password" placeholder="Mot de passe">
-                <div class="input-group-append">
-                  <span class="input-group-text password-toggle" (click)="hidePassword = !hidePassword" (keydown.enter)="hidePassword = !hidePassword" role="button" tabindex="0" [attr.aria-label]="hidePassword ? 'Afficher le mot de passe' : 'Masquer le mot de passe'">
-                    <i class="feather" [ngClass]="hidePassword ? 'icon-eye' : 'icon-eye-off'"></i>
-                  </span>
-                </div>
+
+            <div class="auth-field">
+              <label class="auth-label">Mot de passe</label>
+              <div class="auth-input-wrap">
+                <i class="feather icon-lock auth-input-icon"></i>
+                <input [attr.type]="hidePassword ? 'password' : 'text'" class="auth-input auth-input--password" formControlName="password" placeholder="Mot de passe">
+                <button type="button" class="auth-toggle-pw" (click)="hidePassword = !hidePassword" [attr.aria-label]="hidePassword ? 'Afficher le mot de passe' : 'Masquer le mot de passe'">
+                  <i class="feather" [ngClass]="hidePassword ? 'icon-eye' : 'icon-eye-off'"></i>
+                </button>
               </div>
-              <small class="text-danger" *ngIf="getError('password')">{{ getError('password') }}</small>
+              <small class="auth-error" *ngIf="getError('password')">{{ getError('password') }}</small>
             </div>
-            <br>
-            <div class="form-group form-check mb-3">
-              <input type="checkbox" class="form-check-input" formControlName="remember" id="remember">
-              <label class="form-check-label" for="remember">Mémoriser</label>
+
+            <div class="auth-options">
+              <label class="auth-checkbox">
+                <input type="checkbox" formControlName="remember">
+                <span class="auth-checkbox-mark"></span>
+                Mémoriser
+              </label>
+              <a *ngIf="loginType !== 'admin'" routerLink="/auth/reset-password" class="auth-forgot-link">Mot de passe oublié ?</a>
             </div>
-            <br>
-            <div class="auth-submit-wrap" [ngClass]="'auth-submit-wrap--' + loginType">
-              <button type="submit" class="btn btn-auth" [disabled]="loading">
-                {{ loading ? 'Connexion...' : getSubmitLabel() }}
-              </button>
-            </div>
+
+            <button type="submit" class="auth-btn" [ngClass]="'auth-btn--' + loginType" [disabled]="loading">
+              <span *ngIf="!loading">{{ getSubmitLabel() }}</span>
+              <span *ngIf="loading" class="auth-btn-loading">
+                <span class="auth-spinner"></span>
+                Connexion...
+              </span>
+              <svg *ngIf="!loading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
           </form>
-          <!-- Liens spécifiques par type -->
-          <div class="auth-links auth-links--acheteur" *ngIf="loginType === 'acheteur'">
-            <p class="mb-1"><a routerLink="/auth/reset-password" class="auth-link">Mot de passe oublié ?</a></p>
-            <p class="mb-1"><a routerLink="/auth/signup" class="auth-link">Créer un compte acheteur</a></p>
-            <p class="mb-0 mt-2"><a routerLink="/landing" class="auth-link auth-link--back">← Retour à l'accueil</a></p>
-          </div>
-          <div class="auth-links auth-links--boutique" *ngIf="loginType === 'boutique'">
-            <p class="mb-1"><a routerLink="/auth/reset-password" class="auth-link">Mot de passe oublié ?</a></p>
-            <p class="mb-1"><a routerLink="/auth/signup/boutique" class="auth-link">Créer un compte boutique</a></p>
-            <p class="mb-0 mt-2"><a routerLink="/landing" class="auth-link auth-link--back">← Retour à l'accueil</a></p>
-          </div>
-          <div class="auth-links auth-links--admin" *ngIf="loginType === 'admin'">
-            <p class="mb-0"><a routerLink="/landing" class="auth-link auth-link--back">← Retour à l'accueil</a></p>
+
+          <!-- Links -->
+          <div class="auth-footer-links">
+            <ng-container *ngIf="loginType === 'acheteur'">
+              <p>Pas encore de compte ? <a routerLink="/auth/signup" class="auth-link">Créer un compte</a></p>
+            </ng-container>
+            <ng-container *ngIf="loginType === 'boutique'">
+              <p>Pas encore de compte ? <a routerLink="/auth/signup/boutique" class="auth-link">Créer un compte boutique</a></p>
+            </ng-container>
           </div>
         </ng-container>
 
+        <!-- OTP Step -->
         <ng-container *ngIf="showOtpStep">
-          <p class="text-muted mb-3">Un code a été envoyé à <strong>{{ loginEmail }}</strong>. Saisissez-le ci-dessous.</p>
+          <div class="auth-otp-info">
+            <div class="auth-otp-icon-wrap">
+              <i class="feather icon-shield"></i>
+            </div>
+            <p>Un code a été envoyé à <strong>{{ loginEmail }}</strong></p>
+          </div>
+
           <form [formGroup]="otpForm" (ngSubmit)="onVerifyOtp()">
-            <div class="form-group">
-              <label class="form-label">Code OTP</label>
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"><i class="feather icon-shield"></i></span>
-                </div>
-                <input type="text" class="form-control" formControlName="otp" placeholder="Code à 6 chiffres" maxlength="8" autocomplete="one-time-code">
+            <div class="auth-field">
+              <label class="auth-label">Code OTP</label>
+              <div class="auth-input-wrap">
+                <i class="feather icon-shield auth-input-icon"></i>
+                <input type="text" class="auth-input" formControlName="otp" placeholder="Code à 6 chiffres" maxlength="8" autocomplete="one-time-code">
               </div>
-              <small class="text-danger" *ngIf="getError('otp')">{{ getError('otp') }}</small>
+              <small class="auth-error" *ngIf="getError('otp')">{{ getError('otp') }}</small>
             </div>
-            <br>
-            <div class="auth-submit-wrap" [ngClass]="'auth-submit-wrap--' + loginType">
-              <button type="submit" class="btn btn-auth" [disabled]="otpLoading">
-                {{ otpLoading ? 'Vérification...' : 'Valider le code' }}
-              </button>
-            </div>
-            <button type="button" class="btn btn-link btn-sm d-block mb-1" (click)="resendOtp()">Renvoyer le code</button>
-            <button type="button" class="btn btn-link btn-sm d-block" (click)="backToLogin()">← Retour à la connexion</button>
+
+            <button type="submit" class="auth-btn" [ngClass]="'auth-btn--' + loginType" [disabled]="otpLoading">
+              <span *ngIf="!otpLoading">Valider le code</span>
+              <span *ngIf="otpLoading" class="auth-btn-loading">
+                <span class="auth-spinner"></span>
+                Vérification...
+              </span>
+              <svg *ngIf="!otpLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
           </form>
+
+          <div class="auth-otp-actions">
+            <button type="button" class="auth-text-btn" (click)="resendOtp()">Renvoyer le code</button>
+            <button type="button" class="auth-text-btn" (click)="backToLogin()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              Retour
+            </button>
+          </div>
         </ng-container>
       </div>
     </div>

@@ -153,6 +153,24 @@ const AdminNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/map/floors',
         icon: 'feather icon-edit-2'
+    id: 'admin-contracts',
+    title: 'Contrats & Factures',
+    type: 'group',
+    icon: 'feather icon-file-text',
+    children: [
+      {
+        id: 'contract-list',
+        title: 'Contrats',
+        type: 'item',
+        url: '/admin-contracts',
+        icon: 'feather icon-file-text'
+      },
+      {
+        id: 'invoice-list',
+        title: 'Factures',
+        type: 'item',
+        url: '/admin-invoices',
+        icon: 'feather icon-credit-card'
       }
     ]
   },
@@ -195,6 +213,13 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/dashboard/analytics',
         icon: 'feather icon-bar-chart-2'
+      },
+      {
+        id: 'boutique-stats',
+        title: 'Statistiques',
+        type: 'item',
+        url: '/boutique-stats',
+        icon: 'feather icon-pie-chart'
       }
     ]
   },
@@ -253,6 +278,21 @@ const BoutiqueNavigationItems: NavigationItem[] = [
     ]
   },
   {
+    id: 'boutique-reviews',
+    title: 'Avis',
+    type: 'group',
+    icon: 'feather icon-message-square',
+    children: [
+      {
+        id: 'reviews-manage',
+        title: 'Avis clients',
+        type: 'item',
+        url: '/reviews/manage',
+        icon: 'feather icon-message-square'
+      }
+    ]
+  },
+  {
     id: 'boutique-emplacements',
     title: 'Emplacements',
     type: 'group',
@@ -271,6 +311,20 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/emplacement/my-reservation',
         icon: 'feather icon-bookmark'
+      },
+      {
+        id: 'my-contract',
+        title: 'Mon contrat',
+        type: 'item',
+        url: '/emplacement/my-contract',
+        icon: 'feather icon-file-text'
+      },
+      {
+        id: 'my-invoices',
+        title: 'Mes factures',
+        type: 'item',
+        url: '/emplacement/my-invoices',
+        icon: 'feather icon-credit-card'
       }
     ]
   }
@@ -298,6 +352,13 @@ const AcheteurNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/cart',
         icon: 'feather icon-shopping-cart'
+      },
+      {
+        id: 'boutiques',
+        title: 'Voir les boutiques',
+        type: 'item',
+        url: '/boutiques',
+        icon: 'feather icon-grid'
       }
     ]
   },
@@ -311,7 +372,7 @@ const AcheteurNavigationItems: NavigationItem[] = [
         id: 'profile',
         title: 'Mon profil',
         type: 'item',
-        url: '/auth/profile',
+        url: '/my-profile',
         icon: 'feather icon-user'
       }
     ]

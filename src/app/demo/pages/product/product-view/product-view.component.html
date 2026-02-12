@@ -51,13 +51,22 @@
 
         <!-- Prix -->
         <div class="mb-3">
-          <span class="h3 text-primary font-weight-bold">{{ product.price != null ? (product.price | number:'1.0-0') : '—' }} Ar</span>
-          <span class="text-muted text-decoration-line-through ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
-            {{ product.originalPrice | number:'1.0-0' }} Ar
-          </span>
-          <span class="badge badge-danger ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
-            -{{ ((1 - product.price / product.originalPrice) * 100) | number:'1.0-0' }}%
-          </span>
+          <!-- Prix avec promotion active -->
+          <ng-container *ngIf="promoPrice != null; else normalPrice">
+            <span class="h3 text-primary font-weight-bold">{{ promoPrice | number:'1.0-0' }} Ar</span>
+            <span class="text-muted text-decoration-line-through ml-2">{{ product.price | number:'1.0-0' }} Ar</span>
+            <span class="badge badge-danger ml-2">{{ getPromoBadge() }}</span>
+          </ng-container>
+          <!-- Prix normal (sans promo) -->
+          <ng-template #normalPrice>
+            <span class="h3 text-primary font-weight-bold">{{ product.price != null ? (product.price | number:'1.0-0') : '—' }} Ar</span>
+            <span class="text-muted text-decoration-line-through ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
+              {{ product.originalPrice | number:'1.0-0' }} Ar
+            </span>
+            <span class="badge badge-danger ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
+              -{{ ((1 - product.price / product.originalPrice) * 100) | number:'1.0-0' }}%
+            </span>
+          </ng-template>
         </div>
 
         <!-- Badges -->
@@ -173,7 +182,7 @@
         <!-- Message si utilisateur a déjà un avis -->
         <div class="alert alert-info mb-3" *ngIf="userReview">
           <i class="feather icon-check-circle mr-1"></i>
-          Vous avez déjà laissé un avis pour cette boutique.
+          Vous avez déjà laissé un avis pour ce produit.
         </div>
 
         <!-- Chargement des avis -->
@@ -201,7 +210,7 @@
             <p class="mt-2 mb-1">{{ review.comment }}</p>
             <!-- Réponse de la boutique -->
             <div class="bg-light p-2 rounded mt-2" *ngIf="review.response?.text">
-              <small class="text-muted"><strong>Réponse de la boutique :</strong></small>
+              <small class="text-muted"><strong>Réponse de {{ product?.boutiqueId?.name || 'la boutique' }} :</strong></small>
               <p class="mb-0 small">{{ review.response.text }}</p>
             </div>
           </div>
@@ -268,6 +277,48 @@
           <span *ngIf="!submittingReview">{{ userReview ? 'Mettre à jour' : 'Publier' }}</span>
           <span *ngIf="submittingReview">Envoi...</span>
         </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section Produits Similaires -->
+<div class="row mt-4" *ngIf="product && !loading">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="feather icon-grid mr-2"></i>Produits similaires
+        </h5>
+      </div>
+      <div class="card-body">
+        <div *ngIf="loadingSimilar" class="text-center py-3 text-muted">Chargement...</div>
+        <div *ngIf="!loadingSimilar && similarProducts.length === 0" class="text-center text-muted py-3">
+          Aucun produit similaire pour le moment.
+        </div>
+        <div class="row" *ngIf="!loadingSimilar && similarProducts.length > 0">
+          <div class="col-6 col-sm-4 col-md-3 mb-3" *ngFor="let p of similarProducts">
+            <a [routerLink]="['/products/view', p._id]" class="text-decoration-none text-dark">
+              <div class="card h-100 similar-product-card">
+                <div *ngIf="getProductMainPhoto(p)" class="similar-img-wrap">
+                  <img [src]="getProductMainPhoto(p)" class="card-img-top" [alt]="p.name" style="height: 140px; object-fit: cover;">
+                </div>
+                <div *ngIf="!getProductMainPhoto(p)" class="similar-img-wrap bg-light d-flex align-items-center justify-content-center" style="height: 140px;">
+                  <i class="feather icon-image text-muted" style="font-size: 2rem;"></i>
+                </div>
+                <div class="card-body p-2">
+                  <h6 class="card-title text-truncate mb-1" style="font-size: 13px;">{{ p.name }}</h6>
+                  <small class="text-muted d-block text-truncate" *ngIf="p.boutiqueId?.name">{{ p.boutiqueId.name }}</small>
+                  <strong class="text-primary" style="font-size: 13px;">{{ p.price | number:'1.0-0' }} Ar</strong>
+                  <span class="badge ml-1" style="font-size: 10px;"
+                        [ngClass]="p.availability === 'available' ? 'badge-success' : p.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
+                    {{ getAvailabilityLabel(p.availability) }}
+                  </span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>

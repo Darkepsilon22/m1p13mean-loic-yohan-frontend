@@ -1,0 +1,48 @@
+.profile-avatar-wrap {
+  display: inline-block;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e8e8e8;
+}
+
+.profile-avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #e8e8e8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+
+  i {
+    font-size: 2rem;
+    color: #aaa;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.order-detail-row td {
+  background: #f9fafb;
+}
+
+.order-detail-panel {
+  padding: 16px 20px;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

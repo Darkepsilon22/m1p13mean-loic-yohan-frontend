@@ -36,6 +36,14 @@ export interface ReviewListParams {
   limit?: number;
 }
 
+export interface MyReviewsParams {
+  type?: 'boutique' | 'product' | '';
+  status?: string;
+  rating?: number;
+  page?: number;
+  limit?: number;
+}
+
 export interface ReviewsApiResponse {
   success: boolean;
   data: {
@@ -119,6 +127,21 @@ export class ReviewService {
   respond(id: string, text: string): Observable<Review> {
     return this.http.patch<ReviewApiResponse>(`${API}/reviews/${id}/response`, { text }).pipe(
       map(res => res.data.review),
+      catchError(handleError)
+    );
+  }
+
+  /** Liste des avis reçus par ma boutique (boutique owner) */
+  getMyReviews(params?: MyReviewsParams): Observable<{ reviews: Review[]; pagination?: any }> {
+    const q = new URLSearchParams();
+    if (params?.type) q.set('type', params.type);
+    if (params?.status) q.set('status', params.status);
+    if (params?.rating != null) q.set('rating', String(params.rating));
+    if (params?.page != null) q.set('page', String(params.page));
+    if (params?.limit != null) q.set('limit', String(params.limit));
+    const query = q.toString() ? '?' + q.toString() : '';
+    return this.http.get<ReviewsApiResponse>(`${API}/reviews/my-reviews${query}`).pipe(
+      map(res => res.data),
       catchError(handleError)
     );
   }

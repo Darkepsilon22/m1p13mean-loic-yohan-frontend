@@ -28,7 +28,7 @@
           <span class="pro-head-role" *ngIf="getRoleLabel()">— {{ getRoleLabel() }}</span>
         </div>
         <ul class="pro-body">
-          <li><a routerLink="/auth/profile" class="dropdown-item" ngbDropdownItem><i class="feather icon-user"></i> Modifier profil</a></li>
+          <li><a routerLink="/my-profile" class="dropdown-item" ngbDropdownItem><i class="feather icon-user"></i> Modifier profil</a></li>
           <li><a routerLink="/auth/change-password" class="dropdown-item" ngbDropdownItem><i class="feather icon-lock"></i> Changer le mot de passe</a></li>
           <li><a href="javascript:" class="dropdown-item" (click)="logout()" ngbDropdownItem><i class="feather icon-log-out"></i> Déconnexion</a></li>
         </ul>

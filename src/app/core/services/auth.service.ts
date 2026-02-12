@@ -186,6 +186,20 @@ export class AuthService {
     );
   }
 
+  /** Admin: list all users with optional filters */
+  getAllUsers(params: { role?: string; status?: string; search?: string; page?: number; limit?: number } = {}): Observable<any> {
+    const p = new URLSearchParams();
+    if (params.role) p.set('role', params.role);
+    if (params.status) p.set('status', params.status);
+    if (params.search) p.set('search', params.search);
+    if (params.page) p.set('page', params.page.toString());
+    if (params.limit) p.set('limit', params.limit.toString());
+    const qs = p.toString();
+    return this.http.get<any>(`${this.base}/auth/users${qs ? '?' + qs : ''}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   /** Admin: list users awaiting approval (status=pending & email verified) */
   getPendingUsers(): Observable<{ success: boolean; count: number; data: { users: any[] } }> {
     return this.http.get<{ success: boolean; count: number; data: { users: any[] } }>(`${this.base}/auth/users/pending`).pipe(

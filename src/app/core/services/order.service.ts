@@ -151,6 +151,18 @@ export class OrderService {
     return this.http.patch<OrderResponse>(`${API}/orders/admin/${id}/status`, { status }).pipe(catchError(handleError));
   }
 
+  /** Export PDF des commandes de l'utilisateur */
+  exportMyOrdersPDF(status?: string): Observable<Blob> {
+    const query = status ? `?status=${status}` : '';
+    return this.http.get(`${API}/orders/my-orders/export/pdf${query}`, { responseType: 'blob' });
+  }
+
+  /** Export Excel des commandes de l'utilisateur */
+  exportMyOrdersExcel(status?: string): Observable<Blob> {
+    const query = status ? `?status=${status}` : '';
+    return this.http.get(`${API}/orders/my-orders/export/excel${query}`, { responseType: 'blob' });
+  }
+
   /** Obtenir le libellé du statut */
   getStatusLabel(status: string): string {
     const labels: Record<string, string> = {

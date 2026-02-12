@@ -76,6 +76,10 @@ export class EventService {
     return this.http.get<{ success: boolean; data: EventItem[] }>(`${API}/events/current?limit=${limit}`).pipe(catchError(handleError));
   }
 
+  getBanners(limit = 10): Observable<{ success: boolean; data: EventItem[] }> {
+    return this.http.get<{ success: boolean; data: EventItem[] }>(`${API}/events/banners?limit=${limit}`).pipe(catchError(handleError));
+  }
+
   getFeatured(limit = 5): Observable<{ success: boolean; data: { events: EventItem[] } }> {
     return this.http.get<{ success: boolean; data: { events: EventItem[] } }>(`${API}/events/featured?limit=${limit}`).pipe(catchError(handleError));
   }

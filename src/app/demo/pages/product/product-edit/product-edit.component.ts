@@ -96,7 +96,8 @@ export class ProductEditComponent implements OnInit {
   loadStockHistory(): void {
     if (!this.productId) return;
     this.stockLoading = true;
-    this.stockService.getProductHistory(this.productId, { page: 1, limit: 10 }).subscribe({
+    // Limiter à 5 derniers mouvements pour l'aperçu
+    this.stockService.getProductHistory(this.productId, { page: 1, limit: 5 }).subscribe({
       next: (res) => {
         this.movements = res.data?.movements ?? [];
         this.movementPagination = res.data?.pagination ?? null;
@@ -104,6 +105,11 @@ export class ProductEditComponent implements OnInit {
       },
       error: () => { this.stockLoading = false; }
     });
+  }
+
+  goToFullHistory(): void {
+    if (!this.productId) return;
+    this.router.navigate(['/products/stock-movements']);
   }
 
   onImageError(): void {
@@ -183,7 +189,7 @@ export class ProductEditComponent implements OnInit {
     this.stockError = '';
     const body = { quantity: q, reason: this.stockReason || undefined };
     const obs = this.stockActionType === 'initial'
-      ? this.stockService.setInitialStock(this.productId, { quantity: q, reason: this.stockReason })
+      ? this.stockService.setInitialStock(this.productId, { stock: q, reason: this.stockReason })
       : this.stockActionType === 'add'
         ? this.stockService.addStock(this.productId, body)
         : this.stockActionType === 'remove'
