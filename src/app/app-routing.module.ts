@@ -52,6 +52,10 @@ const routes: Routes = [
         loadChildren: () => import('./demo/pages/event/event.module').then(module => module.EventModule)
       },
       {
+        path: 'map',
+        loadChildren: () => import('./demo/pages/map/map.module').then(module => module.MapModule)
+      },
+      {
         path: 'cart',
         loadChildren: () => import('./demo/pages/cart/cart.module').then(module => module.CartModule)
       },

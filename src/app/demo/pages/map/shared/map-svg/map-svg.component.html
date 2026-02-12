@@ -1,0 +1,76 @@
+<svg
+  *ngIf="floor"
+  [attr.viewBox]="viewBox"
+  class="map-svg"
+  preserveAspectRatio="xMidYMid meet"
+  (click)="$event.stopPropagation()">
+  <!-- Zones -->
+  <g id="zones">
+    <rect
+      *ngFor="let z of zones"
+      [attr.x]="z.x"
+      [attr.y]="z.y"
+      [attr.width]="z.width"
+      [attr.height]="z.height"
+      class="zone"
+      [class.selected]="selectedZoneId === z._id"
+      [class.editable]="isEditMode"
+      (click)="onZoneClick(z)" />
+  </g>
+  <!-- Espaces spéciaux -->
+  <g id="special-spaces">
+    <g
+      *ngFor="let s of specialSpaces"
+      (click)="onSpecialSpaceClick(s)"
+      class="special-space-wrapper">
+      <rect
+        [attr.x]="s.x"
+        [attr.y]="s.y"
+        [attr.width]="s.width"
+        [attr.height]="s.height"
+        [attr.class]="'special-space type-' + s.type" />
+      <text
+        [attr.x]="s.x + s.width / 2"
+        [attr.y]="s.y + s.height / 2"
+        class="special-space-icon"
+        text-anchor="middle"
+        dominant-baseline="central">{{ getSpecialSpaceIcon(s.type) }}</text>
+    </g>
+  </g>
+  <!-- Boutiques -->
+  <g id="boutiques">
+    <g
+      *ngFor="let b of boutiques"
+      (click)="onBoutiqueClick(b)"
+      class="boutique-wrapper">
+      <rect
+        *ngIf="b.mapShape"
+        [attr.x]="b.mapShape.x"
+        [attr.y]="b.mapShape.y"
+        [attr.width]="b.mapShape.width"
+        [attr.height]="b.mapShape.height"
+        [attr.class]="'boutique status-' + (b.emplacementStatus || 'libre')"
+        [class.selected]="selectedBoutiqueId === b._id" />
+      <text
+        *ngIf="b.mapShape"
+        [attr.x]="b.mapShape.x + b.mapShape.width / 2"
+        [attr.y]="b.mapShape.y + b.mapShape.height / 2"
+        class="boutique-label"
+        text-anchor="middle"
+        dominant-baseline="central">{{ getBoutiqueLabel(b) }}</text>
+    </g>
+  </g>
+  <!-- Itinéraire (acheteur) -->
+  <g id="route" *ngIf="routePoints.length">
+    <polyline
+      *ngIf="routePointsStr"
+      [attr.points]="routePointsStr"
+      class="route-line" />
+    <circle
+      *ngIf="currentPosition"
+      [attr.cx]="currentPosition.x"
+      [attr.cy]="currentPosition.y"
+      r="4"
+      class="current-position" />
+  </g>
+</svg>
