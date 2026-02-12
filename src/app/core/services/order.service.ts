@@ -152,13 +152,15 @@ export class OrderService {
   }
 
   /** Export PDF des commandes de l'utilisateur */
-  exportMyOrdersPDF(): Observable<Blob> {
-    return this.http.get(`${API}/orders/my-orders/export/pdf`, { responseType: 'blob' });
+  exportMyOrdersPDF(status?: string): Observable<Blob> {
+    const query = status ? `?status=${status}` : '';
+    return this.http.get(`${API}/orders/my-orders/export/pdf${query}`, { responseType: 'blob' });
   }
 
   /** Export Excel des commandes de l'utilisateur */
-  exportMyOrdersExcel(): Observable<Blob> {
-    return this.http.get(`${API}/orders/my-orders/export/excel`, { responseType: 'blob' });
+  exportMyOrdersExcel(status?: string): Observable<Blob> {
+    const query = status ? `?status=${status}` : '';
+    return this.http.get(`${API}/orders/my-orders/export/excel${query}`, { responseType: 'blob' });
   }
 
   /** Obtenir le libellé du statut */
