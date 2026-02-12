@@ -29,7 +29,13 @@ export interface CreateBoutiqueBody {
     mapCoordinates?: { x?: number; y?: number };
   };
   openingHours?: Array<{ day: number; open: string | null; close: string | null; isClosed: boolean }>;
-  userId?: string;
+  userId?: string | null;
+  zoneId?: string;
+  floorId?: string;
+  mapShape?: { x: number; y: number; width: number; height: number };
+  surface?: number;
+  price?: number;
+  emplacementStatus?: string;
 }
 
 export interface UpdateBoutiqueBody {
@@ -48,6 +54,12 @@ export interface UpdateBoutiqueBody {
     instagram?: string;
   };
   openingHours?: Array<{ day: number; open: string | null; close: string | null; isClosed: boolean }>;
+  zoneId?: string;
+  floorId?: string;
+  mapShape?: { x: number; y: number; width: number; height: number };
+  surface?: number;
+  price?: number;
+  emplacementStatus?: string;
 }
 
 export interface BoutiqueResponse {

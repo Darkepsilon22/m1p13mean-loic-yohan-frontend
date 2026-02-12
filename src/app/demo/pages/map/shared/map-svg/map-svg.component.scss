@@ -93,4 +93,12 @@
     stroke: #fff;
     stroke-width: 1;
   }
+
+  .resize-handle {
+    fill: #0d6efd;
+    stroke: #fff;
+    stroke-width: 0.5;
+    cursor: nwse-resize;
+    pointer-events: all;
+  }
 }

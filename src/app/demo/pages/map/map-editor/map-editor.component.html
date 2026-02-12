@@ -1,0 +1,167 @@
+<div class="map-editor-page">
+  <app-card cardTitle="Éditeur de plan" [options]="false">
+    <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+      <a routerLink="/map/floors" class="btn btn-outline-secondary btn-sm">Liste des étages</a>
+      <a routerLink="/map/view" class="btn btn-outline-secondary btn-sm">Voir le plan</a>
+      <label class="mb-0">Étage :</label>
+      <select
+        *ngIf="floors.length"
+        class="form-control form-control-sm"
+        style="width: auto;"
+        [value]="floorId"
+        (change)="onFloorChange($any($event.target).value)">
+        <option *ngFor="let f of floors" [value]="f._id">{{ f.name }}</option>
+      </select>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+    <div *ngIf="loading" class="text-center py-5">Chargement...</div>
+
+    <div *ngIf="!loading && data" class="row">
+      <div class="col-lg-8">
+        <div class="map-container">
+          <app-map-svg
+            [floor]="data.floor"
+            [zones]="data.zones"
+            [boutiques]="data.boutiques"
+            [specialSpaces]="data.specialSpaces"
+            [isEditMode]="true"
+            [selectedZoneId]="selectedZone?._id ?? null"
+            [selectedBoutiqueId]="selectedBoutique?._id ?? null"
+            [selectedSpecialSpaceId]="selectedSpecialSpace?._id ?? null"
+            (zoneClick)="onZoneClick($event)"
+            (boutiqueClick)="onBoutiqueClick($event)"
+            (specialSpaceClick)="onSpecialSpaceClick($event)"
+            (zoneShapeChange)="onZoneShapeChange($event)"
+            (spaceShapeChange)="onSpaceShapeChange($event)"
+            (boutiqueShapeChange)="onBoutiqueShapeChange($event)">
+          </app-map-svg>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <ul class="nav nav-tabs nav-tabs-sm mb-2">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activePanel === 'zones'" (click)="activePanel = 'zones'">Zones</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activePanel === 'spaces'" (click)="activePanel = 'spaces'">Espaces</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activePanel === 'boutiques'" (click)="activePanel = 'boutiques'">Boutiques</a>
+          </li>
+        </ul>
+
+        <!-- Zones -->
+        <div *ngIf="activePanel === 'zones'" class="sidebar-panel">
+          <button type="button" class="btn btn-primary btn-sm mb-2" (click)="startAddZone()">Ajouter une zone</button>
+          <div *ngIf="addingZone || selectedZone" class="card card-body bg-light mb-2">
+            <h6 class="mb-2">{{ addingZone ? 'Nouvelle zone' : 'Modifier la zone' }}</h6>
+            <div *ngIf="selectedZone && !addingZone" class="alert alert-secondary py-2 small mb-2">
+              <strong>Contrainte zone :</strong> Surface utilisée {{ getZoneSurfaceUsed(selectedZone._id) }} m² / {{ selectedZone.surfaceTotal }} m²
+              ({{ getZoneSurfaceRemaining(selectedZone._id) }} m² restants)
+            </div>
+            <form [formGroup]="zoneForm" (ngSubmit)="saveZone()">
+              <div class="mb-2">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-control form-control-sm" formControlName="name" />
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Surface totale (m²)</label>
+                <input type="number" class="form-control form-control-sm" formControlName="surfaceTotal" min="1" />
+              </div>
+              <div class="row g-1 mb-2">
+                <div class="col-6"><label class="form-label">x</label><input type="number" class="form-control form-control-sm" formControlName="x" /></div>
+                <div class="col-6"><label class="form-label">y</label><input type="number" class="form-control form-control-sm" formControlName="y" /></div>
+                <div class="col-6"><label class="form-label">Largeur</label><input type="number" class="form-control form-control-sm" formControlName="width" /></div>
+                <div class="col-6"><label class="form-label">Hauteur</label><input type="number" class="form-control form-control-sm" formControlName="height" /></div>
+              </div>
+              <div class="d-flex gap-1">
+                <button type="submit" class="btn btn-success btn-sm" [disabled]="zoneForm.invalid || savingZone">{{ savingZone ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button *ngIf="selectedZone && !addingZone" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteZone()">Supprimer</button>
+              </div>
+            </form>
+          </div>
+          <p class="small text-muted mb-0">Cliquez sur la carte pour sélectionner une zone.</p>
+        </div>
+
+        <!-- Espaces spéciaux -->
+        <div *ngIf="activePanel === 'spaces'" class="sidebar-panel">
+          <button type="button" class="btn btn-primary btn-sm mb-2" (click)="startAddSpace()">Ajouter un espace</button>
+          <div *ngIf="addingSpace || selectedSpecialSpace" class="card card-body bg-light mb-2">
+            <h6 class="mb-2">{{ addingSpace ? 'Nouvel espace spécial' : 'Modifier' }}</h6>
+            <form [formGroup]="spaceForm" (ngSubmit)="saveSpace()">
+              <div class="mb-2">
+                <label class="form-label">Type</label>
+                <select class="form-control form-control-sm" formControlName="type">
+                  <option *ngFor="let t of specialSpaceTypes" [value]="t">{{ typeLabels[t] }}</option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Nom (optionnel)</label>
+                <input type="text" class="form-control form-control-sm" formControlName="name" />
+              </div>
+              <div class="row g-1 mb-2">
+                <div class="col-6"><label class="form-label">x</label><input type="number" class="form-control form-control-sm" formControlName="x" /></div>
+                <div class="col-6"><label class="form-label">y</label><input type="number" class="form-control form-control-sm" formControlName="y" /></div>
+                <div class="col-6"><label class="form-label">Largeur</label><input type="number" class="form-control form-control-sm" formControlName="width" /></div>
+                <div class="col-6"><label class="form-label">Hauteur</label><input type="number" class="form-control form-control-sm" formControlName="height" /></div>
+              </div>
+              <div class="d-flex gap-1">
+                <button type="submit" class="btn btn-success btn-sm" [disabled]="spaceForm.invalid || savingSpace">{{ savingSpace ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button *ngIf="selectedSpecialSpace && !addingSpace" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteSpace()">Supprimer</button>
+              </div>
+            </form>
+          </div>
+          <p class="small text-muted mb-0">Cliquez sur la carte pour sélectionner un espace.</p>
+        </div>
+
+        <!-- Boutiques / Emplacements -->
+        <div *ngIf="activePanel === 'boutiques'" class="sidebar-panel">
+          <button type="button" class="btn btn-primary btn-sm mb-2" (click)="startAddBoutique()">Ajouter un emplacement</button>
+          <div *ngIf="addingBoutique && !selectedZone" class="alert alert-info small">Cliquez sur une zone dans la carte pour y ajouter un emplacement.</div>
+          <div *ngIf="(addingBoutique && selectedZone) || (selectedBoutique && !addingBoutique)" class="card card-body bg-light mb-2">
+            <h6 class="mb-2">{{ addingBoutique ? 'Nouvel emplacement dans ' + selectedZone?.name : 'Modifier l\'emplacement' }}</h6>
+            <div *ngIf="selectedZone" class="alert alert-secondary py-2 small mb-2">
+              <strong>Contrainte zone « {{ selectedZone.name }} » :</strong> Surface utilisée {{ getZoneSurfaceUsed(selectedZone._id) }} m² / {{ selectedZone.surfaceTotal }} m²
+              ({{ getZoneSurfaceRemaining(selectedZone._id) }} m² restants). Votre emplacement ne doit pas dépasser la surface restante.
+            </div>
+            <div *ngIf="addingBoutique && selectedZone && boutiqueForm.get('surface')?.value > getZoneSurfaceRemaining(selectedZone._id)" class="alert alert-warning py-2 small mb-2">
+              La surface saisie dépasse la surface restante dans la zone. Réduisez la surface ou choisissez une autre zone.
+            </div>
+            <form [formGroup]="boutiqueForm" (ngSubmit)="saveBoutique()">
+              <div class="mb-2">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-control form-control-sm" formControlName="name" />
+              </div>
+              <div class="mb-2" *ngIf="addingBoutique">
+                <label class="form-label">Catégorie</label>
+                <select class="form-control form-control-sm" formControlName="categoryId">
+                  <option value="">-- Choisir --</option>
+                  <option *ngFor="let c of categories" [value]="c._id">{{ c.name }}</option>
+                </select>
+              </div>
+              <div class="row g-1 mb-2">
+                <div class="col-6"><label class="form-label">Surface (m²)</label><input type="number" class="form-control form-control-sm" formControlName="surface" min="1" /></div>
+                <div class="col-6"><label class="form-label">Prix (Ar)</label><input type="number" class="form-control form-control-sm" formControlName="price" min="0" /></div>
+              </div>
+              <div class="row g-1 mb-2">
+                <div class="col-6"><label class="form-label">x</label><input type="number" class="form-control form-control-sm" formControlName="x" /></div>
+                <div class="col-6"><label class="form-label">y</label><input type="number" class="form-control form-control-sm" formControlName="y" /></div>
+                <div class="col-6"><label class="form-label">Largeur</label><input type="number" class="form-control form-control-sm" formControlName="width" /></div>
+                <div class="col-6"><label class="form-label">Hauteur</label><input type="number" class="form-control form-control-sm" formControlName="height" /></div>
+              </div>
+              <div class="d-flex gap-1">
+                <button type="submit" class="btn btn-success btn-sm" [disabled]="boutiqueForm.invalid || savingBoutique">{{ savingBoutique ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button *ngIf="selectedBoutique && !addingBoutique" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteBoutique()">Supprimer</button>
+              </div>
+            </form>
+          </div>
+          <p class="small text-muted mb-0">Cliquez sur la carte pour sélectionner ou placer un emplacement.</p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && !data && floorId" class="alert alert-warning">Aucune donnée pour cet étage.</div>
+  </app-card>
+</div>
