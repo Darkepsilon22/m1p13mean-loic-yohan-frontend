@@ -1,0 +1,96 @@
+.map-svg {
+  display: block;
+  width: 100%;
+  max-height: 70vh;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  cursor: default;
+  user-select: none;
+
+  rect, g.special-space-wrapper, g.boutique-wrapper {
+    cursor: pointer;
+    transition: filter 0.15s ease;
+  }
+
+  rect.zone {
+    fill: #e9ecef;
+    stroke: #adb5bd;
+    stroke-width: 1;
+  }
+  rect.zone.selected {
+    fill: #cce5ff;
+    stroke: #0d6efd;
+    stroke-width: 2;
+  }
+  rect.zone.editable:hover {
+    fill: #dee2e6;
+  }
+
+  .special-space {
+    &.type-relax {
+      fill: #d4edda;
+      stroke: #28a745;
+    }
+    &.type-toilets {
+      fill: #cce5ff;
+      stroke: #0d6efd;
+    }
+    &.type-stairs {
+      fill: #fff3cd;
+      stroke: #ffc107;
+    }
+    &.type-elevator {
+      fill: #f8d7da;
+      stroke: #dc3545;
+    }
+    &.type-exit {
+      fill: #d1ecf1;
+      stroke: #17a2b8;
+    }
+    &.type-parking {
+      fill: #e2e3e5;
+      stroke: #6c757d;
+    }
+  }
+  .special-space-icon {
+    font-size: 12px;
+    pointer-events: none;
+  }
+
+  .boutique {
+    &.status-libre {
+      fill: #d4edda;
+      stroke: #28a745;
+    }
+    &.status-temporaire, &.status-réservé {
+      fill: #fff3cd;
+      stroke: #ffc107;
+    }
+    &.status-occupee, &.status-occupé {
+      fill: #cce5ff;
+      stroke: #0d6efd;
+    }
+  }
+  .boutique.selected {
+    stroke: #0d6efd;
+    stroke-width: 2;
+  }
+  .boutique-label {
+    font-size: 10px;
+    fill: #212529;
+    pointer-events: none;
+  }
+
+  .route-line {
+    fill: none;
+    stroke: #0d6efd;
+    stroke-width: 2;
+    stroke-dasharray: 4 2;
+  }
+  .current-position {
+    fill: #dc3545;
+    stroke: #fff;
+    stroke-width: 1;
+  }
+}

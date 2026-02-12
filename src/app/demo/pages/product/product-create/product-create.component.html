@@ -1,4 +1,4 @@
-<div class="row">
+ <div class="row">
   <div class="col-sm-12">
     <app-card cardTitle="Nouveau produit" [options]="false">
       <div *ngIf="loadingBoutique" class="text-center py-3">Chargement...</div>
@@ -26,12 +26,12 @@
           <label class="form-label">Photo du produit (URL)</label>
           <input type="url" class="form-control" formControlName="photoUrl" placeholder="https://exemple.com/image.jpg">
           <small class="form-text text-muted">Entrez l'URL complète de l'image du produit</small>
-          
+
           <!-- Aperçu de l'image -->
           <div *ngIf="form.get('photoUrl')?.value" class="mt-2">
-            <img [src]="form.get('photoUrl')?.value" 
-                 alt="Aperçu" 
-                 class="img-thumbnail" 
+            <img [src]="form.get('photoUrl')?.value"
+                 alt="Aperçu"
+                 class="img-thumbnail"
                  style="max-width: 200px; max-height: 200px;"
                  (error)="onImageError()">
             <div *ngIf="imageError" class="text-danger mt-1">

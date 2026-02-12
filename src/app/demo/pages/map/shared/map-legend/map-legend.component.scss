@@ -1,0 +1,20 @@
+.map-legend {
+  .legend-swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    margin-right: 6px;
+    vertical-align: middle;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+  .status-libre { background: #d4edda; }
+  .status-temporaire { background: #fff3cd; }
+  .status-occupee { background: #cce5ff; }
+  .type-relax { background: #d4edda; }
+  .type-toilets { background: #cce5ff; }
+  .type-stairs { background: #fff3cd; }
+  .type-elevator { background: #f8d7da; }
+  .type-exit { background: #d1ecf1; }
+  .type-parking { background: #e2e3e5; }
+}
