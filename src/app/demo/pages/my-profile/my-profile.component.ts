@@ -174,7 +174,7 @@ export class MyProfileComponent implements OnInit {
 
   exportPDF(): void {
     this.exporting = true;
-    this.orderService.exportMyOrdersPDF().subscribe({
+    this.orderService.exportMyOrdersPDF(this.statusFilter || undefined).subscribe({
       next: (blob) => {
         this.downloadBlob(blob, `historique-achats-${Date.now()}.pdf`);
         this.exporting = false;
@@ -188,7 +188,7 @@ export class MyProfileComponent implements OnInit {
 
   exportExcel(): void {
     this.exporting = true;
-    this.orderService.exportMyOrdersExcel().subscribe({
+    this.orderService.exportMyOrdersExcel(this.statusFilter || undefined).subscribe({
       next: (blob) => {
         this.downloadBlob(blob, `historique-achats-${Date.now()}.xlsx`);
         this.exporting = false;
