@@ -1,17 +1,39 @@
-<header class="landing-header">
+<!-- ===== HEADER ===== -->
+<header class="landing-header" [class.scrolled]="isScrolled">
   <div class="landing-header-inner">
     <a routerLink="/landing" class="landing-logo" title="Accueil">
-      <img src="assets/images/logo-dark.png" alt="Smar'ket" class="logo-img">
+      <img src="assets/images/logo-icon.png" alt="Smar'ket" class="logo-icon">
       <span class="logo-text">Smar'ket</span>
     </a>
     <nav class="landing-nav">
       <ng-container *ngIf="!isLoggedIn">
-        <a routerLink="/auth/signin" class="btn btn-outline-primary btn-sm mr-2">Se connecter</a>
-        <a routerLink="/auth/signup" class="btn btn-outline-primary btn-sm mr-2">Créer un compte</a>
-        <a (click)="goToBoutique()" class="btn btn-outline-primary btn-sm" role="button">Boutique</a>
+        <a (click)="scrollTo('features')" class="nav-link-custom" role="button">Services</a>
+        <a (click)="scrollTo('steps')" class="nav-link-custom" role="button">Comment ça marche</a>
+        <div class="login-dropdown-wrap">
+          <a (click)="toggleLoginMenu($event)" class="nav-link-custom" role="button">
+            Se connecter
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="login-chevron" [class.open]="showLoginMenu"><polyline points="6 9 12 15 18 9"/></svg>
+          </a>
+          <div class="login-dropdown" *ngIf="showLoginMenu">
+            <a routerLink="/auth/signin" class="login-option">
+              <div class="login-option-icon login-option-icon-buyer"><i class="feather icon-shopping-cart"></i></div>
+              <div class="login-option-text">
+                <strong>Acheteur</strong>
+                <span>Acheter des produits</span>
+              </div>
+            </a>
+            <a routerLink="/auth/signin/boutique" class="login-option">
+              <div class="login-option-icon login-option-icon-shop"><i class="feather icon-home"></i></div>
+              <div class="login-option-text">
+                <strong>Boutique</strong>
+                <span>Gérer ma boutique</span>
+              </div>
+            </a>
+          </div>
+        </div>
+        <a routerLink="/auth/signup" class="btn-cta">Commencer</a>
       </ng-container>
       <div *ngIf="isLoggedIn" class="dropdown" ngbDropdown placement="bottom-right">
-        
         <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" alt="" class="landing-avatar">
         <img *ngIf="!currentUser?.avatar" src="assets/images/default-avatar.png" alt="" class="landing-avatar">
         <button class="btn btn-link dropdown-toggle landing-user-btn" ngbDropdownToggle type="button">
@@ -25,15 +47,170 @@
     </nav>
   </div>
 </header>
-<main class="landing-main">
-  <div class="landing-content text-center p-5">
-    <h1 class="mb-3">Centre Commercial</h1>
-    <p class="lead mb-4">Bienvenue. Connectez-vous ou créez un compte pour accéder à l'application.</p>
-    <ng-container *ngIf="!isLoggedIn">
-      <p class="text-muted small">Se connecter, créer un compte ou accéder à la boutique (connexion requise).</p>
-    </ng-container>
-    <ng-container *ngIf="isLoggedIn">
-      <a [routerLink]="['/home']" class="btn btn-primary btn-lg">Accéder à l'application</a>
-    </ng-container>
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero-section">
+  <div class="hero-decoration hero-deco-1"></div>
+  <div class="hero-decoration hero-deco-2"></div>
+  <div class="hero-decoration hero-deco-3"></div>
+
+  <div class="hero-content" [class.visible]="heroVisible">
+    <div class="hero-tag">
+      <span class="tag-icon">&#10022;</span>
+      Centre commercial en ligne
+    </div>
+    <h1 class="hero-title">
+      Votre galerie marchande<br>
+      <em>digitale</em> au bout des doigts
+    </h1>
+    <p class="hero-desc">
+      Des centaines de boutiques, des milliers de produits. Achetez, vendez et gérez votre espace commercial depuis une seule plateforme.
+    </p>
+    <div class="hero-buttons">
+      <ng-container *ngIf="!isLoggedIn">
+        <a routerLink="/auth/signup" class="btn-primary-cta">
+          Commencer maintenant
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a routerLink="/auth/signin" class="btn-secondary-cta">Se connecter</a>
+      </ng-container>
+      <ng-container *ngIf="isLoggedIn">
+        <a [routerLink]="['/home']" class="btn-primary-cta">
+          Accéder à l'application
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </ng-container>
+    </div>
   </div>
-</main>
+
+  <!-- Stats -->
+  <div class="hero-stats-row" [class.visible]="heroVisible">
+    <div class="stat-card" *ngFor="let stat of stats; let i = index" [style.animation-delay]="(0.4 + i * 0.15) + 's'">
+      <span class="stat-value">{{ stat.value }}</span>
+      <span class="stat-label">{{ stat.label }}</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES SECTION ===== -->
+<section class="features-section" id="features">
+  <div class="section-container">
+    <div class="section-header" [class.visible]="featuresVisible">
+      <span class="section-tag">Nos services</span>
+      <h2 class="section-title">Tout ce dont vous avez besoin,<br><em>en un seul endroit</em></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let feature of features; let i = index"
+           [class.visible]="featuresVisible"
+           [style.animation-delay]="(i * 0.12) + 's'">
+        <div class="feature-icon-wrap" [style.background]="feature.bg">
+          <i [class]="feature.icon"></i>
+        </div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-desc">{{ feature.desc }}</p>
+        <span class="feature-arrow">&#8594;</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="steps-section" id="steps">
+  <div class="section-container">
+    <div class="section-header" [class.visible]="stepsVisible">
+      <span class="section-tag">Simple & rapide</span>
+      <h2 class="section-title">Comment ça marche ?</h2>
+    </div>
+    <div class="steps-timeline">
+      <div class="step-item" *ngFor="let step of steps; let i = index; let last = last"
+           [class.visible]="stepsVisible"
+           [style.animation-delay]="(i * 0.18) + 's'">
+        <div class="step-marker">
+          <span class="step-num">{{ step.num }}</span>
+          <div class="step-line" *ngIf="!last"></div>
+        </div>
+        <div class="step-body">
+          <h3 class="step-title">{{ step.title }}</h3>
+          <p class="step-desc">{{ step.desc }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS / TRUST ===== -->
+<section class="trust-section" [class.visible]="trustVisible">
+  <div class="section-container">
+    <div class="trust-grid">
+      <div class="trust-text">
+        <span class="section-tag">Ils nous font confiance</span>
+        <h2 class="section-title"><em>Smar'ket</em>, la plateforme qui connecte vendeurs et acheteurs</h2>
+        <p class="trust-desc">Rejoignez une communauté grandissante de commerçants et d'acheteurs qui utilisent Smar'ket au quotidien.</p>
+        <a *ngIf="!isLoggedIn" routerLink="/auth/signup" class="btn-primary-cta">
+          Rejoindre la communauté
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a *ngIf="isLoggedIn" [routerLink]="['/home']" class="btn-primary-cta">
+          Accéder au tableau de bord
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+      <div class="trust-cards">
+        <div class="trust-card trust-card-1">
+          <div class="trust-card-icon"><i class="feather icon-shopping-cart"></i></div>
+          <h4>Acheteurs</h4>
+          <p>Trouvez tout ce dont vous avez besoin parmi nos boutiques partenaires.</p>
+        </div>
+        <div class="trust-card trust-card-2">
+          <div class="trust-card-icon"><i class="feather icon-home"></i></div>
+          <h4>Vendeurs</h4>
+          <p>Ouvrez votre boutique et gérez vos produits en toute simplicité.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA SECTION ===== -->
+<section class="cta-section" [class.visible]="ctaVisible">
+  <div class="cta-inner">
+    <img src="assets/images/logo-icon.png" alt="" class="cta-logo">
+    <h2 class="cta-title">Prêt à rejoindre<br><em>Smar'ket</em> ?</h2>
+    <p class="cta-desc">Créez votre compte gratuitement et commencez à explorer nos boutiques dès maintenant.</p>
+    <div class="cta-buttons">
+      <ng-container *ngIf="!isLoggedIn">
+        <a routerLink="/auth/signup" class="btn-cta-white">
+          Créer mon compte
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a (click)="goToBoutique()" class="btn-cta-outline-white" role="button">Ouvrir une boutique</a>
+      </ng-container>
+      <ng-container *ngIf="isLoggedIn">
+        <a [routerLink]="['/home']" class="btn-cta-white">
+          Accéder au tableau de bord
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </ng-container>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="landing-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="assets/images/logo-icon.png" alt="" class="footer-logo-img">
+        <span class="footer-brand-name">Smar'ket</span>
+      </div>
+      <div class="footer-links">
+        <a routerLink="/auth/signin">Se connecter</a>
+        <a routerLink="/auth/signup">Créer un compte</a>
+        <a (click)="goToBoutique()" role="button">Ouvrir une boutique</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; {{ currentYear }} Smar'ket. Tous droits réservés.</p>
+    </div>
+  </div>
+</footer>
