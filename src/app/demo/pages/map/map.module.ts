@@ -21,6 +21,10 @@ import { MapLegendComponent } from './shared/map-legend/map-legend.component';
     CommonModule,
     MapRoutingModule,
     SharedModule
+  ],
+  exports: [
+    MapSvgComponent,
+    MapLegendComponent
   ]
 })
 export class MapModule {}

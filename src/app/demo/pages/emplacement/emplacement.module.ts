@@ -8,6 +8,7 @@ import { EmplacementAvailableComponent } from './emplacement-available/emplaceme
 import { MyReservationComponent } from './my-reservation/my-reservation.component';
 import { PendingReservationsComponent } from './pending-reservations/pending-reservations.component';
 import { SharedModule } from '../../../theme/shared/shared.module';
+import { MapModule } from '../map/map.module';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { SharedModule } from '../../../theme/shared/shared.module';
     RouterModule,
     FormsModule,
     SharedModule,
+    MapModule,
     EmplacementRoutingModule
   ]
 })

@@ -95,13 +95,16 @@ export class BoutiqueService {
     );
   }
 
-  getAll(params?: { category?: string; status?: string; search?: string; page?: number; limit?: number }): Observable<{ success: boolean; data: { boutiques: any[]; pagination: any } }> {
+  getAll(params?: { category?: string; status?: string; search?: string; floor?: number; floorId?: string; zone?: string; page?: number; limit?: number }): Observable<{ success: boolean; data: { boutiques: any[]; pagination: any } }> {
     let query = '';
     if (params) {
       const q = new URLSearchParams();
       if (params.category) q.set('category', params.category);
       if (params.status) q.set('status', params.status);
       if (params.search && params.search.trim()) q.set('search', params.search.trim());
+      if (params.floor != null) q.set('floor', String(params.floor));
+      if (params.floorId) q.set('floorId', params.floorId);
+      if (params.zone) q.set('zone', params.zone);
       if (params.page != null) q.set('page', String(params.page));
       if (params.limit != null) q.set('limit', String(params.limit));
       query = '?' + q.toString();
@@ -147,11 +150,12 @@ export class BoutiqueService {
 
   // ==================== EMPLACEMENTS ====================
 
-  getAvailableEmplacements(params?: { floor?: number; zone?: string; minPrice?: number; maxPrice?: number; minSurface?: number }): Observable<{ success: boolean; count: number; data: { boutiques: any[] } }> {
+  getAvailableEmplacements(params?: { floor?: number; floorId?: string; zone?: string; minPrice?: number; maxPrice?: number; minSurface?: number }): Observable<{ success: boolean; count: number; data: { boutiques: any[] } }> {
     let query = '';
     if (params) {
       const q = new URLSearchParams();
       if (params.floor != null) q.set('floor', String(params.floor));
+      if (params.floorId) q.set('floorId', params.floorId);
       if (params.zone) q.set('zone', params.zone);
       if (params.minPrice != null) q.set('minPrice', String(params.minPrice));
       if (params.maxPrice != null) q.set('maxPrice', String(params.maxPrice));

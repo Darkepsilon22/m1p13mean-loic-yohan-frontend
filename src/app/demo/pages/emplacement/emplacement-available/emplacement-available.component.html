@@ -1,8 +1,25 @@
 <div class="row">
   <div class="col-sm-12">
     <app-card cardTitle="Emplacements disponibles" [options]="false">
-      <!-- Filtres -->
-      <div class="row mb-4">
+      <!-- Choix vue : Liste | Vue plan (modélisation) -->
+      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+        <span class="mr-2">Vue :</span>
+        <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode === 'list'" [class.btn-outline-secondary]="viewMode !== 'list'" (click)="setViewMode('list')">
+          <i class="feather icon-list mr-1"></i> Liste
+        </button>
+        <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode === 'plan'" [class.btn-outline-secondary]="viewMode !== 'plan'" (click)="setViewMode('plan')">
+          <i class="feather icon-map mr-1"></i> Vue plan
+        </button>
+        <ng-container *ngIf="viewMode === 'plan' && floors.length">
+          <label class="mb-0 ml-2">Étage :</label>
+          <select class="form-control form-control-sm" style="width: auto;" [value]="selectedFloorId" (change)="onPlanFloorChange($any($event.target).value)">
+            <option *ngFor="let f of floors" [value]="f._id">{{ f.name }}</option>
+          </select>
+        </ng-container>
+      </div>
+
+      <!-- Filtres (visibles en vue liste) -->
+      <div class="row mb-4" *ngIf="viewMode === 'list'">
         <div class="col-md-3 form-group">
           <label>Étage</label>
           <select class="form-control" [(ngModel)]="filterFloor" (ngModelChange)="onFilterChange()">
@@ -29,7 +46,7 @@
           <button class="btn btn-outline-secondary btn-block" (click)="clearFilters()">Réinitialiser</button>
         </div>
       </div>
-      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+      <div class="mb-3 d-flex flex-wrap align-items-center gap-2" *ngIf="viewMode === 'list'">
         <input type="text" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Recherche par nom..."
                [(ngModel)]="searchName">
         <span class="text-muted small">Afficher :</span>
@@ -38,27 +55,64 @@
         </select>
       </div>
 
+      <!-- Vue plan : carte des emplacements disponibles sur l'étage -->
+      <div *ngIf="viewMode === 'plan'" class="row mt-2">
+        <div class="col-lg-8">
+          <div *ngIf="mapLoading" class="text-center py-5">Chargement du plan...</div>
+          <div *ngIf="!mapLoading && mapData" class="map-container">
+            <app-map-svg
+              [floor]="mapData.floor"
+              [zones]="mapData.zones"
+              [boutiques]="mapData.boutiques"
+              [specialSpaces]="mapData.specialSpaces"
+              [isEditMode]="false"
+              [selectedBoutiqueId]="selectedEmplacement?._id"
+              (boutiqueClick)="onBoutiqueClickFromMap($event)"
+              (zoneClick)="noop()"
+              (specialSpaceClick)="noop()">
+            </app-map-svg>
+          </div>
+          <div *ngIf="!mapLoading && selectedFloorId && !mapData && floors.length" class="text-center py-4 text-muted">
+            Aucune donnée de plan pour cet étage.
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div *ngIf="selectedEmplacement" class="card mb-3">
+            <div class="card-header py-2">Emplacement sélectionné</div>
+            <div class="card-body py-2 small">
+              <p class="mb-1"><strong>{{ selectedEmplacement.name }}</strong></p>
+              <p class="mb-1" *ngIf="selectedEmplacement.surface">{{ selectedEmplacement.surface }} m²</p>
+              <p class="mb-1" *ngIf="selectedEmplacement.price">{{ formatPrice(selectedEmplacement.price) }}</p>
+              <button class="btn btn-primary btn-block btn-sm" (click)="reserveModal.show()">
+                <i class="feather icon-bookmark mr-1"></i> Réserver
+              </button>
+            </div>
+          </div>
+          <p *ngIf="viewMode === 'plan' && !selectedEmplacement" class="text-muted small">Cliquez sur un emplacement sur le plan pour le réserver.</p>
+        </div>
+      </div>
+
       <!-- Erreur -->
       <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
-      <!-- Chargement -->
-      <div *ngIf="loading" class="text-center py-4">
+      <!-- Chargement (vue liste) -->
+      <div *ngIf="loading && viewMode === 'list'" class="text-center py-4">
         <div class="spinner-border text-primary" role="status">
           <span class="sr-only">Chargement...</span>
         </div>
       </div>
 
       <!-- Aucun résultat -->
-      <div *ngIf="!loading && emplacements.length === 0" class="text-center py-4 text-muted">
+      <div *ngIf="!loading && viewMode === 'list' && emplacements.length === 0" class="text-center py-4 text-muted">
         <i class="feather icon-map-pin" style="font-size: 3rem;"></i>
         <p class="mt-3">Aucun emplacement disponible pour le moment.</p>
       </div>
 
       <!-- Liste des emplacements -->
-      <div *ngIf="!loading && emplacements.length > 0 && filteredEmplacements.length === 0" class="text-center py-3 text-muted">
+      <div *ngIf="viewMode === 'list' && !loading && emplacements.length > 0 && filteredEmplacements.length === 0" class="text-center py-3 text-muted">
         Aucun résultat pour cette recherche.
       </div>
-      <div *ngIf="!loading && paginatedEmplacements.length > 0" class="row">
+      <div *ngIf="viewMode === 'list' && !loading && paginatedEmplacements.length > 0" class="row">
         <div class="col-md-6 col-lg-4" *ngFor="let emp of paginatedEmplacements">
           <div class="card border mb-3">
             <div class="card-body">
@@ -92,7 +146,7 @@
         </div>
       </div>
 
-      <div *ngIf="!loading && filteredEmplacements.length > 0" class="d-flex justify-content-between align-items-center mt-3">
+      <div *ngIf="viewMode === 'list' && !loading && filteredEmplacements.length > 0" class="d-flex justify-content-between align-items-center mt-3">
         <span class="text-muted">Page {{ currentPage }} / {{ totalEmplacementPages }} ({{ filteredEmplacements.length }} emplacement(s))</span>
         <div>
           <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">Précédent</button>

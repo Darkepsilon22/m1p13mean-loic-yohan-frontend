@@ -24,6 +24,7 @@
             [zones]="data.zones"
             [boutiques]="data.boutiques"
             [specialSpaces]="data.specialSpaces"
+            [isEditMode]="false"
             [selectedBoutiqueId]="selectedBoutique?._id"
             [selectedZoneId]="selectedZone?._id"
             (boutiqueClick)="onBoutiqueClick($event)"
@@ -36,10 +37,26 @@
         <div *ngIf="selectedBoutique" class="card mb-3">
           <div class="card-header py-2">Boutique / Emplacement</div>
           <div class="card-body py-2 small">
-            <p class="mb-1"><strong>{{ selectedBoutique.name || selectedBoutique.location?.number || '—' }}</strong></p>
-            <p class="mb-1">Surface : {{ selectedBoutique.surface != null ? selectedBoutique.surface + ' m²' : '—' }}</p>
-            <p class="mb-1">Prix : {{ selectedBoutique.price != null ? (selectedBoutique.price | number:'1.0-0') + ' Ar' : '—' }}</p>
-            <p class="mb-0">Statut : <span class="badge" [ngClass]="'status-' + selectedBoutique.emplacementStatus">{{ getStatusLabel(selectedBoutique.emplacementStatus) }}</span></p>
+            <div *ngIf="loadingBoutiqueDetails" class="text-muted">Chargement des détails...</div>
+            <ng-container *ngIf="!loadingBoutiqueDetails">
+              <p class="mb-1"><strong>{{ selectedBoutiqueDetails?.name || selectedBoutique.name || selectedBoutique.location?.number || '—' }}</strong></p>
+              <p class="mb-1">Surface : {{ (selectedBoutiqueDetails?.surface ?? selectedBoutique.surface) != null ? (selectedBoutiqueDetails?.surface ?? selectedBoutique.surface) + ' m²' : '—' }}</p>
+              <p class="mb-1">Prix : {{ (selectedBoutiqueDetails?.price ?? selectedBoutique.price) != null ? ((selectedBoutiqueDetails?.price ?? selectedBoutique.price) | number:'1.0-0') + ' Ar' : '—' }}</p>
+              <p class="mb-1">Statut : <span class="badge" [ngClass]="'status-' + (selectedBoutiqueDetails?.emplacementStatus ?? selectedBoutique.emplacementStatus)">{{ getStatusLabel(selectedBoutiqueDetails?.emplacementStatus ?? selectedBoutique.emplacementStatus) }}</span></p>
+              <p *ngIf="selectedBoutiqueDetails?.categoryId?.name" class="mb-1">Catégorie : {{ selectedBoutiqueDetails.categoryId.name }}</p>
+              <p *ngIf="selectedBoutiqueDetails?.contact?.email" class="mb-1">Contact : {{ selectedBoutiqueDetails.contact.email }}</p>
+              <p *ngIf="selectedBoutiqueDetails?.contact?.phone" class="mb-1">Tél. : {{ selectedBoutiqueDetails.contact.phone }}</p>
+              <p *ngIf="selectedBoutiqueDetails?.description" class="mb-2 text-muted">{{ selectedBoutiqueDetails.description }}</p>
+              <!-- Réserver un emplacement libre (rôle Boutique) -->
+              <div *ngIf="isSelectedEmplacementLibre" class="mt-2 pt-2 border-top">
+                <p class="mb-2 text-muted small">Cet emplacement est disponible. Vous pouvez le réserver (réservation temporaire 15 min).</p>
+                <div *ngIf="reserveError" class="alert alert-danger py-1 px-2 small">{{ reserveError }}</div>
+                <div *ngIf="reserveSuccess" class="alert alert-success py-1 px-2 small">{{ reserveSuccess }}</div>
+                <button type="button" class="btn btn-primary btn-block btn-sm" (click)="reserveSelectedEmplacement()" [disabled]="reserveLoading || reserveSuccess">
+                  <i class="feather icon-bookmark mr-1"></i>{{ reserveLoading ? 'Réservation...' : 'Réserver cet emplacement' }}
+                </button>
+              </div>
+            </ng-container>
           </div>
         </div>
         <div *ngIf="selectedZone" class="card mb-3">
@@ -49,7 +66,14 @@
             <p class="mb-0">Surface totale : {{ selectedZone.surfaceTotal }} m²</p>
           </div>
         </div>
-        <app-map-legend *ngIf="!selectedBoutique && !selectedZone"></app-map-legend>
+        <div *ngIf="selectedSpecialSpace" class="card mb-3">
+          <div class="card-header py-2">Espace spécial</div>
+          <div class="card-body py-2 small">
+            <p class="mb-1"><strong>{{ getSpecialSpaceTypeLabel(selectedSpecialSpace.type) }}</strong></p>
+            <p *ngIf="selectedSpecialSpace.name" class="mb-0">{{ selectedSpecialSpace.name }}</p>
+          </div>
+        </div>
+        <app-map-legend *ngIf="!selectedBoutique && !selectedZone && !selectedSpecialSpace"></app-map-legend>
       </div>
     </div>
   </app-card>

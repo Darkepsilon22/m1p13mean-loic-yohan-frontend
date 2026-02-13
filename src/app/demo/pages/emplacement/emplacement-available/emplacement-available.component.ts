@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { BoutiqueService } from '../../../../core/services/boutique.service';
+import { FloorService, Floor } from '../../../../core/services/floor.service';
+import { MapService, FloorMapData } from '../../../../core/services/map.service';
 import { ApiErrorBody } from '../../../../core/services/auth.service';
 import { UiModalComponent } from '../../../../theme/shared/components/modal/ui-modal/ui-modal.component';
 
@@ -16,6 +18,13 @@ export class EmplacementAvailableComponent implements OnInit {
   emplacements: any[] = [];
   loading = false;
   errorMessage = '';
+
+  // Vue Liste | Vue Plan (modélisation)
+  viewMode: 'list' | 'plan' = 'list';
+  floors: Floor[] = [];
+  selectedFloorId: string | null = null;
+  mapData: FloorMapData | null = null;
+  mapLoading = false;
 
   // Filtres
   filterFloor: number | null = null;
@@ -37,11 +46,23 @@ export class EmplacementAvailableComponent implements OnInit {
 
   constructor(
     private boutiqueService: BoutiqueService,
+    private floorService: FloorService,
+    private mapService: MapService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadEmplacements();
+    this.floorService.getAll().subscribe({
+      next: (res) => {
+        this.floors = res.data || [];
+        if (this.viewMode === 'plan' && this.floors.length && !this.selectedFloorId) {
+          this.selectedFloorId = this.floors[0]._id;
+          this.loadPlanForFloor();
+        }
+      },
+      error: () => {}
+    });
   }
 
   loadEmplacements(): void {
@@ -49,8 +70,12 @@ export class EmplacementAvailableComponent implements OnInit {
     this.errorMessage = '';
 
     const params: any = {};
-    if (this.filterFloor != null) params.floor = this.filterFloor;
-    if (this.filterZone) params.zone = this.filterZone;
+    if (this.viewMode === 'plan' && this.selectedFloorId) {
+      params.floorId = this.selectedFloorId;
+    } else {
+      if (this.filterFloor != null) params.floor = this.filterFloor;
+      if (this.filterZone) params.zone = this.filterZone;
+    }
     if (this.filterMinPrice != null) params.minPrice = this.filterMinPrice;
     if (this.filterMaxPrice != null) params.maxPrice = this.filterMaxPrice;
 
@@ -58,6 +83,7 @@ export class EmplacementAvailableComponent implements OnInit {
       next: (res) => {
         this.loading = false;
         this.emplacements = res.data?.boutiques ?? [];
+        if (this.viewMode === 'plan' && this.selectedFloorId) this.loadPlanForFloor();
       },
       error: (err: ApiErrorBody) => {
         this.loading = false;
@@ -65,6 +91,47 @@ export class EmplacementAvailableComponent implements OnInit {
       }
     });
   }
+
+  setViewMode(mode: 'list' | 'plan'): void {
+    this.viewMode = mode;
+    if (mode === 'plan' && this.floors.length && !this.selectedFloorId) this.selectedFloorId = this.floors[0]._id;
+    if (mode === 'plan' && this.selectedFloorId) this.loadEmplacements();
+  }
+
+  onPlanFloorChange(floorId: string): void {
+    this.selectedFloorId = floorId;
+    this.loadEmplacements();
+  }
+
+  loadPlanForFloor(): void {
+    if (!this.selectedFloorId) return;
+    this.mapLoading = true;
+    this.mapData = null;
+    this.mapService.getFloorMap(this.selectedFloorId).subscribe({
+      next: (res) => {
+        const data = res.data;
+        this.mapData = {
+          floor: data.floor,
+          zones: data.zones,
+          specialSpaces: data.specialSpaces,
+          boutiques: this.emplacements
+        };
+        this.mapLoading = false;
+      },
+      error: () => {
+        this.mapLoading = false;
+      }
+    });
+  }
+
+  onBoutiqueClickFromMap(b: any): void {
+    this.selectedEmplacement = b;
+    this.reserveError = '';
+    this.reserveSuccess = '';
+    this.reserveModal.show();
+  }
+
+  noop(): void {}
 
   onFilterChange(): void {
     this.loadEmplacements();

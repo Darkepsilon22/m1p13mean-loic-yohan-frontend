@@ -74,6 +74,25 @@
               </tr>
             </table>
 
+            <!-- Plan (modélisation) : emplacement réservé sur le plan -->
+            <div class="mt-4" *ngIf="boutique?.floorId">
+              <h5 class="mb-2">Votre emplacement sur le plan</h5>
+              <div *ngIf="mapLoading" class="text-muted small">Chargement du plan...</div>
+              <div *ngIf="!mapLoading && mapData" class="map-container-reservation">
+                <app-map-svg
+                  [floor]="mapData.floor"
+                  [zones]="mapData.zones"
+                  [boutiques]="mapData.boutiques"
+                  [specialSpaces]="mapData.specialSpaces"
+                  [isEditMode]="false"
+                  [selectedBoutiqueId]="boutique?._id"
+                  (zoneClick)="noop()"
+                  (boutiqueClick)="noop()"
+                  (specialSpaceClick)="noop()">
+                </app-map-svg>
+              </div>
+            </div>
+
             <!-- Actions selon le statut -->
             <div class="mt-3" *ngIf="reservation.status === 'temporaire'">
               <div class="alert alert-warning">
@@ -104,13 +123,18 @@
                 <i class="feather icon-check-circle mr-1"></i>
                 <strong>Félicitations!</strong> Votre réservation a été confirmée. Cet emplacement vous est attribué.
               </div>
-              
+              <div class="alert alert-info mb-2">
+                <i class="feather icon-file-text mr-1"></i>
+                <strong>Contrat :</strong> L'administration peut vous envoyer un contrat de location. Accédez à <a routerLink="/emplacement/my-contract" class="font-weight-bold">Mon contrat</a> pour le signer et régler le dépôt de garantie.
+              </div>
               <div class="alert alert-warning">
                 <i class="feather icon-info mr-1"></i>
                 <strong>Important:</strong> Vous pouvez annuler votre réservation à tout moment. L'emplacement redeviendra alors disponible pour d'autres utilisateurs.
               </div>
-              
               <div class="btn-group">
+                <a routerLink="/emplacement/my-contract" class="btn btn-outline-primary">
+                  <i class="feather icon-file-text mr-1"></i> Mon contrat
+                </a>
                 <button class="btn btn-primary" (click)="goToEditBoutique()">
                   <i class="feather icon-edit mr-1"></i> Modifier ma boutique
                 </button>

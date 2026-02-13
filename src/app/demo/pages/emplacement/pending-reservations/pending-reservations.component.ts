@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { BoutiqueService } from '../../../../core/services/boutique.service';
 import { ApiErrorBody } from '../../../../core/services/auth.service';
 import { UiModalComponent } from '../../../../theme/shared/components/modal/ui-modal/ui-modal.component';
@@ -37,9 +38,15 @@ export class PendingReservationsComponent implements OnInit, OnDestroy {
   rejectionReason = '';
   rejectionReasonError = '';
 
+  /** Après validation : infos pour créer le contrat (lien Admin) */
+  lastValidatedForContract: { boutiqueId: string; tenantId: string; reservationId: string } | null = null;
+
   private refreshInterval: any;
 
-  constructor(private boutiqueService: BoutiqueService) {}
+  constructor(
+    private boutiqueService: BoutiqueService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadPendingReservations();
@@ -142,6 +149,20 @@ export class PendingReservationsComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Rediriger vers la création de contrat (pré-rempli depuis la réservation validée) */
+  goToCreateContract(): void {
+    if (!this.lastValidatedForContract) return;
+    this.router.navigate(['/admin-contracts'], {
+      queryParams: {
+        boutiqueId: this.lastValidatedForContract.boutiqueId,
+        tenantId: this.lastValidatedForContract.tenantId,
+        reservationId: this.lastValidatedForContract.reservationId
+      }
+    });
+    this.lastValidatedForContract = null;
+    this.successMessage = '';
+  }
+
   /**
    * Confirmer la validation
    */
@@ -159,8 +180,11 @@ export class PendingReservationsComponent implements OnInit, OnDestroy {
         this.modalLoading = false;
         this.modalSuccess = 'Réservation validée avec succès !';
         this.successMessage = `La réservation de ${this.getUserName(this.selectedReservation.user)} pour ${this.selectedReservation.boutique.name} a été validée.`;
-        
-        console.log('Validation réussie:', res);
+        this.lastValidatedForContract = {
+          boutiqueId: this.selectedReservation.boutique._id,
+          tenantId: this.selectedReservation.user?._id || this.selectedReservation.user,
+          reservationId: this.selectedReservation._id
+        };
 
         setTimeout(() => {
           this.closeValidateModal();

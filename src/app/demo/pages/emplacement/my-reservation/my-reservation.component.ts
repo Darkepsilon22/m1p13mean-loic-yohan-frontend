@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { BoutiqueService } from '../../../../core/services/boutique.service';
+import { MapService, FloorMapData } from '../../../../core/services/map.service';
 import { ApiErrorBody } from '../../../../core/services/auth.service';
 import { UiModalComponent } from '../../../../theme/shared/components/modal/ui-modal/ui-modal.component';
 
@@ -35,10 +36,15 @@ export class MyReservationComponent implements OnInit, OnDestroy {
   // Nouveau: motif de résiliation pour réservation confirmée
   cancellationReason = '';
 
+  // Plan (modélisation) : afficher l'emplacement réservé sur le plan
+  mapData: FloorMapData | null = null;
+  mapLoading = false;
+
   private countdownInterval: any;
 
   constructor(
     private boutiqueService: BoutiqueService,
+    private mapService: MapService,
     private router: Router
   ) {}
 
@@ -75,6 +81,7 @@ export class MyReservationComponent implements OnInit, OnDestroy {
             this.boutique = res.data.boutique;
             console.log('Réservation trouvée:', this.reservation);
             console.log('Boutique:', this.boutique);
+            if (this.boutique?.floorId) this.loadPlanForReservedBoutique();
           }
         } else {
           this.reservation = null;
@@ -86,6 +93,27 @@ export class MyReservationComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.errorMessage = err.message || 'Erreur lors du chargement.';
         console.error('Erreur:', err);
+      }
+    });
+  }
+
+  loadPlanForReservedBoutique(): void {
+    if (!this.boutique?.floorId) return;
+    this.mapLoading = true;
+    this.mapData = null;
+    this.mapService.getFloorMap(this.boutique.floorId).subscribe({
+      next: (res) => {
+        const data = res.data;
+        this.mapData = {
+          floor: data.floor,
+          zones: data.zones,
+          specialSpaces: data.specialSpaces,
+          boutiques: [this.boutique]
+        };
+        this.mapLoading = false;
+      },
+      error: () => {
+        this.mapLoading = false;
       }
     });
   }
@@ -334,6 +362,8 @@ export class MyReservationComponent implements OnInit, OnDestroy {
     };
     return classes[status] || 'badge-secondary';
   }
+
+  noop(): void {}
 
   getRemainingTime(): string {
     if (!this.reservation?.expiresAt) return '';
