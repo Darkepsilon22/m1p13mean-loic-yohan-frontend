@@ -354,6 +354,7 @@ export class MapEditorComponent implements OnInit {
       }
       const zone = this.data?.zones?.find(z => z._id === this.selectedZone!._id);
       if (!zone) return;
+      const floorOrder = this.floorId ? (this.floors.find(f => f._id === this.floorId)?.order ?? 0) : 0;
       this.savingBoutique = true;
       this.errorMessage = '';
       this.boutiqueService.create({
@@ -362,7 +363,7 @@ export class MapEditorComponent implements OnInit {
         categoryId: val.categoryId,
         logo: '',
         contact: { phone: '', email: '' },
-        location: { zone: zone.name, number: `Z-${zone.name}-${Date.now().toString(36).slice(-4)}` },
+        location: { floor: floorOrder, zone: zone.name, number: `Z-${zone.name}-${Date.now().toString(36).slice(-4)}` },
         userId: null as any,
         zoneId: this.selectedZone._id,
         floorId: this.floorId,

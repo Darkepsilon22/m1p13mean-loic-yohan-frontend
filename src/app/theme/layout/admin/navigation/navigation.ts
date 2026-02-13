@@ -153,24 +153,6 @@ const AdminNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/map/floors',
         icon: 'feather icon-edit-2'
-    id: 'admin-contracts',
-    title: 'Contrats & Factures',
-    type: 'group',
-    icon: 'feather icon-file-text',
-    children: [
-      {
-        id: 'contract-list',
-        title: 'Contrats',
-        type: 'item',
-        url: '/admin-contracts',
-        icon: 'feather icon-file-text'
-      },
-      {
-        id: 'invoice-list',
-        title: 'Factures',
-        type: 'item',
-        url: '/admin-invoices',
-        icon: 'feather icon-credit-card'
       }
     ]
   },
@@ -298,6 +280,13 @@ const BoutiqueNavigationItems: NavigationItem[] = [
     type: 'group',
     icon: 'feather icon-map-pin',
     children: [
+      {
+        id: 'plan-centre',
+        title: 'Plan du centre',
+        type: 'item',
+        url: '/map/view',
+        icon: 'feather icon-map'
+      },
       {
         id: 'emplacements-available',
         title: 'Emplacements disponibles',

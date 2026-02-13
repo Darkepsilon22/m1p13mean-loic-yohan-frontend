@@ -1,11 +1,20 @@
-<svg
-  *ngIf="floor"
-  #mapSvg
-  [attr.viewBox]="viewBox"
-  class="map-svg"
-  preserveAspectRatio="xMidYMid meet"
-  (click)="$event.stopPropagation()">
-  <!-- Zones -->
+<div *ngIf="floor" class="map-svg-wrapper" [style.aspect-ratio]="floor.width + ' / ' + floor.height">
+  <svg
+    #mapSvg
+    [attr.viewBox]="viewBox"
+    class="map-svg"
+    preserveAspectRatio="xMidYMid meet"
+    (click)="$event.stopPropagation()">
+    <!-- Limite du plan (étage) : délimitation exacte du drag & drop -->
+    <rect
+      class="floor-boundary"
+      [attr.x]="0"
+      [attr.y]="0"
+      [attr.width]="floor.width"
+      [attr.height]="floor.height"
+      fill="none"
+      stroke="currentColor" />
+    <!-- Zones -->
   <g id="zones">
     <g *ngFor="let z of zones">
       <rect
@@ -99,4 +108,5 @@
       r="4"
       class="current-position" />
   </g>
-</svg>
+  </svg>
+</div>

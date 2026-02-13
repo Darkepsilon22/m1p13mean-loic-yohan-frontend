@@ -29,8 +29,7 @@ export class FloorListComponent implements OnInit {
     this.createForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
       width: [100, [Validators.required, Validators.min(10)]],
-      height: [100, [Validators.required, Validators.min(10)]],
-      order: [0, [Validators.min(0)]]
+      height: [100, [Validators.required, Validators.min(10)]]
     });
     this.editForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -87,11 +86,15 @@ export class FloorListComponent implements OnInit {
     if (this.createForm.invalid || this.creating) return;
     this.creating = true;
     this.errorMessage = '';
-    this.floorService.create(this.createForm.value).subscribe({
+    const body = {
+      ...this.createForm.value,
+      order: this.floors.length
+    };
+    this.floorService.create(body).subscribe({
       next: (res) => {
         this.creating = false;
         this.showCreateForm = false;
-        this.createForm.reset({ name: '', width: 100, height: 100, order: 0 });
+        this.createForm.reset({ name: '', width: 100, height: 100 });
         this.loadFloors();
         if (res.data) this.goToEditor(res.data._id);
       },

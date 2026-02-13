@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ContractService } from '../../../core/services/contract.service';
 import { BoutiqueService } from '../../../core/services/boutique.service';
 import { AuthService, ApiErrorBody } from '../../../core/services/auth.service';
@@ -26,6 +27,7 @@ export class AdminContractsComponent implements OnInit {
   newContract: any = {
     boutiqueId: '',
     tenantId: '',
+    reservationId: '' as string | undefined,
     monthlyRent: 0,
     deposit: 0,
     startDate: '',
@@ -75,11 +77,28 @@ export class AdminContractsComponent implements OnInit {
   constructor(
     private contractService: ContractService,
     private boutiqueService: BoutiqueService,
-    private authService: AuthService
+    private authService: AuthService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
     this.loadContracts();
+    const q = this.route.snapshot.queryParamMap;
+    const boutiqueId = q.get('boutiqueId');
+    const tenantId = q.get('tenantId');
+    const reservationId = q.get('reservationId');
+    if (boutiqueId && tenantId) {
+      this.newContract.boutiqueId = boutiqueId;
+      this.newContract.tenantId = tenantId;
+      if (reservationId) this.newContract.reservationId = reservationId;
+      const today = new Date();
+      this.newContract.startDate = today.toISOString().slice(0, 10);
+      const end = new Date(today);
+      end.setFullYear(end.getFullYear() + 1);
+      this.newContract.endDate = end.toISOString().slice(0, 10);
+      this.showCreateForm = true;
+      this.loadDropdownData();
+    }
   }
 
   loadContracts(): void {
@@ -287,6 +306,10 @@ export class AdminContractsComponent implements OnInit {
     this.boutiqueService.getAll({ limit: 100 }).subscribe({
       next: (res: any) => {
         this.boutiques = res.data.boutiques || [];
+        if (this.newContract.boutiqueId) {
+          const b = this.boutiques.find((x: any) => x._id === this.newContract.boutiqueId);
+          if (b) this.newContract.monthlyRent = b.price || 0;
+        }
       },
       error: () => {}
     });
@@ -317,6 +340,7 @@ export class AdminContractsComponent implements OnInit {
         this.newContract = {
           boutiqueId: '',
           tenantId: '',
+          reservationId: undefined,
           monthlyRent: 0,
           deposit: 0,
           startDate: '',

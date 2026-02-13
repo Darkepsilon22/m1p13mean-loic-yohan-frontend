@@ -24,10 +24,6 @@
           <input type="number" class="form-control form-control-sm" formControlName="height" min="10" />
         </div>
         <div class="col-md-2">
-          <label class="form-label mb-0">Ordre</label>
-          <input type="number" class="form-control form-control-sm" formControlName="order" min="0" />
-        </div>
-        <div class="col-md-2">
           <button type="submit" class="btn btn-success btn-sm" [disabled]="createForm.invalid || creating">
             {{ creating ? 'Création...' : 'Créer' }}
           </button>

@@ -57,7 +57,12 @@
       <!-- Message de succès -->
       <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
         {{ successMessage }}
-        <button type="button" class="close" (click)="successMessage = ''" aria-label="Close">
+        <span *ngIf="lastValidatedForContract" class="ml-2">
+          <button type="button" class="btn btn-sm btn-outline-success" (click)="goToCreateContract()">
+            <i class="feather icon-file-text mr-1"></i> Créer le contrat pour ce locataire
+          </button>
+        </span>
+        <button type="button" class="close" (click)="successMessage = ''; lastValidatedForContract = null" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
@@ -102,10 +107,14 @@
                     <strong>{{ reservation.boutique?.name || 'N/A' }}</strong>
                     <br>
                     <small class="text-muted">
-                      Étage {{ reservation.boutique?.location?.floor || 0 }} - 
-                      Zone {{ reservation.boutique?.location?.zone }} - 
+                      Étage {{ reservation.boutique?.location?.floor ?? 0 }} -
+                      Zone {{ reservation.boutique?.location?.zone }} -
                       N° {{ reservation.boutique?.location?.number }}
                     </small>
+                    <br>
+                    <a *ngIf="reservation.boutique?.floorId" [routerLink]="['/map/view', reservation.boutique.floorId]" [queryParams]="{ highlight: reservation.boutique._id }" class="btn btn-sm btn-outline-secondary mt-1">
+                      <i class="feather icon-map mr-1"></i> Voir sur le plan
+                    </a>
                   </div>
                 </td>
                 <td>
