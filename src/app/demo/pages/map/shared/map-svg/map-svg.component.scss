@@ -115,4 +115,52 @@
     stroke: #495057;
     pointer-events: none;
   }
+
+  // Mode debug : noeuds et arêtes de navigation
+  .debug-edge {
+    stroke: #6c757d;
+    stroke-width: 1;
+    stroke-opacity: 0.5;
+    pointer-events: none;
+    &.debug-edge-accessible {
+      stroke: #28a745;
+      stroke-opacity: 0.6;
+    }
+    &.debug-edge-inaccessible {
+      stroke: #dc3545;
+      stroke-opacity: 0.4;
+      stroke-dasharray: 2 2;
+    }
+  }
+  .debug-node {
+    fill: #28a745;
+    stroke: #fff;
+    stroke-width: 1;
+    pointer-events: none;
+    &.type-stairs {
+      fill: #ffc107;
+    }
+    &.type-elevator {
+      fill: #dc3545;
+    }
+    &.type-entrance {
+      fill: #17a2b8;
+    }
+    &.type-parking {
+      fill: #6c757d;
+    }
+    &.type-info {
+      fill: #0d6efd;
+    }
+    &.debug-node-inaccessible {
+      fill: #dc3545;
+      opacity: 0.6;
+    }
+  }
+  .debug-node-label {
+    font-size: 8px;
+    fill: #212529;
+    font-weight: bold;
+    pointer-events: none;
+  }
 }

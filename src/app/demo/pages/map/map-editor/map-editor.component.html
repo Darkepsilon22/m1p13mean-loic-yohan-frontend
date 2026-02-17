@@ -30,6 +30,8 @@
             [selectedZoneId]="selectedZone?._id ?? null"
             [selectedBoutiqueId]="selectedBoutique?._id ?? null"
             [selectedSpecialSpaceId]="selectedSpecialSpace?._id ?? null"
+            [debugNodes]="activePanel === 'navigation' ? navigationNodes : []"
+            [debugEdges]="activePanel === 'navigation' ? navigationEdges : []"
             (zoneClick)="onZoneClick($event)"
             (boutiqueClick)="onBoutiqueClick($event)"
             (specialSpaceClick)="onSpecialSpaceClick($event)"
@@ -49,6 +51,9 @@
           </li>
           <li class="nav-item">
             <a class="nav-link" [class.active]="activePanel === 'boutiques'" (click)="activePanel = 'boutiques'">Boutiques</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="activePanel === 'navigation'" (click)="activePanel = 'navigation'">Navigation</a>
           </li>
         </ul>
 
@@ -158,6 +163,130 @@
             </form>
           </div>
           <p class="small text-muted mb-0">Cliquez sur la carte pour sélectionner ou placer un emplacement.</p>
+        </div>
+
+        <!-- Navigation (noeuds et arêtes) -->
+        <div *ngIf="activePanel === 'navigation'" class="sidebar-panel">
+          <div class="mb-2">
+            <button type="button" class="btn btn-primary btn-sm mr-2" (click)="startAddNode()">Ajouter un noeud</button>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="startAddEdge()">Ajouter une arête</button>
+          </div>
+
+          <!-- Formulaire noeud -->
+          <div *ngIf="addingNode || selectedNavigationNode" class="card card-body bg-light mb-2">
+            <h6 class="mb-2">{{ addingNode ? 'Nouveau noeud' : 'Modifier le noeud' }}</h6>
+            <form [formGroup]="nodeForm" (ngSubmit)="saveNode()">
+              <div class="mb-2">
+                <label class="form-label">Type</label>
+                <select class="form-control form-control-sm" formControlName="type">
+                  <option value="intersection">Intersection</option>
+                  <option value="corridor">Couloir</option>
+                  <option value="stairs">Escalier</option>
+                  <option value="elevator">Ascenseur</option>
+                  <option value="entrance">Entrée</option>
+                  <option value="parking">Parking</option>
+                  <option value="info">Info / Accueil</option>
+                  <option value="poi">Point d'intérêt</option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Label (optionnel)</label>
+                <input type="text" class="form-control form-control-sm" formControlName="label" placeholder="Ex: Escalier A" />
+              </div>
+              <div class="row g-1 mb-2">
+                <div class="col-6"><label class="form-label">x</label><input type="number" class="form-control form-control-sm" formControlName="x" /></div>
+                <div class="col-6"><label class="form-label">y</label><input type="number" class="form-control form-control-sm" formControlName="y" /></div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Espace spécial lié (optionnel)</label>
+                <select class="form-control form-control-sm" formControlName="specialSpaceId">
+                  <option value="">-- Aucun --</option>
+                  <option *ngFor="let s of spaces" [value]="s._id">{{ typeLabels[s.type] }} {{ s.name || '' }}</option>
+                </select>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="nodeAccessible" formControlName="accessible">
+                <label class="form-check-label" for="nodeAccessible">Accessible (PMR)</label>
+              </div>
+              <div class="d-flex gap-1">
+                <button type="submit" class="btn btn-success btn-sm" [disabled]="nodeForm.invalid || savingNode">{{ savingNode ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button *ngIf="selectedNavigationNode && !addingNode" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteNode()">Supprimer</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Formulaire arête -->
+          <div *ngIf="addingEdge || selectedNavigationEdge" class="card card-body bg-light mb-2">
+            <h6 class="mb-2">{{ addingEdge ? 'Nouvelle arête' : 'Modifier l\'arête' }}</h6>
+            <form [formGroup]="edgeForm" (ngSubmit)="saveEdge()">
+              <div class="mb-2">
+                <label class="form-label">De (noeud départ)</label>
+                <select class="form-control form-control-sm" formControlName="fromNode">
+                  <option value="">-- Choisir --</option>
+                  <option *ngFor="let n of navigationNodes" [value]="n._id">
+                    {{ n.label || n.type }} ({{ n.x }}, {{ n.y }})
+                  </option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Vers (noeud arrivée)</label>
+                <select class="form-control form-control-sm" formControlName="toNode">
+                  <option value="">-- Choisir --</option>
+                  <option *ngFor="let n of navigationNodes" [value]="n._id">
+                    {{ n.label || n.type }} ({{ n.x }}, {{ n.y }})
+                  </option>
+                </select>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Coût (distance, optionnel - calculé automatiquement si 0)</label>
+                <input type="number" class="form-control form-control-sm" formControlName="cost" min="0.1" step="0.1" />
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="edgeBidirectional" formControlName="isBidirectional">
+                <label class="form-check-label" for="edgeBidirectional">Bidirectionnel</label>
+              </div>
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="edgeAccessible" formControlName="accessible">
+                <label class="form-check-label" for="edgeAccessible">Accessible (PMR)</label>
+              </div>
+              <div class="d-flex gap-1">
+                <button type="submit" class="btn btn-success btn-sm" [disabled]="edgeForm.invalid || savingEdge">{{ savingEdge ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button *ngIf="selectedNavigationEdge && !addingEdge" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteEdge()">Supprimer</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Liste des noeuds -->
+          <div class="mb-3">
+            <h6 class="small mb-2">Noeuds ({{ navigationNodes.length }})</h6>
+            <div class="list-group list-group-sm">
+              <a *ngFor="let n of navigationNodes" href="#" class="list-group-item list-group-item-action" [class.active]="selectedNavigationNode?._id === n._id" (click)="onNavigationNodeClick(n); $event.preventDefault()">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{{ n.label || n.type }}</strong>
+                    <small class="d-block text-muted">{{ n.type }} - ({{ n.x }}, {{ n.y }})</small>
+                  </div>
+                  <span class="badge badge-sm" [ngClass]="n.accessible ? 'badge-success' : 'badge-danger'">{{ n.accessible ? 'PMR' : 'Non PMR' }}</span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Liste des arêtes -->
+          <div>
+            <h6 class="small mb-2">Arêtes ({{ navigationEdges.length }})</h6>
+            <div class="list-group list-group-sm">
+              <a *ngFor="let e of navigationEdges" href="#" class="list-group-item list-group-item-action" [class.active]="selectedNavigationEdge?._id === e._id" (click)="onEdgeClick(e); $event.preventDefault()">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <small>{{ getNodeLabel(e.fromNode) }} → {{ getNodeLabel(e.toNode) }}</small>
+                    <small class="d-block text-muted">Coût: {{ e.cost.toFixed(1) }} {{ e.isBidirectional ? '↔' : '→' }}</small>
+                  </div>
+                  <span class="badge badge-sm" [ngClass]="e.accessible ? 'badge-success' : 'badge-danger'">{{ e.accessible ? 'PMR' : 'Non PMR' }}</span>
+                </div>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -135,6 +135,20 @@ export class BoutiqueService {
     );
   }
 
+  /**
+   * Supprimer une boutique (Admin). Utilisé par l'éditeur de plan.
+   */
+  delete(id: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.delete<{ success: boolean; message?: string }>(`${API}/boutiques/${id}`).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object' && 'message' in err.error) {
+          return throwError(() => err.error as ApiErrorBody);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau', errors: [] } as ApiErrorBody));
+      })
+    );
+  }
+
   patchStatus(id: string, status: string, rejectionReason?: string): Observable<BoutiqueResponse> {
     const body: { status: string; rejectionReason?: string } = { status };
     if (rejectionReason != null && rejectionReason !== '') body.rejectionReason = rejectionReason;

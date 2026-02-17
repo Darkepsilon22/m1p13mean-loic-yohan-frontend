@@ -44,4 +44,19 @@ export class MapService {
   getFloorMap(floorId: string): Observable<{ success: boolean; data: FloorMapData }> {
     return this.http.get<{ success: boolean; data: FloorMapData }>(`${API}/map/floor/${floorId}`).pipe(catchError(handleError));
   }
+
+  /**
+   * Calcul d'itinéraire (segment entre deux boutiques, même étage).
+   * Optionnel : le composant map-navigation calcule aussi le segment en local.
+   */
+  getRoute(params: { fromBoutiqueId?: string; fromPosition?: { x: number; y: number }; toBoutiqueId: string }): Observable<{ success: boolean; data: { points: { x: number; y: number }[] } }> {
+    return this.http.post<{ success: boolean; data: { points: { x: number; y: number }[] } }>(`${API}/map/route`, params).pipe(catchError(handleError));
+  }
+
+  /**
+   * Calcul d'itinéraire avec pathfinding (graphe de navigation, multi-étages).
+   */
+  getPathfindingRoute(params: { fromBoutiqueId: string; toBoutiqueId: string; avoidStairs?: boolean; accessibleOnly?: boolean }): Observable<{ success: boolean; data: { segments: { floorId: string; points: { x: number; y: number }[] }[]; totalCost: number; nodeCount: number } }> {
+    return this.http.post<{ success: boolean; data: { segments: { floorId: string; points: { x: number; y: number }[] }[]; totalCost: number; nodeCount: number } }>(`${API}/map/route/pathfinding`, params).pipe(catchError(handleError));
+  }
 }

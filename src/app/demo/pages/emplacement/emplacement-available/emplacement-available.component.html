@@ -81,6 +81,11 @@
             <div class="card-header py-2">Emplacement sélectionné</div>
             <div class="card-body py-2 small">
               <p class="mb-1"><strong>{{ selectedEmplacement.name }}</strong></p>
+              <p class="mb-1" *ngIf="selectedEmplacement.floorId?.name || selectedEmplacement.zoneId?.name">
+                <span *ngIf="selectedEmplacement.floorId?.name">{{ selectedEmplacement.floorId.name }}</span>
+                <span *ngIf="selectedEmplacement.floorId?.name && selectedEmplacement.zoneId?.name"> · </span>
+                <span *ngIf="selectedEmplacement.zoneId?.name">{{ selectedEmplacement.zoneId.name }}</span>
+              </p>
               <p class="mb-1" *ngIf="selectedEmplacement.surface">{{ selectedEmplacement.surface }} m²</p>
               <p class="mb-1" *ngIf="selectedEmplacement.price">{{ formatPrice(selectedEmplacement.price) }}</p>
               <button class="btn btn-primary btn-block btn-sm" (click)="reserveModal.show()">
@@ -120,8 +125,10 @@
               <p class="text-muted small mb-2">{{ emp.shortDescription || emp.description | slice:0:100 }}...</p>
 
               <div class="mb-2">
-                <span class="badge badge-info mr-1">Étage {{ emp.location?.floor || 0 }}</span>
-                <span class="badge badge-secondary mr-1" *ngIf="emp.location?.zone">Zone {{ emp.location.zone }}</span>
+                <span class="badge badge-info mr-1" *ngIf="emp.floorId?.name">{{ emp.floorId.name }}</span>
+                <span class="badge badge-info mr-1" *ngIf="!emp.floorId?.name && emp.location?.floor != null">Étage {{ emp.location.floor }}</span>
+                <span class="badge badge-secondary mr-1" *ngIf="emp.zoneId?.name">{{ emp.zoneId.name }}</span>
+                <span class="badge badge-secondary mr-1" *ngIf="!emp.zoneId?.name && emp.location?.zone">Zone {{ emp.location.zone }}</span>
                 <span class="badge badge-light" *ngIf="emp.location?.number">N° {{ emp.location.number }}</span>
               </div>
 
@@ -173,7 +180,13 @@
       <table class="table table-sm">
         <tr>
           <td><strong>Emplacement</strong></td>
-          <td>Étage {{ selectedEmplacement.location?.floor || 0 }}, Zone {{ selectedEmplacement.location?.zone }}, N° {{ selectedEmplacement.location?.number }}</td>
+          <td>
+            <span *ngIf="selectedEmplacement.floorId?.name">{{ selectedEmplacement.floorId.name }}</span>
+            <span *ngIf="!selectedEmplacement.floorId?.name && selectedEmplacement.location?.floor != null">Étage {{ selectedEmplacement.location.floor }}</span>
+            <span *ngIf="selectedEmplacement.zoneId?.name">, {{ selectedEmplacement.zoneId.name }}</span>
+            <span *ngIf="!selectedEmplacement.zoneId?.name && selectedEmplacement.location?.zone">, Zone {{ selectedEmplacement.location.zone }}</span>
+            <span *ngIf="selectedEmplacement.location?.number">, N° {{ selectedEmplacement.location.number }}</span>
+          </td>
         </tr>
         <tr *ngIf="selectedEmplacement.surface">
           <td><strong>Surface</strong></td>

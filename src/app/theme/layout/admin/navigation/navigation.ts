@@ -72,6 +72,13 @@ const AdminNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/emplacement/pending-reservations',
         icon: 'feather icon-clock'
+      },
+      {
+        id: 'admin-contracts',
+        title: 'Gestion des contrats',
+        type: 'item',
+        url: '/admin-contracts',
+        icon: 'feather icon-file-text'
       }
     ]
   },
@@ -334,6 +341,13 @@ const AcheteurNavigationItems: NavigationItem[] = [
         url: '/home',
         icon: 'feather icon-home',
         exactMatch: true
+      },
+      {
+        id: 'map-navigate',
+        title: 'Plan / Navigation',
+        type: 'item',
+        url: '/map/navigate',
+        icon: 'feather icon-map'
       },
       {
         id: 'cart',
