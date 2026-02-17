@@ -12,6 +12,7 @@ import { Floor } from '../../../../../core/services/floor.service';
 import { Zone } from '../../../../../core/services/zone.service';
 import { SpecialSpace } from '../../../../../core/services/special-space.service';
 import { MapBoutique } from '../../../../../core/services/map.service';
+import { NavigationNode, NavigationEdge } from '../../../../../core/services/navigation.service';
 
 const MIN_SIZE = 2;
 const HANDLE_SIZE = 1.5;
@@ -41,6 +42,8 @@ export class MapSvgComponent implements OnDestroy {
   @Input() selectedSpecialSpaceId: string | null = null;
   @Input() routePoints: { x: number; y: number }[] = [];
   @Input() currentPosition: { x: number; y: number } | null = null;
+  @Input() debugNodes: NavigationNode[] = [];
+  @Input() debugEdges: NavigationEdge[] = [];
 
   @Output() zoneClick = new EventEmitter<Zone>();
   @Output() boutiqueClick = new EventEmitter<MapBoutique>();
@@ -332,6 +335,16 @@ export class MapSvgComponent implements OnDestroy {
 
   getBoutiqueLabel(b: MapBoutique): string {
     return b.name || (b.location?.number) || b._id?.slice(-6) || '';
+  }
+
+  getNodeX(node: NavigationNode | string): number {
+    if (typeof node === 'string') return 0;
+    return node.x;
+  }
+
+  getNodeY(node: NavigationNode | string): number {
+    if (typeof node === 'string') return 0;
+    return node.y;
   }
 
   getSpecialSpaceIcon(type: string): string {

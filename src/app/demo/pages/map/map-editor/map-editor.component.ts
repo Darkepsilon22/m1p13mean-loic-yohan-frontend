@@ -7,6 +7,7 @@ import { SpecialSpaceService, SpecialSpace, CreateSpecialSpaceBody, SpecialSpace
 import { MapService, FloorMapData, MapBoutique } from '../../../../core/services/map.service';
 import { BoutiqueService } from '../../../../core/services/boutique.service';
 import { CategoryService } from '../../../../core/services/category.service';
+import { NavigationService, NavigationNode, NavigationEdge } from '../../../../core/services/navigation.service';
 import { ApiErrorBody } from '../../../../core/services/auth.service';
 import { ShapeChange } from '../shared/map-svg/map-svg.component';
 
@@ -28,20 +29,31 @@ export class MapEditorComponent implements OnInit {
   selectedZone: Zone | null = null;
   selectedSpecialSpace: SpecialSpace | null = null;
   selectedBoutique: MapBoutique | null = null;
+  selectedNavigationNode: NavigationNode | null = null;
+  selectedNavigationEdge: NavigationEdge | null = null;
 
-  activePanel: 'zones' | 'spaces' | 'boutiques' = 'zones';
+  activePanel: 'zones' | 'spaces' | 'boutiques' | 'navigation' = 'zones';
   categories: { _id: string; name: string }[] = [];
 
   zoneForm: FormGroup;
   spaceForm: FormGroup;
   boutiqueForm: FormGroup;
+  nodeForm: FormGroup;
+  edgeForm: FormGroup;
 
   savingZone = false;
   savingSpace = false;
   savingBoutique = false;
+  savingNode = false;
+  savingEdge = false;
   addingZone = false;
   addingSpace = false;
   addingBoutique = false;
+  addingNode = false;
+  addingEdge = false;
+
+  navigationNodes: NavigationNode[] = [];
+  navigationEdges: NavigationEdge[] = [];
 
   specialSpaceTypes = SPECIAL_SPACE_TYPES;
   typeLabels: Record<string, string> = {
@@ -61,7 +73,8 @@ export class MapEditorComponent implements OnInit {
     private specialSpaceService: SpecialSpaceService,
     private mapService: MapService,
     private boutiqueService: BoutiqueService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private navigationService: NavigationService
   ) {
     this.zoneForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -88,6 +101,21 @@ export class MapEditorComponent implements OnInit {
       y: [0, Validators.required],
       width: [10, [Validators.required, Validators.min(1)]],
       height: [10, [Validators.required, Validators.min(1)]]
+    });
+    this.nodeForm = this.fb.group({
+      type: ['intersection', Validators.required],
+      label: ['', Validators.maxLength(100)],
+      x: [0, Validators.required],
+      y: [0, Validators.required],
+      specialSpaceId: [''],
+      accessible: [true]
+    });
+    this.edgeForm = this.fb.group({
+      fromNode: ['', Validators.required],
+      toNode: ['', Validators.required],
+      cost: [0, [Validators.min(0.1)]],
+      isBidirectional: [true],
+      accessible: [true]
     });
   }
 
@@ -133,10 +161,13 @@ export class MapEditorComponent implements OnInit {
     this.selectedZone = null;
     this.selectedSpecialSpace = null;
     this.selectedBoutique = null;
+    this.selectedNavigationNode = null;
+    this.selectedNavigationEdge = null;
     this.mapService.getFloorMap(this.floorId).subscribe({
       next: (res) => {
         this.data = res.data;
         this.loading = false;
+        if (this.floorId) this.loadNavigationData();
       },
       error: (err: ApiErrorBody) => {
         this.loading = false;
@@ -405,9 +436,229 @@ export class MapEditorComponent implements OnInit {
   }
 
   deleteBoutique(): void {
-    if (!this.selectedBoutique || !confirm('Supprimer cet emplacement ? (À utiliser avec précaution.)')) return;
-    // Backend may not have DELETE boutique; if not, we only allow update. Skip delete for now or add endpoint.
-    this.errorMessage = 'Suppression d\'emplacement non disponible (désactiver ou contacter l\'admin).';
+    if (!this.selectedBoutique || !confirm('Supprimer cet emplacement ? Cette action est irréversible.')) return;
+    this.errorMessage = '';
+    const id = this.selectedBoutique._id;
+    this.boutiqueService.delete(id).subscribe({
+      next: () => {
+        this.successMessage = 'Emplacement supprimé.';
+        this.selectedBoutique = null;
+        this.addingBoutique = false;
+        if (this.floorId) this.loadFloorMap();
+      },
+      error: (err: ApiErrorBody) => {
+        this.errorMessage = err.message || 'Impossible de supprimer l\'emplacement.';
+      }
+    });
+  }
+
+  loadNavigationData(): void {
+    if (!this.floorId) return;
+    this.navigationService.getAllNodes({ floorId: this.floorId }).subscribe({
+      next: (res) => {
+        this.navigationNodes = res.data || [];
+      },
+      error: () => {
+        this.navigationNodes = [];
+      }
+    });
+    this.navigationService.getAllEdges({ floorId: this.floorId }).subscribe({
+      next: (res) => {
+        this.navigationEdges = res.data || [];
+      },
+      error: () => {
+        this.navigationEdges = [];
+      }
+    });
+  }
+
+  onNavigationNodeClick(node: NavigationNode): void {
+    this.selectedNavigationNode = node;
+    this.selectedNavigationEdge = null;
+    this.nodeForm.patchValue({
+      type: node.type,
+      label: node.label || '',
+      x: node.x,
+      y: node.y,
+      specialSpaceId: typeof node.specialSpaceId === 'string' ? node.specialSpaceId : node.specialSpaceId?._id || '',
+      accessible: node.accessible
+    });
+    this.addingNode = false;
+  }
+
+  startAddNode(): void {
+    this.selectedNavigationNode = null;
+    this.selectedNavigationEdge = null;
+    this.nodeForm.reset({
+      type: 'intersection',
+      label: '',
+      x: 0,
+      y: 0,
+      specialSpaceId: '',
+      accessible: true
+    });
+    this.addingNode = true;
+  }
+
+  saveNode(): void {
+    if (!this.floorId) return;
+    const val = this.nodeForm.value;
+    if (!val.type || val.x == null || val.y == null) {
+      this.errorMessage = 'Type, X et Y sont requis.';
+      return;
+    }
+    this.savingNode = true;
+    this.errorMessage = '';
+    const body: any = {
+      floorId: this.floorId,
+      type: val.type,
+      x: Number(val.x),
+      y: Number(val.y),
+      label: val.label || undefined,
+      specialSpaceId: val.specialSpaceId || null,
+      accessible: val.accessible !== false
+    };
+    if (this.addingNode) {
+      this.navigationService.createNode(body).subscribe({
+        next: () => {
+          this.savingNode = false;
+          this.successMessage = 'Noeud créé.';
+          this.addingNode = false;
+          this.loadNavigationData();
+        },
+        error: (err: ApiErrorBody) => {
+          this.savingNode = false;
+          this.errorMessage = err.message || 'Erreur création noeud.';
+        }
+      });
+    } else if (this.selectedNavigationNode) {
+      this.navigationService.updateNode(this.selectedNavigationNode._id, body).subscribe({
+        next: () => {
+          this.savingNode = false;
+          this.successMessage = 'Noeud mis à jour.';
+          this.loadNavigationData();
+        },
+        error: (err: ApiErrorBody) => {
+          this.savingNode = false;
+          this.errorMessage = err.message || 'Erreur mise à jour noeud.';
+        }
+      });
+    }
+  }
+
+  deleteNode(): void {
+    if (!this.selectedNavigationNode || !confirm('Supprimer ce noeud ? Les arêtes liées seront aussi supprimées.')) return;
+    this.errorMessage = '';
+    this.navigationService.deleteNode(this.selectedNavigationNode._id).subscribe({
+      next: () => {
+        this.successMessage = 'Noeud supprimé.';
+        this.selectedNavigationNode = null;
+        this.addingNode = false;
+        this.loadNavigationData();
+      },
+      error: (err: ApiErrorBody) => {
+        this.errorMessage = err.message || 'Impossible de supprimer le noeud.';
+      }
+    });
+  }
+
+  startAddEdge(): void {
+    this.selectedNavigationEdge = null;
+    this.selectedNavigationNode = null;
+    this.edgeForm.reset({
+      fromNode: '',
+      toNode: '',
+      cost: 0,
+      isBidirectional: true,
+      accessible: true
+    });
+    this.addingEdge = true;
+  }
+
+  saveEdge(): void {
+    const val = this.edgeForm.value;
+    if (!val.fromNode || !val.toNode) {
+      this.errorMessage = 'Départ et arrivée sont requis.';
+      return;
+    }
+    if (val.fromNode === val.toNode) {
+      this.errorMessage = 'Départ et arrivée doivent être différents.';
+      return;
+    }
+    this.savingEdge = true;
+    this.errorMessage = '';
+    const body: any = {
+      fromNode: val.fromNode,
+      toNode: val.toNode,
+      cost: val.cost > 0 ? Number(val.cost) : undefined,
+      isBidirectional: val.isBidirectional !== false,
+      accessible: val.accessible !== false
+    };
+    if (this.addingEdge) {
+      this.navigationService.createEdge(body).subscribe({
+        next: () => {
+          this.savingEdge = false;
+          this.successMessage = 'Arête créée.';
+          this.addingEdge = false;
+          this.loadNavigationData();
+        },
+        error: (err: ApiErrorBody) => {
+          this.savingEdge = false;
+          this.errorMessage = err.message || 'Erreur création arête.';
+        }
+      });
+    } else if (this.selectedNavigationEdge) {
+      this.navigationService.updateEdge(this.selectedNavigationEdge._id, body).subscribe({
+        next: () => {
+          this.savingEdge = false;
+          this.successMessage = 'Arête mise à jour.';
+          this.loadNavigationData();
+        },
+        error: (err: ApiErrorBody) => {
+          this.savingEdge = false;
+          this.errorMessage = err.message || 'Erreur mise à jour arête.';
+        }
+      });
+    }
+  }
+
+  deleteEdge(): void {
+    if (!this.selectedNavigationEdge || !confirm('Supprimer cette arête ?')) return;
+    this.errorMessage = '';
+    this.navigationService.deleteEdge(this.selectedNavigationEdge._id).subscribe({
+      next: () => {
+        this.successMessage = 'Arête supprimée.';
+        this.selectedNavigationEdge = null;
+        this.addingEdge = false;
+        this.loadNavigationData();
+      },
+      error: (err: ApiErrorBody) => {
+        this.errorMessage = err.message || 'Impossible de supprimer l\'arête.';
+      }
+    });
+  }
+
+  getNodeLabel(node: NavigationNode | string): string {
+    if (typeof node === 'string') return '?';
+    return node.label || node.type || 'Noeud';
+  }
+
+  getNodeId(node: NavigationNode | string): string {
+    if (typeof node === 'string') return node;
+    return node._id;
+  }
+
+  onEdgeClick(edge: NavigationEdge): void {
+    this.selectedNavigationEdge = edge;
+    this.selectedNavigationNode = null;
+    this.addingEdge = false;
+    this.edgeForm.patchValue({
+      fromNode: this.getNodeId(edge.fromNode),
+      toNode: this.getNodeId(edge.toNode),
+      cost: edge.cost,
+      isBidirectional: edge.isBidirectional,
+      accessible: edge.accessible
+    });
   }
 
   get zones(): Zone[] { return this.data?.zones ?? []; }

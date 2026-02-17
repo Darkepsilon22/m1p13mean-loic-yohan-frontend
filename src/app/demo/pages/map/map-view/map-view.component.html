@@ -43,6 +43,8 @@
               <p class="mb-1">Surface : {{ (selectedBoutiqueDetails?.surface ?? selectedBoutique.surface) != null ? (selectedBoutiqueDetails?.surface ?? selectedBoutique.surface) + ' m²' : '—' }}</p>
               <p class="mb-1">Prix : {{ (selectedBoutiqueDetails?.price ?? selectedBoutique.price) != null ? ((selectedBoutiqueDetails?.price ?? selectedBoutique.price) | number:'1.0-0') + ' Ar' : '—' }}</p>
               <p class="mb-1">Statut : <span class="badge" [ngClass]="'status-' + (selectedBoutiqueDetails?.emplacementStatus ?? selectedBoutique.emplacementStatus)">{{ getStatusLabel(selectedBoutiqueDetails?.emplacementStatus ?? selectedBoutique.emplacementStatus) }}</span></p>
+              <p *ngIf="selectedBoutiqueDetails?.zoneId?.name" class="mb-1">Zone : {{ selectedBoutiqueDetails.zoneId.name }}</p>
+              <p *ngIf="selectedBoutiqueDetails?.floorId?.name" class="mb-1">Étage : {{ selectedBoutiqueDetails.floorId.name }}</p>
               <p *ngIf="selectedBoutiqueDetails?.categoryId?.name" class="mb-1">Catégorie : {{ selectedBoutiqueDetails.categoryId.name }}</p>
               <p *ngIf="selectedBoutiqueDetails?.contact?.email" class="mb-1">Contact : {{ selectedBoutiqueDetails.contact.email }}</p>
               <p *ngIf="selectedBoutiqueDetails?.contact?.phone" class="mb-1">Tél. : {{ selectedBoutiqueDetails.contact.phone }}</p>

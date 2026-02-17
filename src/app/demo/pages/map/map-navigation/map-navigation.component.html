@@ -1,0 +1,135 @@
+<div class="map-navigation-page">
+  <app-card cardTitle="Plan / Navigation" [options]="false">
+    <p class="text-muted small mb-3">
+      Choisissez un étage, puis votre position de départ et votre destination pour afficher l'itinéraire sur le plan.
+    </p>
+
+    <div class="mb-3 d-flex flex-wrap align-items-center gap-3">
+      <div class="d-flex align-items-center gap-2">
+        <label class="mb-0">Étage :</label>
+        <select
+          *ngIf="floors.length"
+          class="form-control form-control-sm"
+          style="width: auto; min-width: 140px;"
+          [value]="floorId"
+          (change)="onFloorChange($any($event.target).value)">
+          <option *ngFor="let f of floors" [value]="f._id">{{ f.name }}</option>
+        </select>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <label class="mb-0">Départ :</label>
+        <select
+          class="form-control form-control-sm"
+          style="width: auto; min-width: 180px;"
+          [value]="startBoutiqueId"
+          (change)="startBoutiqueId = $any($event.target).value; onStartChange()">
+          <option [ngValue]="null">— Choisir une boutique —</option>
+          <option *ngFor="let b of boutiquesWithShape" [value]="b._id">
+            {{ b.name || b.location?.number || 'Boutique ' + (b._id | slice: -6) }}
+          </option>
+        </select>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <label class="mb-0">Destination :</label>
+        <select
+          class="form-control form-control-sm"
+          style="width: auto; min-width: 180px;"
+          [value]="endBoutiqueId"
+          (change)="endBoutiqueId = $any($event.target).value; onEndChange()">
+          <option [ngValue]="null">— Choisir une boutique —</option>
+          <option *ngFor="let b of boutiquesWithShape" [value]="b._id">
+            {{ b.name || b.location?.number || 'Boutique ' + (b._id | slice: -6) }}
+          </option>
+        </select>
+      </div>
+      <div class="d-flex align-items-center gap-2 ml-auto">
+        <button type="button" class="btn btn-sm btn-outline-info" (click)="toggleDebugMode()" [class.active]="debugMode">
+          <i class="feather icon-eye mr-1"></i> Debug
+        </button>
+      </div>
+    </div>
+
+    <!-- Options d'itinéraire -->
+    <div class="mb-3 card card-body py-2">
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="usePathfinding" [(ngModel)]="usePathfinding" (change)="togglePathfinding()">
+        <label class="form-check-label" for="usePathfinding">
+          Utiliser le pathfinding (graphe de navigation, multi-étages)
+        </label>
+      </div>
+      <div *ngIf="usePathfinding" class="ml-4">
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" id="avoidStairs" [(ngModel)]="avoidStairs" (change)="updateRoute()">
+          <label class="form-check-label" for="avoidStairs">
+            Éviter les escaliers (privilégier ascenseurs)
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="accessibleOnly" [(ngModel)]="accessibleOnly" (change)="updateRoute()">
+          <label class="form-check-label" for="accessibleOnly">
+            Itinéraire accessible (PMR)
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+    <div *ngIf="routeError" class="alert alert-warning">
+      <i class="feather icon-alert-triangle mr-1"></i>{{ routeError }}
+    </div>
+    <div *ngIf="routeLoading" class="alert alert-info">
+      <i class="feather icon-loader mr-1"></i>Calcul de l'itinéraire en cours...
+    </div>
+    <div *ngIf="loading" class="text-center py-5">Chargement du plan...</div>
+
+    <div *ngIf="!loading && data" class="row">
+      <div class="col-lg-8">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="text-muted small">Zoom :</span>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="zoomOut()" [disabled]="zoomLevel <= zoomMin" title="Réduire">−</button>
+          <span class="small" style="min-width: 3rem;">{{ (zoomLevel * 100) | number:'1.0-0' }} %</span>
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="zoomIn()" [disabled]="zoomLevel >= zoomMax" title="Agrandir">+</button>
+        </div>
+        <div class="map-container map-navigation-container" [style.transform]="'scale(' + zoomLevel + ')'" [style.transformOrigin]="'0 0'">
+          <app-map-svg
+            [floor]="data.floor"
+            [zones]="data.zones"
+            [boutiques]="data.boutiques"
+            [specialSpaces]="data.specialSpaces"
+            [isEditMode]="false"
+            [selectedBoutiqueId]="null"
+            [routePoints]="getRoutePointsForCurrentFloor()"
+            [currentPosition]="currentPosition"
+            [debugNodes]="debugMode ? navigationNodes : []"
+            [debugEdges]="debugMode ? navigationEdges : []"
+            (zoneClick)="noop()"
+            (boutiqueClick)="noop()"
+            (specialSpaceClick)="noop()">
+          </app-map-svg>
+        </div>
+        <p *ngIf="getRoutePointsForCurrentFloor().length >= 2" class="mt-2 text-muted small mb-0">
+          <i class="feather icon-navigation mr-1"></i> Itinéraire affiché du point de départ (rouge) à la destination.
+          <span *ngIf="usePathfinding && routeSegments.length > 1" class="ml-2">
+            ({{ routeSegments.length }} étage{{ routeSegments.length > 1 ? 's' : '' }})
+          </span>
+        </p>
+        <div *ngIf="debugMode && debugLoading" class="mt-2 text-muted small">Chargement des données debug...</div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card mb-3">
+          <div class="card-header py-2">Aide</div>
+          <div class="card-body py-2 small">
+            <p class="mb-2"><strong>Départ</strong> : sélectionnez votre position actuelle (ex. boutique où vous vous trouvez).</p>
+            <p class="mb-2"><strong>Destination</strong> : la boutique que vous souhaitez rejoindre.</p>
+            <p class="mb-2" *ngIf="!usePathfinding">Le tracé bleu en pointillés indique le chemin direct entre les deux points. Le point rouge marque votre position de départ.</p>
+            <p class="mb-2" *ngIf="usePathfinding">Le tracé utilise le graphe de navigation pour calculer le meilleur chemin, y compris entre étages via escaliers/ascenseurs.</p>
+            <p class="mb-0" *ngIf="debugMode">
+              <strong>Mode debug activé</strong> : les noeuds de navigation sont affichés en vert, les arêtes en gris.
+            </p>
+          </div>
+        </div>
+        <app-map-legend></app-map-legend>
+      </div>
+    </div>
+  </app-card>
+</div>
