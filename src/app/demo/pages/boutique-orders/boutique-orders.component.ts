@@ -27,6 +27,19 @@ export class BoutiqueOrdersComponent implements OnInit {
   stats: any = null;
   loadingStats = false;
 
+  // Rapport mensuel
+  reportMonth = new Date().getMonth() + 1;
+  reportYear = new Date().getFullYear();
+  exportingReport = false;
+  months = [
+    { value: 1, label: 'Janvier' }, { value: 2, label: 'Février' }, { value: 3, label: 'Mars' },
+    { value: 4, label: 'Avril' }, { value: 5, label: 'Mai' }, { value: 6, label: 'Juin' },
+    { value: 7, label: 'Juillet' }, { value: 8, label: 'Août' }, { value: 9, label: 'Septembre' },
+    { value: 10, label: 'Octobre' }, { value: 11, label: 'Novembre' }, { value: 12, label: 'Décembre' }
+  ];
+  years: number[] = [];
+
+
   statuses = [
     { value: '', label: 'Tous les statuts' },
     { value: 'pending', label: 'En attente' },
@@ -53,6 +66,8 @@ export class BoutiqueOrdersComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const currentYear = new Date().getFullYear();
+    this.years = [currentYear, currentYear - 1, currentYear - 2];
     this.loadOrders();
     this.loadStats();
   }
@@ -171,5 +186,36 @@ export class BoutiqueOrdersComponent implements OnInit {
     const end = Math.min(this.totalPages, this.page + 2);
     for (let i = start; i <= end; i++) arr.push(i);
     return arr;
+  }
+
+  exportReportPDF(): void {
+    this.exportingReport = true;
+    this.orderService.exportBoutiqueReportPDF(this.reportMonth, this.reportYear).subscribe({
+      next: (blob) => {
+        this.exportingReport = false;
+        this.downloadBlob(blob, `rapport-${this.reportMonth}-${this.reportYear}.pdf`);
+      },
+      error: () => { this.exportingReport = false; }
+    });
+  }
+
+  exportReportExcel(): void {
+    this.exportingReport = true;
+    this.orderService.exportBoutiqueReportExcel(this.reportMonth, this.reportYear).subscribe({
+      next: (blob) => {
+        this.exportingReport = false;
+        this.downloadBlob(blob, `rapport-${this.reportMonth}-${this.reportYear}.xlsx`);
+      },
+      error: () => { this.exportingReport = false; }
+    });
+  }
+
+  private downloadBlob(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
   }
 }

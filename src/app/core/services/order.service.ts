@@ -172,6 +172,16 @@ export class OrderService {
     return this.http.patch<OrderResponse>(`${API}/orders/admin/${id}/status`, { status }).pipe(catchError(handleError));
   }
 
+  /** Export rapport mensuel boutique PDF */
+  exportBoutiqueReportPDF(month: number, year: number): Observable<Blob> {
+    return this.http.get(`${API}/orders/boutique/report/pdf?month=${month}&year=${year}`, { responseType: 'blob' });
+  }
+
+  /** Export rapport mensuel boutique Excel */
+  exportBoutiqueReportExcel(month: number, year: number): Observable<Blob> {
+    return this.http.get(`${API}/orders/boutique/report/excel?month=${month}&year=${year}`, { responseType: 'blob' });
+  }
+
   /** Export PDF des commandes de l'utilisateur */
   exportMyOrdersPDF(params?: { status?: string; startDate?: string; endDate?: string }): Observable<Blob> {
     const q = new URLSearchParams();

@@ -51,6 +51,9 @@ export class ProductViewComponent implements OnInit {
   similarProducts: any[] = [];
   loadingSimilar = false;
 
+  // Galerie photo
+  selectedPhoto = '';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -227,8 +230,13 @@ export class ProductViewComponent implements OnInit {
   }
 
   getMainPhoto(): string {
+    if (this.selectedPhoto) return this.selectedPhoto;
     if (!this.product) return '';
     return this.product.mainPhoto || (this.product.photos && this.product.photos[0]) || '';
+  }
+
+  selectPhoto(photo: string): void {
+    this.selectedPhoto = photo;
   }
 
   // ========== PANIER ==========

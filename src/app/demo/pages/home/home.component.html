@@ -90,136 +90,194 @@
   </div>
 </div>
 
-<!-- Acheteur : catalogue produits (cards + filtres) -->
+<!-- Acheteur : catalogue produits -->
 <div class="home-catalog" *ngIf="isLoggedIn && currentUser?.role === 'acheteur'">
-  <!-- Section Produits en promotion -->
-  <div class="mb-4" *ngIf="loadingPromo || promotionProducts.length > 0">
-    <h5 class="mb-3">Produits en promotion</h5>
-    <div *ngIf="loadingPromo" class="text-center py-3 text-muted">Chargement des promotions...</div>
-    <div class="row" *ngIf="!loadingPromo && promotionProducts.length > 0">
-      <div class="col-sm-6 col-md-4 col-lg-3 mb-4" *ngFor="let item of promotionProducts">
-        <div class="card h-100 product-card border-warning">
-          <a [routerLink]="['/products/view', item.product._id]" class="text-decoration-none text-dark">
-            <div class="card-img-wrap position-relative" *ngIf="getProductMainPhoto(item.product)">
-              <img [src]="getProductMainPhoto(item.product)" class="card-img-top" alt="{{ item.product.name }}" style="height: 180px; object-fit: cover;">
-              <span class="badge badge-danger position-absolute" style="top: 8px; right: 8px;">{{ getPromoBadge(item.promotion) }}</span>
-            </div>
-            <div class="card-img-wrap bg-light d-flex align-items-center justify-content-center position-relative" *ngIf="!getProductMainPhoto(item.product)" style="height: 180px;">
-              <i class="feather icon-image text-muted" style="font-size: 2.5rem;"></i>
-              <span class="badge badge-danger position-absolute" style="top: 8px; right: 8px;">{{ getPromoBadge(item.promotion) }}</span>
-            </div>
-            <div class="card-body">
-              <h6 class="card-title text-truncate">{{ item.product.name }}</h6>
-              <p class="card-text small text-muted mb-1" *ngIf="item.promotion.boutiqueId">{{ item.promotion.boutiqueId.name }}</p>
-              <p class="mb-2">
-                <span class="font-weight-bold text-primary" *ngIf="getPromoPrice(item.product, item.promotion) != null">
-                  {{ getPromoPrice(item.product, item.promotion) | number:'1.0-0' }} Ar
-                </span>
-                <span class="small text-muted text-decoration-line-through ml-1" *ngIf="item.product.price != null">
-                  {{ item.product.price | number:'1.0-0' }} Ar
-                </span>
-                <span class="font-weight-bold text-primary ml-1" *ngIf="getPromoPrice(item.product, item.promotion) == null && item.product.price != null">
-                  {{ item.product.price | number:'1.0-0' }} Ar
-                </span>
-                <span class="badge ml-1" [ngClass]="item.product.availability === 'available' ? 'badge-success' : item.product.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
-                  {{ getAvailabilityLabel(item.product.availability) }}
-                </span>
-              </p>
-            </div>
-          </a>
+
+  <!-- ========== PROMOTIONS ========== -->
+  <section class="promo-section" *ngIf="loadingPromo || promotionProducts.length > 0">
+    <div class="section-header">
+      <div class="section-title-group">
+        <div class="section-icon promo-icon">
+          <i class="feather icon-zap"></i>
+        </div>
+        <div>
+          <h4 class="section-title">Offres du moment</h4>
+          <p class="section-subtitle">Profitez de nos meilleures promotions</p>
         </div>
       </div>
     </div>
-  </div>
 
-  <h5 class="mb-3">Catalogue produits</h5>
+    <div *ngIf="loadingPromo" class="catalog-loading">
+      <div class="loader-dots"><span></span><span></span><span></span></div>
+      <p>Chargement des promotions...</p>
+    </div>
 
-  <div class="home-filters card mb-3">
-    <div class="card-body py-2">
-      <div class="row align-items-center flex-wrap">
-        <div class="col-auto mb-2 mb-md-0">
-          <input type="text" class="form-control form-control-sm" placeholder="Recherche..." style="width: 160px;"
-                 [(ngModel)]="filters.search" (keyup.enter)="onFilterChange()">
+    <div class="promo-scroll" *ngIf="!loadingPromo && promotionProducts.length > 0">
+      <div class="promo-card" *ngFor="let item of promotionProducts; let i = index" [style.animation-delay]="(i * 80) + 'ms'">
+        <a [routerLink]="['/products/view', item.product._id]" class="promo-card-link">
+          <div class="promo-card-image">
+            <img *ngIf="getProductMainPhoto(item.product)" [src]="getProductMainPhoto(item.product)" [alt]="item.product.name">
+            <div *ngIf="!getProductMainPhoto(item.product)" class="promo-card-noimg">
+              <i class="feather icon-image"></i>
+            </div>
+            <span class="promo-badge">{{ getPromoBadge(item.promotion) }}</span>
+          </div>
+          <div class="promo-card-body">
+            <h6 class="promo-card-name">{{ item.product.name }}</h6>
+            <span class="promo-card-boutique" *ngIf="item.promotion.boutiqueId">{{ item.promotion.boutiqueId.name }}</span>
+            <div class="promo-card-pricing">
+              <span class="promo-price" *ngIf="getPromoPrice(item.product, item.promotion) != null">
+                {{ getPromoPrice(item.product, item.promotion) | number:'1.0-0' }} <small>Ar</small>
+              </span>
+              <span class="promo-old-price" *ngIf="item.product.price != null">
+                {{ item.product.price | number:'1.0-0' }} Ar
+              </span>
+              <span class="promo-price" *ngIf="getPromoPrice(item.product, item.promotion) == null && item.product.price != null">
+                {{ item.product.price | number:'1.0-0' }} <small>Ar</small>
+              </span>
+            </div>
+            <span class="avail-tag" [ngClass]="item.product.availability === 'available' ? 'avail-ok' : item.product.availability === 'outOfStock' ? 'avail-out' : 'avail-order'">
+              {{ getAvailabilityLabel(item.product.availability) }}
+            </span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CATALOGUE ========== -->
+  <section class="catalog-section">
+    <div class="section-header">
+      <div class="section-title-group">
+        <div class="section-icon catalog-icon">
+          <i class="feather icon-grid"></i>
         </div>
-        <div class="col-auto">
-          <input type="text" class="form-control form-control-sm" placeholder="Catégorie" style="width: 120px;"
-                 [(ngModel)]="filters.category" (keyup.enter)="onFilterChange()">
+        <div>
+          <h4 class="section-title">Catalogue</h4>
+          <p class="section-subtitle">Explorez tous nos produits</p>
         </div>
-        <div class="col-auto">
-          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.boutiqueId" (ngModelChange)="onFilterChange()">
+      </div>
+      <div class="catalog-count" *ngIf="pagination.total > 0">
+        {{ pagination.total }} produit{{ pagination.total > 1 ? 's' : '' }}
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <div class="filter-search">
+        <i class="feather icon-search"></i>
+        <input type="text" placeholder="Rechercher un produit..." [(ngModel)]="filters.search" (keyup.enter)="onFilterChange()">
+      </div>
+
+      <div class="filter-pills">
+        <div class="filter-pill">
+          <i class="feather icon-tag"></i>
+          <input type="text" placeholder="Catégorie" [(ngModel)]="filters.category" (keyup.enter)="onFilterChange()">
+        </div>
+
+        <div class="filter-pill filter-select">
+          <i class="feather icon-layers"></i>
+          <select [(ngModel)]="filters.boutiqueId" (ngModelChange)="onFilterChange()">
             <option value="">Toutes les boutiques</option>
             <option *ngFor="let b of boutiques" [value]="b._id">{{ b.name }}</option>
           </select>
         </div>
-        <div class="col-auto">
-          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.availability" (ngModelChange)="onFilterChange()">
+
+        <div class="filter-pill filter-select">
+          <select [(ngModel)]="filters.availability" (ngModelChange)="onFilterChange()">
             <option value="">Disponibilité</option>
             <option value="available">Disponible</option>
             <option value="outOfStock">Rupture</option>
             <option value="onOrder">Sur commande</option>
           </select>
         </div>
-        <div class="col-auto">
-          <input type="number" class="form-control form-control-sm" placeholder="Prix min" style="width: 90px;" min="0" step="0.01"
-                 [(ngModel)]="filters.minPrice" (keyup.enter)="onFilterChange()">
+
+        <div class="filter-pill filter-price">
+          <input type="number" placeholder="Min" min="0" step="0.01" [(ngModel)]="filters.minPrice" (keyup.enter)="onFilterChange()">
+          <span class="price-sep">—</span>
+          <input type="number" placeholder="Max" min="0" step="0.01" [(ngModel)]="filters.maxPrice" (keyup.enter)="onFilterChange()">
         </div>
-        <div class="col-auto">
-          <input type="number" class="form-control form-control-sm" placeholder="Prix max" style="width: 90px;" min="0" step="0.01"
-                 [(ngModel)]="filters.maxPrice" (keyup.enter)="onFilterChange()">
-        </div>
-        <div class="col-auto">
-          <label class="mb-0"><input type="checkbox" [(ngModel)]="filters.isFeatured" (ngModelChange)="onFilterChange()"> Vedette</label>
-        </div>
-        <div class="col-auto">
-          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.sort" (ngModelChange)="onFilterChange()">
+
+        <label class="filter-pill filter-check">
+          <input type="checkbox" [(ngModel)]="filters.isFeatured" (ngModelChange)="onFilterChange()">
+          <i class="feather icon-star"></i>
+          <span>Vedette</span>
+        </label>
+
+        <div class="filter-pill filter-select">
+          <i class="feather icon-sliders"></i>
+          <select [(ngModel)]="filters.sort" (ngModelChange)="onFilterChange()">
             <option value="-createdAt">Récents</option>
             <option value="price">Prix croissant</option>
             <option value="-price">Prix décroissant</option>
             <option value="name">Nom A-Z</option>
           </select>
         </div>
-        <div class="col-auto">
-          <button type="button" class="btn btn-sm btn-primary" (click)="onFilterChange()">Filtrer</button>
-        </div>
+
+        <button class="filter-apply" (click)="onFilterChange()">
+          <i class="feather icon-search"></i>
+          <span>Filtrer</span>
+        </button>
       </div>
     </div>
-  </div>
 
-  <div *ngIf="productError" class="alert alert-danger">{{ productError }}</div>
-  <div *ngIf="loadingProducts" class="text-center py-5">Chargement...</div>
+    <!-- Error -->
+    <div *ngIf="productError" class="catalog-error">
+      <i class="feather icon-x"></i>
+      <span>{{ productError }}</span>
+    </div>
 
-  <div *ngIf="!loadingProducts && products.length === 0" class="text-muted py-5 text-center">
-    Aucun produit ne correspond aux critères.
-  </div>
+    <!-- Loading -->
+    <div *ngIf="loadingProducts" class="catalog-loading">
+      <div class="loader-dots"><span></span><span></span><span></span></div>
+      <p>Chargement des produits...</p>
+    </div>
 
-  <div class="row" *ngIf="!loadingProducts && products.length > 0">
-    <div class="col-sm-6 col-md-4 col-lg-3 mb-4" *ngFor="let p of products">
-      <div class="card h-100 product-card">
-        <a [routerLink]="['/products/view', p._id]" class="text-decoration-none text-dark">
-          <div class="card-img-wrap" *ngIf="getProductMainPhoto(p)">
-            <img [src]="getProductMainPhoto(p)" class="card-img-top" alt="{{ p.name }}" style="height: 180px; object-fit: cover;">
+    <!-- Empty -->
+    <div *ngIf="!loadingProducts && products.length === 0" class="catalog-empty">
+      <div class="empty-visual">
+        <i class="feather icon-search"></i>
+      </div>
+      <h5>Aucun résultat</h5>
+      <p>Aucun produit ne correspond à vos critères. Essayez d'autres filtres.</p>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="product-grid" *ngIf="!loadingProducts && products.length > 0">
+      <div class="p-card" *ngFor="let p of products; let i = index" [style.animation-delay]="(i * 50) + 'ms'">
+        <a [routerLink]="['/products/view', p._id]" class="p-card-link">
+          <div class="p-card-image">
+            <img *ngIf="getProductMainPhoto(p)" [src]="getProductMainPhoto(p)" [alt]="p.name">
+            <div *ngIf="!getProductMainPhoto(p)" class="p-card-noimg">
+              <i class="feather icon-image"></i>
+            </div>
+            <div class="p-card-overlay">
+              <span class="overlay-action"><i class="feather icon-eye"></i> Voir</span>
+            </div>
           </div>
-          <div class="card-img-wrap bg-light d-flex align-items-center justify-content-center" *ngIf="!getProductMainPhoto(p)" style="height: 180px;">
-            <i class="feather icon-image text-muted" style="font-size: 2.5rem;"></i>
-          </div>
-          <div class="card-body">
-            <h6 class="card-title text-truncate">{{ p.name }}</h6>
-            <p class="card-text small text-muted mb-1" *ngIf="p.boutiqueId">{{ p.boutiqueId.name }}</p>
-            <p class="mb-2">
-              <span class="font-weight-bold text-primary">{{ p.price != null ? (p.price | number:'1.0-0') : '—' }} Ar</span>
-              <span class="badge ml-1" [ngClass]="p.availability === 'available' ? 'badge-success' : p.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
+          <div class="p-card-body">
+            <h6 class="p-card-name">{{ p.name }}</h6>
+            <span class="p-card-boutique" *ngIf="p.boutiqueId">{{ p.boutiqueId.name }}</span>
+            <div class="p-card-footer">
+              <span class="p-card-price">{{ p.price != null ? (p.price | number:'1.0-0') : '—' }} <small>Ar</small></span>
+              <span class="avail-tag" [ngClass]="p.availability === 'available' ? 'avail-ok' : p.availability === 'outOfStock' ? 'avail-out' : 'avail-order'">
                 {{ getAvailabilityLabel(p.availability) }}
               </span>
-            </p>
+            </div>
           </div>
         </a>
       </div>
     </div>
-  </div>
 
-  <div *ngIf="!loadingProducts && pagination.pages > 1" class="d-flex justify-content-center mt-3">
-    <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
-    <span class="align-self-center mx-2">Page {{ pagination.page }} / {{ pagination.pages }}</span>
-    <button type="button" class="btn btn-sm btn-outline-secondary ml-1" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>
-  </div>
+    <!-- Pagination -->
+    <div *ngIf="!loadingProducts && pagination.pages > 1" class="catalog-pagination">
+      <button class="page-btn" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">
+        <i class="feather icon-chevron-left"></i>
+      </button>
+      <span class="page-info">{{ pagination.page }} <span class="page-sep">/</span> {{ pagination.pages }}</span>
+      <button class="page-btn" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">
+        <i class="feather icon-chevron-right"></i>
+      </button>
+    </div>
+  </section>
 </div>

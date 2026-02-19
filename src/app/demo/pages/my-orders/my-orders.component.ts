@@ -17,6 +17,10 @@ export class MyOrdersComponent implements OnInit {
   endDate = '';
   pagination = { page: 1, limit: 10, total: 0, pages: 0 };
 
+  // Cancel order
+  cancellingOrderId: string | null = null;
+  cancelSuccess: string | null = null;
+
   // Confirm reception
   confirmingOrderId: string | null = null;
   receptionSuccess: string | null = null;
@@ -103,6 +107,26 @@ export class MyOrdersComponent implements OnInit {
       refunded: 'badge-secondary'
     };
     return map[status] || 'badge-secondary';
+  }
+
+  // --- Cancel order ---
+
+  cancelOrder(order: Order): void {
+    if (!confirm('Voulez-vous vraiment annuler cette commande ?')) return;
+    this.cancellingOrderId = order._id;
+    this.cancelSuccess = null;
+    this.orderService.cancelOrder(order._id).subscribe({
+      next: () => {
+        this.cancellingOrderId = null;
+        this.cancelSuccess = order._id;
+        order.status = 'cancelled';
+        setTimeout(() => this.cancelSuccess = null, 4000);
+      },
+      error: (err: ApiErrorBody) => {
+        this.cancellingOrderId = null;
+        this.errorMessage = err.message || 'Erreur lors de l\'annulation.';
+      }
+    });
   }
 
   // --- Confirm reception ---

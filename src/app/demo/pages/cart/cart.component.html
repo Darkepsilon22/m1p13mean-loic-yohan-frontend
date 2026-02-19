@@ -1,268 +1,392 @@
-<div class="row">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-          <i class="feather icon-shopping-cart mr-2"></i>Mon Panier
-        </h5>
-        <a routerLink="/home" class="btn btn-sm btn-outline-secondary">
-          <i class="feather icon-arrow-left mr-1"></i> Continuer mes achats
-        </a>
+<div class="cart-page">
+
+  <!-- Loading -->
+  <div *ngIf="loading && !stripeVerifying" class="cart-loading">
+    <div class="loader-ring">
+      <div></div><div></div><div></div>
+    </div>
+    <p>Chargement du panier...</p>
+  </div>
+
+  <!-- Stripe verification -->
+  <div *ngIf="stripeVerifying" class="cart-loading">
+    <div class="loader-ring">
+      <div></div><div></div><div></div>
+    </div>
+    <p>Vérification du paiement en cours...</p>
+  </div>
+
+  <!-- Messages flash -->
+  <div class="cart-flash success" *ngIf="successMessage">
+    <div class="flash-icon-wrap">
+      <i class="feather icon-check-circle"></i>
+    </div>
+    <div class="flash-content">
+      <span>{{ successMessage }}</span>
+      <strong *ngIf="orderReference">Réf. {{ orderReference }}</strong>
+    </div>
+  </div>
+  <div class="cart-flash error" *ngIf="errorMessage">
+    <div class="flash-icon-wrap">
+      <i class="feather icon-alert-circle"></i>
+    </div>
+    <div class="flash-content">
+      <span>{{ errorMessage }}</span>
+    </div>
+  </div>
+
+  <!-- Panier vide -->
+  <div *ngIf="!loading && (!cart || !cart.items || cart.items.length === 0) && !successMessage" class="cart-empty">
+    <div class="empty-visual">
+      <div class="empty-circle"></div>
+      <div class="empty-icon">
+        <i class="feather icon-shopping-cart"></i>
       </div>
-      <div class="card-body">
-        <!-- Chargement -->
-        <div *ngIf="loading" class="text-center py-5">
-          <i class="feather icon-loader"></i> Chargement du panier...
+    </div>
+    <h3>Votre panier est vide</h3>
+    <p>Explorez nos boutiques et trouvez des produits qui vous plaisent !</p>
+    <a routerLink="/home" class="btn-discover">
+      <span>Découvrir les produits</span>
+      <i class="feather icon-arrow-right"></i>
+    </a>
+  </div>
+
+  <!-- Panier avec articles -->
+  <div *ngIf="!loading && cart && cart.items && cart.items.length > 0" class="cart-content">
+
+    <!-- Header -->
+    <div class="cart-header">
+      <div class="cart-title">
+        <div class="title-icon">
+          <i class="feather icon-shopping-cart"></i>
+        </div>
+        <div>
+          <h3>Mon Panier</h3>
+          <span class="items-count">{{ getItemsCount() }} article{{ getItemsCount() > 1 ? 's' : '' }}</span>
+        </div>
+      </div>
+      <a routerLink="/home" class="btn-continue">
+        <i class="feather icon-arrow-left"></i>
+        <span>Continuer mes achats</span>
+      </a>
+    </div>
+
+    <div class="cart-layout">
+
+      <!-- Colonne articles -->
+      <div class="cart-items-col">
+
+        <!-- Table header -->
+        <div class="items-table-header">
+          <span class="th-product">Produit</span>
+          <span class="th-qty">Quantité</span>
+          <span class="th-total">Total</span>
+          <span class="th-action"></span>
         </div>
 
-        <!-- Vérification Stripe en cours -->
-        <div *ngIf="stripeVerifying" class="text-center py-5">
-          <i class="feather icon-loader"></i> Vérification du paiement en cours...
-        </div>
-
-        <!-- Messages -->
-        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-        <div *ngIf="successMessage" class="alert alert-success">
-          <i class="feather icon-check-circle mr-1"></i> {{ successMessage }}
-          <span *ngIf="orderReference"> - Référence : <strong>{{ orderReference }}</strong></span>
-        </div>
-
-        <!-- Panier vide -->
-        <div *ngIf="!loading && (!cart || !cart.items || cart.items.length === 0)" class="text-center py-5">
-          <i class="feather icon-shopping-bag text-muted" style="font-size: 4rem;"></i>
-          <p class="mt-3 text-muted">Votre panier est vide.</p>
-          <a routerLink="/home" class="btn btn-primary">
-            <i class="feather icon-shopping-bag mr-1"></i> Découvrir les produits
-          </a>
-        </div>
-
-        <!-- Liste des articles -->
-        <div *ngIf="!loading && cart && cart.items && cart.items.length > 0">
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead class="thead-light">
-                <tr>
-                  <th style="width: 80px;">Image</th>
-                  <th>Produit</th>
-                  <th style="width: 120px;">Prix unitaire</th>
-                  <th style="width: 150px;">Quantité</th>
-                  <th style="width: 120px;">Total</th>
-                  <th style="width: 80px;"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of cart.items">
-                  <td>
-                    <img *ngIf="getItemImage(item)" [src]="getItemImage(item)" alt="{{ getItemName(item) }}"
-                         class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;"
-                         (click)="goToProduct(item)">
-                    <div *ngIf="!getItemImage(item)" class="bg-light d-flex align-items-center justify-content-center rounded"
-                         style="width: 60px; height: 60px; cursor: pointer;" (click)="goToProduct(item)">
-                      <i class="feather icon-image text-muted"></i>
-                    </div>
-                  </td>
-                  <td>
-                    <a [routerLink]="['/products/view', getProductId(item)]" class="text-dark font-weight-bold">
-                      {{ getItemName(item) }}
-                    </a>
-                  </td>
-                  <td>{{ item.unitPrice | number:'1.0-0' }} Ar</td>
-                  <td>
-                    <div class="input-group input-group-sm" style="width: 110px;">
-                      <div class="input-group-prepend">
-                        <button class="btn btn-outline-secondary" type="button"
-                                (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 1">
-                          <i class="feather icon-minus"></i>
-                        </button>
-                      </div>
-                      <span class="form-control text-center" 
-                            style="background-color: #ffffff; color: #000000; font-weight: bold; font-size: 16px; line-height: 1.5; padding: 0.25rem 0.5rem; border: 1px solid #ced4da;">
-                        {{ item.quantity }}
-                      </span>
-                      <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button"
-                                (click)="updateQuantity(item, item.quantity + 1)">
-                          <i class="feather icon-plus"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="font-weight-bold text-primary">
-                    {{ (item.unitPrice * item.quantity) | number:'1.0-0' }} Ar
-                  </td>
-                  <td>
-                    <button class="btn btn-sm btn-outline-danger" (click)="removeItem(item)" title="Supprimer">
-                      <i class="feather icon-trash-2"></i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Résumé -->
-          <div class="row mt-4">
-            <div class="col-md-6">
-              <button class="btn btn-outline-danger" (click)="clearCart()">
-                <i class="feather icon-trash mr-1"></i> Vider le panier
-              </button>
+        <!-- Item card -->
+        <div class="cart-item" *ngFor="let item of cart.items; let i = index" [style.animation-delay]="(i * 60) + 'ms'">
+          <div class="item-product-col">
+            <div class="item-image" (click)="goToProduct(item)">
+              <img *ngIf="getItemImage(item)" [src]="getItemImage(item)" [alt]="getItemName(item)">
+              <div *ngIf="!getItemImage(item)" class="item-no-image">
+                <i class="feather icon-image"></i>
+              </div>
             </div>
-            <div class="col-md-6">
-              <div class="card bg-light">
-                <div class="card-body">
-                  <h5 class="card-title">Résumé de la commande</h5>
-                  <hr>
-                  <div class="d-flex justify-content-between mb-2">
-                    <span>Articles ({{ getItemsCount() }})</span>
-                    <span>{{ getSubtotal() | number:'1.0-0' }} Ar</span>
-                  </div>
-                  <div class="d-flex justify-content-between mb-2">
-                    <span>Livraison</span>
-                    <span class="text-success">À calculer</span>
-                  </div>
-                  <hr>
-                  <div class="d-flex justify-content-between mb-3">
-                    <strong class="h5">Total</strong>
-                    <strong class="h5 text-primary">{{ getSubtotal() | number:'1.0-0' }} Ar</strong>
-                  </div>
-                  <button class="btn btn-primary btn-lg btn-block" (click)="openCheckout()">
-                    <i class="feather icon-credit-card mr-1"></i> Commander
-                  </button>
-                </div>
+            <div class="item-details">
+              <a [routerLink]="['/products/view', getProductId(item)]" class="item-name">
+                {{ getItemName(item) }}
+              </a>
+              <div class="item-unit-price">
+                {{ item.unitPrice | number:'1.0-0' }} Ar
               </div>
             </div>
           </div>
+
+          <div class="item-quantity">
+            <button class="qty-btn minus" (click)="updateQuantity(item, item.quantity - 1)" [disabled]="item.quantity <= 1">
+              <i class="feather icon-minus"></i>
+            </button>
+            <span class="qty-value">{{ item.quantity }}</span>
+            <button class="qty-btn plus" (click)="updateQuantity(item, item.quantity + 1)">
+              <i class="feather icon-plus"></i>
+            </button>
+          </div>
+
+          <div class="item-total">
+            {{ (item.unitPrice * item.quantity) | number:'1.0-0' }} <small>Ar</small>
+          </div>
+
+          <button class="item-remove" (click)="removeItem(item)" title="Supprimer">
+            <i class="feather icon-x"></i>
+          </button>
+        </div>
+
+        <!-- Vider le panier -->
+        <div class="cart-actions">
+          <button class="btn-clear" (click)="clearCart()">
+            <i class="feather icon-trash-2"></i>
+            <span>Vider le panier</span>
+          </button>
         </div>
       </div>
+
+      <!-- Colonne résumé -->
+      <div class="cart-summary-col">
+        <div class="cart-summary">
+          <div class="summary-badge">
+            <i class="feather icon-file-text"></i>
+          </div>
+          <h5 class="summary-title">Résumé</h5>
+
+          <div class="summary-rows">
+            <div class="summary-row">
+              <span>Sous-total</span>
+              <span class="row-value">{{ getSubtotal() | number:'1.0-0' }} Ar</span>
+            </div>
+            <div class="summary-row">
+              <span>Articles</span>
+              <span class="row-value">{{ getItemsCount() }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Livraison</span>
+              <span class="row-value shipping-tbd">À calculer</span>
+            </div>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-total">
+            <span>Total</span>
+            <span class="total-amount">{{ getSubtotal() | number:'1.0-0' }} <small>Ar</small></span>
+          </div>
+
+          <button class="btn-checkout" (click)="openCheckout()">
+            <span>Commander</span>
+            <i class="feather icon-arrow-right"></i>
+          </button>
+
+          <div class="secure-row">
+            <div class="secure-badge">
+              <i class="feather icon-shield"></i>
+              <span>Paiement sécurisé</span>
+            </div>
+            <div class="secure-badge">
+              <i class="feather icon-truck"></i>
+              <span>Livraison suivie</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
 
-<!-- Modal Checkout -->
-<div class="modal fade show d-block" tabindex="-1" *ngIf="showCheckout" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="feather icon-credit-card mr-2"></i>Finaliser la commande
-        </h5>
-        <button type="button" class="close" (click)="closeCheckout()" [disabled]="checkoutLoading">
-          <span>&times;</span>
-        </button>
+<!-- ============ MODAL CHECKOUT ============ -->
+<div class="checkout-overlay" *ngIf="showCheckout" (click)="closeCheckout()">
+  <div class="checkout-modal" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="checkout-header">
+      <div class="checkout-header-left">
+        <div class="checkout-icon">
+          <i class="feather icon-shopping-cart"></i>
+        </div>
+        <div>
+          <h5>Finaliser la commande</h5>
+          <span class="checkout-subtitle">{{ getItemsCount() }} article{{ getItemsCount() > 1 ? 's' : '' }} · {{ getSubtotal() | number:'1.0-0' }} Ar</span>
+        </div>
       </div>
-      <div class="modal-body">
-        <!-- Succès -->
-        <div *ngIf="checkoutSuccess" class="alert alert-success text-center">
-          <i class="feather icon-check-circle" style="font-size: 3rem;"></i>
-          <h4 class="mt-2">{{ checkoutSuccess }}</h4>
-          <p *ngIf="orderReference">Référence : <strong>{{ orderReference }}</strong></p>
-          <p class="text-muted">Vous allez être redirigé...</p>
+      <button class="checkout-close" (click)="closeCheckout()" [disabled]="checkoutLoading">
+        <i class="feather icon-x"></i>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="checkout-body">
+
+      <!-- Succès -->
+      <div *ngIf="checkoutSuccess" class="checkout-success">
+        <div class="success-ring">
+          <div class="success-icon">
+            <i class="feather icon-check"></i>
+          </div>
+        </div>
+        <h4>{{ checkoutSuccess }}</h4>
+        <p *ngIf="orderReference">Référence : <strong>{{ orderReference }}</strong></p>
+        <p class="redirect-text">Vous allez être redirigé...</p>
+      </div>
+
+      <div *ngIf="!checkoutSuccess">
+        <!-- Erreur -->
+        <div *ngIf="checkoutError" class="checkout-error">
+          <i class="feather icon-alert-triangle"></i>
+          <span>{{ checkoutError }}</span>
         </div>
 
-        <div *ngIf="!checkoutSuccess">
-          <!-- Erreur -->
-          <div *ngIf="checkoutError" class="alert alert-danger">{{ checkoutError }}</div>
-
-          <!-- Informations client -->
-          <h6 class="mb-3"><i class="feather icon-user mr-1"></i> Informations de contact</h6>
-          <div class="row">
-            <div class="col-md-6 form-group">
-              <label>Nom complet *</label>
-              <input type="text" class="form-control" [(ngModel)]="customerName" placeholder="Votre nom">
-            </div>
-            <div class="col-md-6 form-group">
-              <label>Email *</label>
-              <input type="email" class="form-control" [(ngModel)]="customerEmail" placeholder="email@example.com">
+        <!-- Step 1: Contact -->
+        <div class="checkout-section">
+          <div class="section-label">
+            <span class="step-indicator">
+              <span class="step-dot"></span>
+              <span class="step-line"></span>
+            </span>
+            <div>
+              <span class="step-tag">Étape 1</span>
+              <h6>Informations de contact</h6>
             </div>
           </div>
-          <div class="form-group">
-            <label>Téléphone *</label>
-            <input type="tel" class="form-control" [(ngModel)]="customerPhone" placeholder="+261 34 00 000 00">
-          </div>
-
-          <hr>
-
-          <!-- Adresse de livraison -->
-          <h6 class="mb-3"><i class="feather icon-map-pin mr-1"></i> Adresse de livraison</h6>
-          <div class="form-group">
-            <label>Adresse *</label>
-            <input type="text" class="form-control" [(ngModel)]="shippingStreet" placeholder="Rue, numéro, quartier...">
-          </div>
-          <div class="row">
-            <div class="col-md-6 form-group">
-              <label>Ville *</label>
-              <input type="text" class="form-control" [(ngModel)]="shippingCity" placeholder="Antananarivo">
+          <div class="section-fields">
+            <div class="form-row-grid">
+              <div class="form-field">
+                <label>Nom complet</label>
+                <div class="input-wrap">
+                  <i class="feather icon-user"></i>
+                  <input type="text" [(ngModel)]="customerName" placeholder="Votre nom complet">
+                </div>
+              </div>
+              <div class="form-field">
+                <label>Email</label>
+                <div class="input-wrap">
+                  <i class="feather icon-mail"></i>
+                  <input type="email" [(ngModel)]="customerEmail" placeholder="email@exemple.com">
+                </div>
+              </div>
             </div>
-            <div class="col-md-3 form-group">
-              <label>Code postal</label>
-              <input type="text" class="form-control" [(ngModel)]="shippingPostalCode" placeholder="101">
-            </div>
-            <div class="col-md-3 form-group">
-              <label>Pays</label>
-              <input type="text" class="form-control" [(ngModel)]="shippingCountry" readonly>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Informations complémentaires</label>
-            <textarea class="form-control" rows="2" [(ngModel)]="shippingAdditionalInfo"
-                      placeholder="Instructions de livraison, point de repère..."></textarea>
-          </div>
-
-          <hr>
-
-          <!-- Mode de paiement -->
-          <h6 class="mb-3"><i class="feather icon-credit-card mr-1"></i> Mode de paiement</h6>
-          <div class="form-group">
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="radio" name="paymentMethod" id="payCash"
-                     value="cash" [(ngModel)]="paymentMethod">
-              <label class="form-check-label" for="payCash">
-                <i class="feather icon-dollar-sign mr-1"></i> Paiement à la livraison
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="paymentMethod" id="payStripe"
-                     value="stripe" [(ngModel)]="paymentMethod">
-              <label class="form-check-label" for="payStripe">
-                <i class="feather icon-credit-card mr-1"></i> Carte bancaire (Stripe)
-              </label>
-              <small *ngIf="paymentMethod === 'stripe'" class="form-text text-muted">
-                Vous serez redirigé vers la page de paiement sécurisée Stripe.
-              </small>
-            </div>
-          </div>
-
-          <hr>
-
-          <!-- Résumé -->
-          <div class="bg-light p-3 rounded">
-            <div class="d-flex justify-content-between mb-2">
-              <span>Sous-total</span>
-              <span>{{ getSubtotal() | number:'1.0-0' }} Ar</span>
-            </div>
-            <div class="d-flex justify-content-between">
-              <strong>Total à payer</strong>
-              <strong class="text-primary h5 mb-0">{{ getSubtotal() | number:'1.0-0' }} Ar</strong>
+            <div class="form-field">
+              <label>Téléphone</label>
+              <div class="input-wrap">
+                <i class="feather icon-phone"></i>
+                <input type="tel" [(ngModel)]="customerPhone" placeholder="+261 34 00 000 00">
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="modal-footer" *ngIf="!checkoutSuccess">
-        <button type="button" class="btn btn-secondary" (click)="closeCheckout()" [disabled]="checkoutLoading">
-          Annuler
-        </button>
-        <button type="button" class="btn btn-primary" (click)="submitOrder()" [disabled]="checkoutLoading">
-          <span *ngIf="!checkoutLoading && paymentMethod !== 'stripe'">
-            <i class="feather icon-check mr-1"></i> Confirmer la commande
-          </span>
-          <span *ngIf="!checkoutLoading && paymentMethod === 'stripe'">
-            <i class="feather icon-credit-card mr-1"></i> Payer avec Stripe
-          </span>
-          <span *ngIf="checkoutLoading">
-            <i class="feather icon-loader"></i> Traitement...
-          </span>
-        </button>
+
+        <!-- Step 2: Adresse -->
+        <div class="checkout-section">
+          <div class="section-label">
+            <span class="step-indicator">
+              <span class="step-dot"></span>
+              <span class="step-line"></span>
+            </span>
+            <div>
+              <span class="step-tag">Étape 2</span>
+              <h6>Adresse de livraison</h6>
+            </div>
+          </div>
+          <div class="section-fields">
+            <div class="form-field">
+              <label>Adresse</label>
+              <div class="input-wrap">
+                <i class="feather icon-map-pin"></i>
+                <input type="text" [(ngModel)]="shippingStreet" placeholder="Rue, numéro, quartier...">
+              </div>
+            </div>
+            <div class="form-row-grid three-cols">
+              <div class="form-field">
+                <label>Ville</label>
+                <div class="input-wrap">
+                  <i class="feather icon-home"></i>
+                  <input type="text" [(ngModel)]="shippingCity" placeholder="Antananarivo">
+                </div>
+              </div>
+              <div class="form-field">
+                <label>Code postal</label>
+                <div class="input-wrap">
+                  <input type="text" [(ngModel)]="shippingPostalCode" placeholder="101">
+                </div>
+              </div>
+              <div class="form-field">
+                <label>Pays</label>
+                <div class="input-wrap">
+                  <i class="feather icon-globe"></i>
+                  <input type="text" [(ngModel)]="shippingCountry" readonly>
+                </div>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Infos complémentaires</label>
+              <textarea rows="2" [(ngModel)]="shippingAdditionalInfo" placeholder="Instructions de livraison, point de repère..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Paiement -->
+        <div class="checkout-section">
+          <div class="section-label">
+            <span class="step-indicator last">
+              <span class="step-dot"></span>
+            </span>
+            <div>
+              <span class="step-tag">Étape 3</span>
+              <h6>Mode de paiement</h6>
+            </div>
+          </div>
+          <div class="section-fields">
+            <div class="payment-options">
+              <label class="payment-option" [class.selected]="paymentMethod === 'cash'">
+                <input type="radio" name="paymentMethod" value="cash" [(ngModel)]="paymentMethod">
+                <div class="option-radio">
+                  <div class="radio-dot"></div>
+                </div>
+                <div class="option-icon cash-icon">
+                  <i class="feather icon-package"></i>
+                </div>
+                <div class="option-info">
+                  <strong>Paiement à la livraison</strong>
+                  <small>Payez en espèces à la réception</small>
+                </div>
+              </label>
+              <label class="payment-option" [class.selected]="paymentMethod === 'stripe'">
+                <input type="radio" name="paymentMethod" value="stripe" [(ngModel)]="paymentMethod">
+                <div class="option-radio">
+                  <div class="radio-dot"></div>
+                </div>
+                <div class="option-icon stripe-icon">
+                  <i class="feather icon-credit-card"></i>
+                </div>
+                <div class="option-info">
+                  <strong>Carte bancaire</strong>
+                  <small>Paiement sécurisé via Stripe</small>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Résumé mini -->
+        <div class="checkout-summary">
+          <div class="summary-line">
+            <span>Sous-total</span>
+            <span>{{ getSubtotal() | number:'1.0-0' }} Ar</span>
+          </div>
+          <div class="summary-line total-line">
+            <strong>Total à payer</strong>
+            <strong class="checkout-total-amount">{{ getSubtotal() | number:'1.0-0' }} Ar</strong>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- Footer -->
+    <div class="checkout-footer" *ngIf="!checkoutSuccess">
+      <button class="btn-back" (click)="closeCheckout()" [disabled]="checkoutLoading">
+        <i class="feather icon-arrow-left"></i>
+        Retour
+      </button>
+      <button class="btn-confirm" (click)="submitOrder()" [disabled]="checkoutLoading">
+        <ng-container *ngIf="!checkoutLoading">
+          <i class="feather" [ngClass]="paymentMethod === 'stripe' ? 'icon-credit-card' : 'icon-check'"></i>
+          <span>{{ paymentMethod === 'stripe' ? 'Payer avec Stripe' : 'Confirmer la commande' }}</span>
+        </ng-container>
+        <ng-container *ngIf="checkoutLoading">
+          <div class="btn-spinner"></div>
+          <span>Traitement...</span>
+        </ng-container>
+      </button>
+    </div>
+
   </div>
 </div>
