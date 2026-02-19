@@ -1,324 +1,388 @@
-<div class="row" *ngIf="loading">
-  <div class="col-12 text-center py-5">Chargement...</div>
-</div>
-<div class="row" *ngIf="errorMessage && !product">
-  <div class="col-12">
-    <div class="alert alert-danger">{{ errorMessage }}</div>
-    <a routerLink="/home" class="btn btn-secondary">Retour à l'accueil</a>
+<!-- Loading -->
+<div class="product-view-page" *ngIf="loading">
+  <div class="loading-container">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-3 text-muted">Chargement du produit...</p>
   </div>
 </div>
 
-<div class="row" *ngIf="product && !loading">
-  <!-- Image du produit -->
-  <div class="col-md-5 mb-3">
-    <div class="card h-100">
-      <img *ngIf="getMainPhoto()" [src]="getMainPhoto()" class="card-img-top" alt="{{ product.name }}" style="object-fit: cover; max-height: 350px;">
-      <div class="card-body" *ngIf="!getMainPhoto()">
-        <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height: 280px;">
-          <i class="feather icon-image text-muted" style="font-size: 3rem;"></i>
-        </div>
-      </div>
-      <!-- Galerie secondaire -->
-      <div class="card-body pt-2" *ngIf="product.photos?.length > 1">
-        <div class="d-flex flex-wrap gap-2">
-          <img *ngFor="let photo of product.photos" [src]="photo" class="img-thumbnail"
-               style="width: 60px; height: 60px; object-fit: cover; cursor: pointer;">
-        </div>
-      </div>
-    </div>
+<!-- Erreur -->
+<div *ngIf="errorMessage && !product" class="product-view-page">
+  <div class="error-container text-center py-5">
+    <i class="feather icon-alert-circle" style="font-size: 3rem; color: #e74c3c;"></i>
+    <h5 class="mt-3">Produit introuvable</h5>
+    <p class="text-muted">{{ errorMessage }}</p>
+    <a routerLink="/home" class="btn btn-primary mt-2">
+      <i class="feather icon-arrow-left mr-1"></i> Retour à l'accueil
+    </a>
   </div>
+</div>
 
-  <!-- Détails du produit -->
-  <div class="col-md-7">
-    <div class="card h-100">
-      <div class="card-body">
-        <h4 class="card-title mb-2">{{ product.name }}</h4>
+<!-- Contenu principal -->
+<div class="product-view-page" *ngIf="product && !loading">
 
-        <p class="text-muted mb-2" *ngIf="product.boutiqueId?.name">
-          <i class="feather icon-shopping-bag mr-1"></i>{{ product.boutiqueId.name }}
-        </p>
+  <!-- Breadcrumb -->
+  <nav class="product-breadcrumb mb-4">
+    <a routerLink="/home" class="breadcrumb-link">Accueil</a>
+    <span class="breadcrumb-sep">/</span>
+    <a routerLink="/boutiques" class="breadcrumb-link">Boutiques</a>
+    <span class="breadcrumb-sep" *ngIf="product.boutiqueId?.name">/</span>
+    <a *ngIf="product.boutiqueId?._id" [routerLink]="['/boutiques', product.boutiqueId._id]" class="breadcrumb-link">{{ product.boutiqueId.name }}</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">{{ product.name }}</span>
+  </nav>
 
-        <!-- Note moyenne -->
-        <div class="mb-2" *ngIf="reviews.length > 0">
-          <span class="text-warning">
-            <i *ngFor="let s of [1,2,3,4,5]" class="fa"
-               [ngClass]="s <= averageRating ? 'fa-star' : (s - 0.5 <= averageRating ? 'fa-star-half-o' : 'fa-star-o')"></i>
-          </span>
-          <span class="ml-2 text-muted small">{{ averageRating }} / 5 ({{ reviews.length }} avis)</span>
+  <!-- ============ SECTION PRODUIT ============ -->
+  <div class="product-main">
+    <div class="row">
+
+      <!-- Colonne Image -->
+      <div class="col-lg-5 col-md-6 mb-4">
+        <div class="product-gallery">
+          <!-- Image principale -->
+          <div class="gallery-main">
+            <img *ngIf="getMainPhoto()" [src]="getMainPhoto()" [alt]="product.name" class="main-image">
+            <div *ngIf="!getMainPhoto()" class="main-image-placeholder">
+              <i class="feather icon-image"></i>
+              <span>Aucune image</span>
+            </div>
+
+            <!-- Badge promo flottant -->
+            <div class="promo-float-badge" *ngIf="activePromotion">
+              {{ getPromoBadge() }}
+            </div>
+
+            <!-- Badge vedette -->
+            <div class="featured-float-badge" *ngIf="product.isFeatured">
+              <i class="feather icon-star mr-1"></i>Vedette
+            </div>
+          </div>
+
+          <!-- Thumbnails -->
+          <div class="gallery-thumbs" *ngIf="product.photos?.length > 1">
+            <div *ngFor="let photo of product.photos"
+                 class="thumb-item"
+                 [class.active]="(selectedPhoto || getMainPhoto()) === photo"
+                 (click)="selectPhoto(photo)">
+              <img [src]="photo" [alt]="product.name">
+            </div>
+          </div>
         </div>
+      </div>
 
-        <p class="card-text mb-3" *ngIf="product.description">{{ product.description }}</p>
+      <!-- Colonne Détails -->
+      <div class="col-lg-7 col-md-6">
+        <div class="product-details">
 
-        <!-- Prix -->
-        <div class="mb-3">
-          <!-- Prix avec promotion active -->
-          <ng-container *ngIf="promoPrice != null; else normalPrice">
-            <span class="h3 text-primary font-weight-bold">{{ promoPrice | number:'1.0-0' }} Ar</span>
-            <span class="text-muted text-decoration-line-through ml-2">{{ product.price | number:'1.0-0' }} Ar</span>
-            <span class="badge badge-danger ml-2">{{ getPromoBadge() }}</span>
-          </ng-container>
-          <!-- Prix normal (sans promo) -->
-          <ng-template #normalPrice>
-            <span class="h3 text-primary font-weight-bold">{{ product.price != null ? (product.price | number:'1.0-0') : '—' }} Ar</span>
-            <span class="text-muted text-decoration-line-through ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
-              {{ product.originalPrice | number:'1.0-0' }} Ar
-            </span>
-            <span class="badge badge-danger ml-2" *ngIf="product.originalPrice && product.originalPrice > product.price">
-              -{{ ((1 - product.price / product.originalPrice) * 100) | number:'1.0-0' }}%
-            </span>
-          </ng-template>
-        </div>
+          <!-- Catégorie tag -->
+          <div class="product-category-tag" *ngIf="product.categoryInternal">
+            <i class="feather icon-tag mr-1"></i>{{ product.categoryInternal }}
+          </div>
 
-        <!-- Badges -->
-        <p class="mb-3">
-          <span class="badge badge-lg" [ngClass]="product.availability === 'available' ? 'badge-success' : product.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
-            {{ getAvailabilityLabel(product.availability) }}
-          </span>
-          <span class="badge badge-info ml-1" *ngIf="product.isFeatured">En vedette</span>
-        </p>
+          <!-- Nom -->
+          <h2 class="product-title">{{ product.name }}</h2>
 
-        <p class="text-muted small mb-3" *ngIf="product.categoryInternal">
-          <strong>Catégorie :</strong> {{ product.categoryInternal }}
-        </p>
+          <!-- Boutique link -->
+          <a *ngIf="product.boutiqueId?._id" [routerLink]="['/boutiques', product.boutiqueId._id]" class="product-boutique-link">
+            <i class="feather icon-home mr-1"></i>{{ product.boutiqueId.name }}
+          </a>
 
-        <p class="text-muted small mb-3" *ngIf="product.stock != null && product.stock > 0">
-          <strong>Stock :</strong> {{ product.stock }} unité(s)
-        </p>
+          <!-- Rating inline -->
+          <div class="product-rating" *ngIf="reviews.length > 0">
+            <div class="stars">
+              <i *ngFor="let s of [1,2,3,4,5]" class="fa"
+                 [ngClass]="s <= averageRating ? 'fa-star' : (s - 0.5 <= averageRating ? 'fa-star-half-o' : 'fa-star-o')"></i>
+            </div>
+            <span class="rating-text">{{ averageRating }} / 5</span>
+            <span class="rating-count">({{ reviews.length }} avis)</span>
+          </div>
 
-        <!-- Message rupture de stock -->
-        <div class="alert alert-danger mb-3" *ngIf="product.stock != null && product.stock <= 0">
-          <i class="feather icon-alert-triangle mr-1"></i>
-          <strong>Rupture de stock</strong> — Ce produit n'est plus disponible pour le moment.
-        </div>
+          <!-- Séparateur -->
+          <div class="detail-divider"></div>
 
-        <!-- Section Panier (acheteur uniquement) -->
-        <div class="mt-4" *ngIf="isAcheteur">
-          <hr>
-          <div class="d-flex align-items-center mb-3" *ngIf="product.stock > 0">
-            <label class="mb-0 mr-3"><strong>Quantité :</strong></label>
-            <div class="input-group" style="width: 140px;">
-              <div class="input-group-prepend">
-                <button class="btn btn-outline-secondary" type="button" (click)="decrementQuantity()" [disabled]="quantity <= 1">
+          <!-- Prix -->
+          <div class="product-price-block">
+            <ng-container *ngIf="promoPrice != null; else normalPriceBlock">
+              <div class="price-promo">
+                <span class="price-current">{{ promoPrice | number:'1.0-0' }} Ar</span>
+                <span class="price-original">{{ product.price | number:'1.0-0' }} Ar</span>
+                <span class="price-discount-badge">{{ getPromoBadge() }}</span>
+              </div>
+              <div class="price-savings">
+                Vous économisez {{ (product.price - promoPrice) | number:'1.0-0' }} Ar
+              </div>
+            </ng-container>
+            <ng-template #normalPriceBlock>
+              <div class="price-normal">
+                <span class="price-current">{{ product.price != null ? (product.price | number:'1.0-0') : '—' }} Ar</span>
+                <span class="price-original" *ngIf="product.originalPrice && product.originalPrice > product.price">
+                  {{ product.originalPrice | number:'1.0-0' }} Ar
+                </span>
+                <span class="price-discount-badge" *ngIf="product.originalPrice && product.originalPrice > product.price">
+                  -{{ ((1 - product.price / product.originalPrice) * 100) | number:'1.0-0' }}%
+                </span>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Stock status -->
+          <div class="stock-status-block">
+            <!-- En stock normal -->
+            <div class="stock-indicator stock-ok" *ngIf="product.stock != null && product.stock >= 5">
+              <i class="feather icon-check-circle"></i>
+              <span>En stock — {{ product.stock }} unités disponibles</span>
+            </div>
+            <!-- Stock faible -->
+            <div class="stock-indicator stock-low" *ngIf="product.stock != null && product.stock > 0 && product.stock < 5">
+              <i class="feather icon-alert-triangle"></i>
+              <span>Stock faible — Plus que {{ product.stock }} restant{{ product.stock > 1 ? 's' : '' }} !</span>
+            </div>
+            <!-- Rupture -->
+            <div class="stock-indicator stock-out" *ngIf="product.stock != null && product.stock === 0">
+              <i class="feather icon-x-circle"></i>
+              <span>Rupture de stock — Indisponible pour le moment</span>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="product-description" *ngIf="product.description">
+            <p>{{ product.description }}</p>
+          </div>
+
+          <!-- Séparateur -->
+          <div class="detail-divider"></div>
+
+          <!-- Section Panier (acheteur uniquement) -->
+          <div class="product-cart-section" *ngIf="isAcheteur">
+            <div class="quantity-row" *ngIf="product.stock > 0">
+              <label class="qty-label">Quantité</label>
+              <div class="qty-control">
+                <button class="qty-btn" (click)="decrementQuantity()" [disabled]="quantity <= 1">
                   <i class="feather icon-minus"></i>
                 </button>
-              </div>
-              <input type="text" class="form-control text-center" [value]="quantity" readonly style="background-color: #fff;">
-              <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" (click)="incrementQuantity()"
-                        [disabled]="product.stock && quantity >= product.stock">
+                <span class="qty-value">{{ quantity }}</span>
+                <button class="qty-btn" (click)="incrementQuantity()" [disabled]="product.stock && quantity >= product.stock">
                   <i class="feather icon-plus"></i>
                 </button>
               </div>
+              <span class="qty-max" *ngIf="product.stock != null">Max {{ product.stock }}</span>
             </div>
-            <span class="ml-3 text-muted small" *ngIf="product.stock != null">Max: {{ product.stock }}</span>
-          </div>
 
-          <button class="btn btn-primary btn-lg mr-2" (click)="addToCart()"
-                  [disabled]="addingToCart || product.stock <= 0 || product.availability === 'outOfStock'">
-            <i class="feather icon-shopping-cart mr-1"></i>
-            <span *ngIf="!addingToCart">Ajouter au panier</span>
-            <span *ngIf="addingToCart">Ajout...</span>
-          </button>
+            <div class="cart-buttons">
+              <button class="btn-add-cart" (click)="addToCart()"
+                      [disabled]="addingToCart || product.stock <= 0 || product.availability === 'outOfStock'"
+                      [class.loading]="addingToCart">
+                <i class="feather icon-shopping-cart mr-2" *ngIf="!addingToCart"></i>
+                <div class="spinner-border spinner-border-sm mr-2" *ngIf="addingToCart"></div>
+                {{ addingToCart ? 'Ajout en cours...' : 'Ajouter au panier' }}
+              </button>
+              <a routerLink="/cart" class="btn-view-cart">
+                <i class="feather icon-eye mr-1"></i> Voir le panier
+              </a>
+            </div>
 
-          <a routerLink="/cart" class="btn btn-outline-secondary btn-lg">
-            <i class="feather icon-eye mr-1"></i> Voir le panier
-          </a>
-
-          <!-- Message panier -->
-          <div class="mt-3" *ngIf="cartMessage">
-            <div class="alert" [ngClass]="cartMessageType === 'success' ? 'alert-success' : 'alert-danger'">
+            <!-- Message panier -->
+            <div class="cart-message mt-3" *ngIf="cartMessage"
+                 [class.success]="cartMessageType === 'success'"
+                 [class.error]="cartMessageType === 'error'">
+              <i class="feather mr-1" [ngClass]="cartMessageType === 'success' ? 'icon-check-circle' : 'icon-alert-circle'"></i>
               {{ cartMessage }}
             </div>
           </div>
-        </div>
 
-        <hr class="mt-4">
-        <a routerLink="/home" class="btn btn-outline-secondary">
-          <i class="feather icon-arrow-left mr-1"></i> Retour
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Section Avis -->
-<div class="row mt-4" *ngIf="product && !loading">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">
-          <i class="feather icon-message-square mr-2"></i>Avis clients
-        </h5>
-        <button class="btn btn-primary btn-sm" (click)="openReviewForm()" *ngIf="isAcheteur && !userReview">
-          <i class="feather icon-edit-2 mr-1"></i> Écrire un avis
-        </button>
-        <button class="btn btn-outline-primary btn-sm" (click)="openReviewForm()" *ngIf="isAcheteur && userReview">
-          <i class="feather icon-edit mr-1"></i> Modifier mon avis
-        </button>
-      </div>
-      <div class="card-body">
-        <!-- Statistiques des avis -->
-        <div class="row mb-4" *ngIf="reviews.length > 0">
-          <div class="col-md-4 text-center">
-            <div class="display-4 text-primary font-weight-bold">{{ averageRating }}</div>
-            <div class="text-warning mb-2">
-              <i *ngFor="let s of [1,2,3,4,5]" class="fa fa-lg"
-                 [ngClass]="s <= averageRating ? 'fa-star' : (s - 0.5 <= averageRating ? 'fa-star-half-o' : 'fa-star-o')"></i>
-            </div>
-            <div class="text-muted">Basé sur {{ reviews.length }} avis</div>
+          <!-- Info non connecté -->
+          <div class="login-prompt" *ngIf="!isAcheteur">
+            <i class="feather icon-lock mr-2"></i>
+            <span>Connectez-vous en tant qu'acheteur pour ajouter au panier</span>
           </div>
-          <div class="col-md-8">
-            <div *ngFor="let count of [5,4,3,2,1]; let i = index" class="d-flex align-items-center mb-1">
-              <span class="mr-2" style="width: 20px;">{{ count }}</span>
-              <i class="fa fa-star text-warning mr-2"></i>
-              <div class="progress flex-grow-1" style="height: 10px;">
-                <div class="progress-bar bg-warning" [style.width.%]="reviews.length > 0 ? (ratingCounts[count-1] / reviews.length * 100) : 0"></div>
-              </div>
-              <span class="ml-2 text-muted" style="width: 30px;">{{ ratingCounts[count-1] }}</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Message si utilisateur a déjà un avis -->
-        <div class="alert alert-info mb-3" *ngIf="userReview">
-          <i class="feather icon-check-circle mr-1"></i>
-          Vous avez déjà laissé un avis pour ce produit.
-        </div>
-
-        <!-- Chargement des avis -->
-        <div *ngIf="loadingReviews" class="text-center py-4">
-          <i class="feather icon-loader"></i> Chargement des avis...
-        </div>
-
-        <!-- Liste des avis -->
-        <div *ngIf="!loadingReviews && reviews.length === 0" class="text-center text-muted py-4">
-          <i class="feather icon-message-circle" style="font-size: 2rem;"></i>
-          <p class="mt-2">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
-        </div>
-
-        <div *ngIf="!loadingReviews && reviews.length > 0">
-          <div class="border-bottom pb-3 mb-3" *ngFor="let review of reviews">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <strong>{{ getReviewerName(review) }}</strong>
-                <span class="text-muted small ml-2">{{ formatDate(review.createdAt) }}</span>
-              </div>
-              <div class="text-warning">
-                <i *ngFor="let s of [1,2,3,4,5]" class="fa" [ngClass]="s <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
-              </div>
-            </div>
-            <p class="mt-2 mb-1">{{ review.comment }}</p>
-            <!-- Réponse de la boutique -->
-            <div class="bg-light p-2 rounded mt-2" *ngIf="review.response?.text">
-              <small class="text-muted"><strong>Réponse de {{ product?.boutiqueId?.name || 'la boutique' }} :</strong></small>
-              <p class="mb-0 small">{{ review.response.text }}</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- ============ SECTION AVIS ============ -->
+  <div class="reviews-section mt-4">
+    <div class="section-header">
+      <div class="section-title">
+        <i class="feather icon-message-square mr-2"></i>
+        <h4>Avis clients</h4>
+        <span class="review-count-badge" *ngIf="reviews.length > 0">{{ reviews.length }}</span>
+      </div>
+      <button class="btn-write-review" (click)="openReviewForm()" *ngIf="isAcheteur && !userReview">
+        <i class="feather icon-edit-2 mr-1"></i> Écrire un avis
+      </button>
+      <button class="btn-edit-review" (click)="openReviewForm()" *ngIf="isAcheteur && userReview">
+        <i class="feather icon-edit mr-1"></i> Modifier mon avis
+      </button>
+    </div>
+
+    <!-- Stats avis -->
+    <div class="review-stats" *ngIf="reviews.length > 0">
+      <div class="review-stats-left">
+        <div class="big-rating">{{ averageRating }}</div>
+        <div class="big-stars">
+          <i *ngFor="let s of [1,2,3,4,5]" class="fa fa-lg"
+             [ngClass]="s <= averageRating ? 'fa-star' : (s - 0.5 <= averageRating ? 'fa-star-half-o' : 'fa-star-o')"></i>
+        </div>
+        <div class="review-total">{{ reviews.length }} avis</div>
+      </div>
+      <div class="review-stats-right">
+        <div *ngFor="let count of [5,4,3,2,1]" class="rating-bar-row">
+          <span class="bar-label">{{ count }}</span>
+          <i class="fa fa-star bar-star"></i>
+          <div class="bar-track">
+            <div class="bar-fill" [style.width.%]="reviews.length > 0 ? (ratingCounts[count-1] / reviews.length * 100) : 0"></div>
+          </div>
+          <span class="bar-count">{{ ratingCounts[count-1] }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Message user review -->
+    <div class="user-review-notice" *ngIf="userReview">
+      <i class="feather icon-check-circle mr-2"></i>
+      Vous avez déjà laissé un avis pour ce produit.
+    </div>
+
+    <!-- Loading avis -->
+    <div *ngIf="loadingReviews" class="text-center py-4 text-muted">
+      <div class="spinner-border spinner-border-sm text-primary mr-2"></div>
+      Chargement des avis...
+    </div>
+
+    <!-- Aucun avis -->
+    <div *ngIf="!loadingReviews && reviews.length === 0" class="empty-reviews">
+      <i class="feather icon-message-circle"></i>
+      <p>Aucun avis pour le moment.</p>
+      <span>Soyez le premier à donner votre avis !</span>
+    </div>
+
+    <!-- Liste avis -->
+    <div class="review-list" *ngIf="!loadingReviews && reviews.length > 0">
+      <div class="review-item" *ngFor="let review of reviews">
+        <div class="review-header">
+          <div class="reviewer-avatar">
+            {{ getReviewerName(review).charAt(0).toUpperCase() }}
+          </div>
+          <div class="reviewer-info">
+            <strong class="reviewer-name">{{ getReviewerName(review) }}</strong>
+            <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+          </div>
+          <div class="review-stars">
+            <i *ngFor="let s of [1,2,3,4,5]" class="fa" [ngClass]="s <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
+          </div>
+        </div>
+        <p class="review-comment">{{ review.comment }}</p>
+        <!-- Réponse boutique -->
+        <div class="boutique-response" *ngIf="review.response?.text">
+          <div class="response-header">
+            <i class="feather icon-corner-down-right mr-1"></i>
+            <strong>{{ product?.boutiqueId?.name || 'La boutique' }}</strong> a répondu :
+          </div>
+          <p class="response-text">{{ review.response.text }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PRODUITS SIMILAIRES ============ -->
+  <div class="similar-section mt-4" *ngIf="!loadingSimilar && similarProducts.length > 0">
+    <div class="section-header">
+      <div class="section-title">
+        <i class="feather icon-grid mr-2"></i>
+        <h4>Produits similaires</h4>
+      </div>
+    </div>
+
+    <div class="similar-grid">
+      <a *ngFor="let p of similarProducts" [routerLink]="['/products/view', p._id]" class="similar-card">
+        <div class="similar-card-img">
+          <img *ngIf="getProductMainPhoto(p)" [src]="getProductMainPhoto(p)" [alt]="p.name">
+          <div *ngIf="!getProductMainPhoto(p)" class="similar-no-img">
+            <i class="feather icon-image"></i>
+          </div>
+          <!-- Stock badge overlay -->
+          <span class="similar-stock-badge stock-low-badge" *ngIf="p.stock != null && p.stock > 0 && p.stock < 5">
+            Stock faible
+          </span>
+          <span class="similar-stock-badge stock-out-badge" *ngIf="p.stock != null && p.stock === 0">
+            Rupture
+          </span>
+        </div>
+        <div class="similar-card-body">
+          <h6 class="similar-name">{{ p.name }}</h6>
+          <small class="similar-boutique" *ngIf="p.boutiqueId?.name">{{ p.boutiqueId.name }}</small>
+          <div class="similar-price">{{ p.price | number:'1.0-0' }} Ar</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="similar-section mt-4" *ngIf="loadingSimilar">
+    <div class="text-center py-3 text-muted">Chargement des produits similaires...</div>
+  </div>
+
 </div>
 
-<!-- Modal Avis -->
-<div class="modal fade show d-block" tabindex="-1" *ngIf="showReviewForm" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="feather icon-edit-2 mr-2"></i>
-          {{ userReview ? 'Modifier mon avis' : 'Écrire un avis' }}
-        </h5>
-        <button type="button" class="close" (click)="closeReviewForm()">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Note -->
-        <div class="form-group">
-          <label><strong>Votre note *</strong></label>
-          <div class="text-center py-3">
-            <span *ngFor="let star of [1,2,3,4,5]" 
-                  (click)="setRating(star)" 
-                  (mouseenter)="hoverStar = star"
-                  (mouseleave)="hoverStar = 0"
-                  style="cursor: pointer; font-size: 2.5rem; margin: 0 5px; display: inline-block; user-select: none;"
-                  [style.color]="(hoverStar > 0 ? star <= hoverStar : star <= reviewRating) ? '#ffc107' : '#dee2e6'"
-                  [style.transform]="hoverStar === star ? 'scale(1.2)' : 'scale(1)'"
-                  [style.transition]="'all 0.2s'">
-              ★
-            </span>
-          </div>
-          <div class="text-center text-muted small">
-            {{ reviewRating > 0 ? reviewRating + '/5' : 'Cliquez sur les étoiles' }}
-          </div>
+<!-- ============ MODAL AVIS ============ -->
+<div class="review-modal-overlay" *ngIf="showReviewForm" (click)="closeReviewForm()">
+  <div class="review-modal" (click)="$event.stopPropagation()">
+    <div class="review-modal-header">
+      <h5>
+        <i class="feather icon-edit-2 mr-2"></i>
+        {{ userReview ? 'Modifier mon avis' : 'Écrire un avis' }}
+      </h5>
+      <button class="modal-close" (click)="closeReviewForm()">
+        <i class="feather icon-x"></i>
+      </button>
+    </div>
+    <div class="review-modal-body">
+      <!-- Note -->
+      <div class="form-group">
+        <label class="form-label-styled">Votre note</label>
+        <div class="star-picker">
+          <span *ngFor="let star of [1,2,3,4,5]"
+                class="star-pick"
+                (click)="setRating(star)"
+                (mouseenter)="hoverStar = star"
+                (mouseleave)="hoverStar = 0"
+                [class.active]="(hoverStar > 0 ? star <= hoverStar : star <= reviewRating)"
+                [class.hover]="hoverStar === star">
+            ★
+          </span>
         </div>
-
-        <!-- Commentaire -->
-        <div class="form-group">
-          <label><strong>Votre avis *</strong></label>
-          <textarea class="form-control" rows="4" [(ngModel)]="reviewComment"
-                    placeholder="Décrivez votre expérience... (minimum 10 caractères)"
-                    maxlength="1000"></textarea>
-          <small class="text-muted">{{ reviewComment.length }}/1000 caractères</small>
-        </div>
-
-        <!-- Message -->
-        <div *ngIf="reviewMessage" class="alert" [ngClass]="reviewMessageType === 'success' ? 'alert-success' : 'alert-danger'">
-          {{ reviewMessage }}
+        <div class="star-hint">
+          {{ reviewRating > 0 ? reviewRating + ' / 5' : 'Cliquez pour noter' }}
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger mr-auto" (click)="deleteReview()" *ngIf="userReview">
-          <i class="feather icon-trash-2 mr-1"></i> Supprimer
-        </button>
-        <button type="button" class="btn btn-secondary" (click)="closeReviewForm()">Annuler</button>
-        <button type="button" class="btn btn-primary" (click)="submitReview()" [disabled]="submittingReview">
+
+      <!-- Commentaire -->
+      <div class="form-group">
+        <label class="form-label-styled">Votre avis</label>
+        <textarea class="review-textarea" rows="4" [(ngModel)]="reviewComment"
+                  placeholder="Partagez votre expérience avec ce produit... (minimum 10 caractères)"
+                  maxlength="1000"></textarea>
+        <div class="textarea-counter">{{ reviewComment.length }} / 1000</div>
+      </div>
+
+      <!-- Message -->
+      <div *ngIf="reviewMessage" class="review-form-message"
+           [class.success]="reviewMessageType === 'success'"
+           [class.error]="reviewMessageType === 'error'">
+        {{ reviewMessage }}
+      </div>
+    </div>
+    <div class="review-modal-footer">
+      <button class="btn-delete-review" (click)="deleteReview()" *ngIf="userReview">
+        <i class="feather icon-trash-2 mr-1"></i> Supprimer
+      </button>
+      <div class="modal-footer-right">
+        <button class="btn-cancel" (click)="closeReviewForm()">Annuler</button>
+        <button class="btn-submit-review" (click)="submitReview()" [disabled]="submittingReview">
           <span *ngIf="!submittingReview">{{ userReview ? 'Mettre à jour' : 'Publier' }}</span>
-          <span *ngIf="submittingReview">Envoi...</span>
+          <span *ngIf="submittingReview"><div class="spinner-border spinner-border-sm mr-1"></div> Envoi...</span>
         </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Section Produits Similaires -->
-<div class="row mt-4" *ngIf="product && !loading">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header">
-        <h5 class="mb-0">
-          <i class="feather icon-grid mr-2"></i>Produits similaires
-        </h5>
-      </div>
-      <div class="card-body">
-        <div *ngIf="loadingSimilar" class="text-center py-3 text-muted">Chargement...</div>
-        <div *ngIf="!loadingSimilar && similarProducts.length === 0" class="text-center text-muted py-3">
-          Aucun produit similaire pour le moment.
-        </div>
-        <div class="row" *ngIf="!loadingSimilar && similarProducts.length > 0">
-          <div class="col-6 col-sm-4 col-md-3 mb-3" *ngFor="let p of similarProducts">
-            <a [routerLink]="['/products/view', p._id]" class="text-decoration-none text-dark">
-              <div class="card h-100 similar-product-card">
-                <div *ngIf="getProductMainPhoto(p)" class="similar-img-wrap">
-                  <img [src]="getProductMainPhoto(p)" class="card-img-top" [alt]="p.name" style="height: 140px; object-fit: cover;">
-                </div>
-                <div *ngIf="!getProductMainPhoto(p)" class="similar-img-wrap bg-light d-flex align-items-center justify-content-center" style="height: 140px;">
-                  <i class="feather icon-image text-muted" style="font-size: 2rem;"></i>
-                </div>
-                <div class="card-body p-2">
-                  <h6 class="card-title text-truncate mb-1" style="font-size: 13px;">{{ p.name }}</h6>
-                  <small class="text-muted d-block text-truncate" *ngIf="p.boutiqueId?.name">{{ p.boutiqueId.name }}</small>
-                  <strong class="text-primary" style="font-size: 13px;">{{ p.price | number:'1.0-0' }} Ar</strong>
-                  <span class="badge ml-1" style="font-size: 10px;"
-                        [ngClass]="p.availability === 'available' ? 'badge-success' : p.availability === 'outOfStock' ? 'badge-danger' : 'badge-warning'">
-                    {{ getAvailabilityLabel(p.availability) }}
-                  </span>
-                </div>
-              </div>
-            </a>
-          </div>
-        </div>
       </div>
     </div>
   </div>

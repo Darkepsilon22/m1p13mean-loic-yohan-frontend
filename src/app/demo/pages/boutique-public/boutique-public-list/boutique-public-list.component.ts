@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { BoutiqueService } from '../../../../core/services/boutique.service';
+import { CategoryService, Category } from '../../../../core/services/category.service';
 
 @Component({
   selector: 'app-boutique-public-list',
@@ -14,17 +15,31 @@ export class BoutiquePublicListComponent implements OnInit {
 
   // Filters
   searchTerm = '';
+  selectedCategory = '';
+
+  // Categories
+  categories: Category[] = [];
 
   // Pagination
   pagination = { page: 1, limit: 12, total: 0, pages: 0 };
 
   constructor(
     private boutiqueService: BoutiqueService,
+    private categoryService: CategoryService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.loadCategories();
     this.loadBoutiques();
+  }
+
+  loadCategories(): void {
+    this.categoryService.getAll({ active: true, limit: 100 }).subscribe({
+      next: (res) => {
+        this.categories = res.data?.categories ?? [];
+      }
+    });
   }
 
   loadBoutiques(): void {
@@ -37,6 +52,7 @@ export class BoutiquePublicListComponent implements OnInit {
       limit: this.pagination.limit
     };
     if (this.searchTerm.trim()) params.search = this.searchTerm.trim();
+    if (this.selectedCategory) params.category = this.selectedCategory;
 
     this.boutiqueService.getAll(params).subscribe({
       next: (res) => {
@@ -54,6 +70,18 @@ export class BoutiquePublicListComponent implements OnInit {
   }
 
   onSearch(): void {
+    this.pagination.page = 1;
+    this.loadBoutiques();
+  }
+
+  onCategoryChange(): void {
+    this.pagination.page = 1;
+    this.loadBoutiques();
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedCategory = '';
     this.pagination.page = 1;
     this.loadBoutiques();
   }

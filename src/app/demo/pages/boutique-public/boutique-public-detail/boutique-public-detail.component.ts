@@ -20,6 +20,10 @@ export class BoutiquePublicDetailComponent implements OnInit {
   products: any[] = [];
   loadingProducts = false;
   totalProducts = 0;
+  productSearch = '';
+  productPage = 1;
+  productLimit = 8;
+  productPages = 0;
 
   // Promotions
   promotions: any[] = [];
@@ -85,17 +89,42 @@ export class BoutiquePublicDetailComponent implements OnInit {
 
   loadProducts(): void {
     this.loadingProducts = true;
-    this.productService.getAll({ boutiqueId: this.boutiqueId, limit: 5 }).subscribe({
+    const params: any = {
+      boutiqueId: this.boutiqueId,
+      page: this.productPage,
+      limit: this.productLimit
+    };
+    if (this.productSearch.trim()) params.search = this.productSearch.trim();
+
+    this.productService.getAll(params).subscribe({
       next: (res: any) => {
         const data = res.data ?? res;
         this.products = data.products ?? data ?? [];
         this.totalProducts = data.pagination?.total ?? this.products.length;
+        this.productPages = data.pagination?.pages ?? 1;
         this.loadingProducts = false;
       },
       error: () => {
         this.loadingProducts = false;
       }
     });
+  }
+
+  onProductSearch(): void {
+    this.productPage = 1;
+    this.loadProducts();
+  }
+
+  clearProductSearch(): void {
+    this.productSearch = '';
+    this.productPage = 1;
+    this.loadProducts();
+  }
+
+  goToProductPage(p: number): void {
+    if (p < 1 || p > this.productPages) return;
+    this.productPage = p;
+    this.loadProducts();
   }
 
   loadPromotions(): void {
@@ -252,10 +281,15 @@ export class BoutiquePublicDetailComponent implements OnInit {
   }
 
   getDiscountLabel(promo: any): string {
-    if (promo.discountType === 'percentage') {
-      return '-' + promo.discountValue + '%';
+    const type = promo.type || promo.discountType;
+    const value = promo.value ?? promo.discountValue;
+    if (type === 'percentage') {
+      return '-' + value + '%';
     }
-    return '-' + promo.discountValue + ' Ar';
+    if (type === 'special') {
+      return 'Offre spéciale';
+    }
+    return '-' + value + ' Ar';
   }
 
   goToProduct(productId: string): void {

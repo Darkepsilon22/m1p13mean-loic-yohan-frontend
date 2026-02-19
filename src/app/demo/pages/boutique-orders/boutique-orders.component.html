@@ -57,6 +57,35 @@
     </div>
   </div>
 
+  <!-- Rapport mensuel -->
+  <div class="card mb-3">
+    <div class="card-body py-3">
+      <div class="row align-items-center">
+        <div class="col-md-5">
+          <h6 class="mb-0"><i class="feather icon-file-text mr-2"></i>Rapport mensuel</h6>
+        </div>
+        <div class="col-md-3">
+          <select class="form-control form-control-sm" [(ngModel)]="reportMonth">
+            <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <select class="form-control form-control-sm" [(ngModel)]="reportYear">
+            <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+          </select>
+        </div>
+        <div class="col-md-2 text-right">
+          <button class="btn btn-sm btn-danger mr-1" (click)="exportReportPDF()" [disabled]="exportingReport" title="Exporter PDF">
+            <i class="feather icon-file mr-1"></i>PDF
+          </button>
+          <button class="btn btn-sm btn-success" (click)="exportReportExcel()" [disabled]="exportingReport" title="Exporter Excel">
+            <i class="feather icon-download mr-1"></i>Excel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Filtres -->
   <div class="card mb-3">
     <div class="card-body py-3">
