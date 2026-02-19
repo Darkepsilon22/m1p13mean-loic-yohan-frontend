@@ -5,7 +5,15 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:5000/api',
-  frontendUrl: 'http://localhost:4200'
+  wsUrl: 'http://localhost:5000',
+  frontendUrl: 'http://localhost:4200',
+  socket: {
+    transports: ['websocket', 'polling'] as string[],
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 10000,
+    timeout: 20000
+  }
 };
 
 /*

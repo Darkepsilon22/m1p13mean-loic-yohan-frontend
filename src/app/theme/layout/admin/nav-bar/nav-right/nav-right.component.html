@@ -2,6 +2,57 @@
   <li class="nav-item">
     <app-nav-search></app-nav-search>
   </li>
+  <!-- Notifications Bell -->
+  <li *ngIf="isLoggedIn" class="nav-item">
+    <div class="dropdown drp-notification" ngbDropdown placement="auto">
+      <a href="javascript:" ngbDropdownToggle class="nav-notification-btn" title="Notifications">
+        <i class="icon feather icon-bell"></i>
+        <span class="badge bg-danger notification-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+        <span class="socket-status" [class.connected]="isSocketConnected" [class.disconnected]="!isSocketConnected"
+              [title]="isSocketConnected ? 'Connecté en temps réel' : 'Déconnecté'"></span>
+      </a>
+      <div class="dropdown-menu dropdown-menu-right notification-dropdown" ngbDropdownMenu>
+        <div class="notification-head">
+          <h6 class="d-inline-block mb-0">Notifications</h6>
+          <span class="badge bg-primary float-right" *ngIf="unreadCount > 0">{{ unreadCount }} nouvelle{{ unreadCount > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="notification-body" *ngIf="notifications.length > 0">
+          <div *ngFor="let notif of notifications; let i = index"
+               class="notification-item"
+               [class.unread]="!notif.read"
+               (click)="markAsRead(notif.id)">
+            <div class="notification-icon">
+              <i class="feather" [ngClass]="{
+                'icon-user': notif.event.startsWith('user:'),
+                'icon-shopping-bag': notif.event.startsWith('boutique:') || notif.event.startsWith('reservation:'),
+                'icon-grid': notif.event.startsWith('category:'),
+                'icon-calendar': notif.event.startsWith('event:'),
+                'icon-layers': notif.event.startsWith('floor:') || notif.event.startsWith('zone:'),
+                'icon-map': notif.event.startsWith('navigation:') || notif.event.startsWith('specialSpace:'),
+                'icon-shopping-cart': notif.event.startsWith('order:') || notif.event.startsWith('cart:'),
+                'icon-credit-card': notif.event.startsWith('payment:') || notif.event.startsWith('stripe:'),
+                'icon-package': notif.event.startsWith('product:') || notif.event.startsWith('stock:'),
+                'icon-tag': notif.event.startsWith('promotion:'),
+                'icon-message-square': notif.event.startsWith('review:'),
+                'icon-bell': !notif.event.includes(':')
+              }"></i>
+            </div>
+            <div class="notification-content">
+              <p class="notification-text mb-0">{{ notif.message }}</p>
+              <span class="notification-time">{{ getTimeAgo(notif.timestamp) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="notification-body notification-empty" *ngIf="notifications.length === 0">
+          <p class="text-muted text-center mb-0 py-3">Aucune notification</p>
+        </div>
+        <div class="notification-footer" *ngIf="notifications.length > 0">
+          <a href="javascript:" (click)="markAllAsRead()" class="notification-action">Tout marquer comme lu</a>
+          <a href="javascript:" (click)="clearAllNotifications()" class="notification-action text-danger">Effacer tout</a>
+        </div>
+      </div>
+    </div>
+  </li>
   <li *ngIf="!isLoggedIn">
     <a routerLink="/auth/signin" class="btn btn-primary btn-sm nav-login-btn">Se connecter</a>
   </li>
