@@ -1,5 +1,13 @@
 export const environment = {
   production: true,
   apiUrl: '/api',
-  frontendUrl: '' // Set at deploy or leave empty; backend uses its own FRONTEND_URL for emails
+  wsUrl: '',
+  frontendUrl: '',
+  socket: {
+    transports: ['websocket', 'polling'] as string[],
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 2000,
+    reconnectionDelayMax: 30000,
+    timeout: 30000
+  }
 };
