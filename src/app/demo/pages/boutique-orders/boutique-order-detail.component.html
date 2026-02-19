@@ -1,0 +1,215 @@
+<div class="order-detail-page">
+  <button class="btn btn-outline-secondary btn-sm mb-3" (click)="goBack()">
+    <i class="feather icon-arrow-left mr-1"></i>Retour aux commandes
+  </button>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2 text-muted">Chargement...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage && !loading" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div *ngIf="!loading && order">
+    <!-- Header -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-start">
+          <div>
+            <h5 class="mb-1">Commande {{ order.orderReference }}</h5>
+            <p class="text-muted mb-0 small">Passée le {{ order.createdAt | date:'dd MMMM yyyy à HH:mm':'':'fr' }}</p>
+          </div>
+          <div class="text-right">
+            <span class="badge mr-2" [ngClass]="getStatusClass(order.status)">{{ getStatusLabel(order.status) }}</span>
+            <span class="badge" [ngClass]="getPaymentClass(order.paymentStatus)">{{ getPaymentLabel(order.paymentStatus) }}</span>
+            <div class="mt-2">
+              <strong class="h5">{{ formatMGA(order.boutiqueSubtotal || order.totalAmount) }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline de suivi -->
+    <div class="card mb-3">
+      <div class="card-header py-3">
+        <h6 class="mb-0"><i class="feather icon-truck mr-2"></i>Suivi de la commande</h6>
+      </div>
+      <div class="card-body">
+        <div class="order-timeline">
+          <div *ngFor="let step of timeline; let last = last"
+               class="timeline-step"
+               [class.active]="step.active"
+               [class.current]="step.current"
+               [class.cancelled]="step.key === 'cancelled' || step.key === 'refunded'">
+            <div class="timeline-icon">
+              <i [class]="step.icon"></i>
+            </div>
+            <div class="timeline-content">
+              <strong>{{ step.label }}</strong>
+              <small *ngIf="step.date" class="d-block text-muted">{{ step.date | date:'dd/MM/yyyy HH:mm' }}</small>
+              <small *ngIf="!step.date && !step.active" class="d-block text-muted">En attente</small>
+            </div>
+            <div class="timeline-line" *ngIf="!last"></div>
+          </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="mt-4 d-flex flex-wrap align-items-center gap-2">
+          <div *ngIf="statusSuccessMessage" class="alert alert-success py-1 px-3 mb-0 small">
+            <i class="feather icon-check mr-1"></i>{{ statusSuccessMessage }}
+          </div>
+          <ng-container *ngIf="getNextAction() as action">
+            <button class="btn btn-sm" [ngClass]="action.btnClass" [disabled]="statusUpdating" (click)="updateOrderStatus(action.status)">
+              <i [class]="action.icon + ' mr-1'"></i>
+              {{ statusUpdating ? 'Mise à jour...' : action.label }}
+            </button>
+          </ng-container>
+          <span *ngIf="!getNextAction() && (order.status === 'completed' || order.status === 'cancelled' || order.status === 'refunded')" class="text-muted small">
+            <i class="feather icon-info mr-1"></i>Aucune action disponible pour cette commande.
+          </span>
+        </div>
+
+        <!-- Informations de livraison -->
+        <div *ngIf="order.trackingNumber || order.carrier" class="mt-4 p-3 bg-light rounded">
+          <h6 class="mb-2"><i class="feather icon-package mr-1"></i>Informations de livraison</h6>
+          <div class="row">
+            <div class="col-md-4" *ngIf="order.carrier">
+              <small class="text-muted d-block">Transporteur</small>
+              <strong>{{ order.carrier }}</strong>
+            </div>
+            <div class="col-md-4" *ngIf="order.trackingNumber">
+              <small class="text-muted d-block">Numéro de suivi</small>
+              <code class="text-primary">{{ order.trackingNumber }}</code>
+            </div>
+            <div class="col-md-4" *ngIf="order.estimatedDelivery">
+              <small class="text-muted d-block">Livraison estimée</small>
+              <strong>{{ order.estimatedDelivery | date:'dd/MM/yyyy' }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Produits -->
+      <div class="col-lg-8 mb-3">
+        <div class="card">
+          <div class="card-header py-3">
+            <h6 class="mb-0"><i class="feather icon-shopping-cart mr-2"></i>Articles commandés ({{ order.items?.length || 0 }})</h6>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table mb-0">
+                <thead class="thead-light">
+                  <tr>
+                    <th>Produit</th>
+                    <th class="text-center">Qté</th>
+                    <th class="text-right">Prix unit.</th>
+                    <th class="text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of order.items">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <img *ngIf="item.productImage || item.productId?.mainPhoto" [src]="item.productImage || item.productId?.mainPhoto" alt="" class="product-thumb mr-2" />
+                        <div>
+                          <strong>{{ item.productName || item.productId?.name || 'Produit' }}</strong>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-center">{{ item.quantity }}</td>
+                    <td class="text-right">{{ formatMGA(item.unitPrice) }}</td>
+                    <td class="text-right"><strong>{{ formatMGA(item.totalPrice) }}</strong></td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="bg-light">
+                    <td colspan="3" class="text-right"><strong>Sous-total (ma boutique)</strong></td>
+                    <td class="text-right"><strong>{{ formatMGA(order.boutiqueSubtotal || order.subtotal) }}</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Infos client -->
+      <div class="col-lg-4 mb-3">
+        <div class="card mb-3">
+          <div class="card-header py-3">
+            <h6 class="mb-0"><i class="feather icon-user mr-2"></i>Client</h6>
+          </div>
+          <div class="card-body">
+            <p class="mb-1"><strong>{{ order.customerName }}</strong></p>
+            <p class="mb-1 small"><i class="feather icon-mail mr-1"></i>{{ order.customerEmail }}</p>
+            <p class="mb-0 small" *ngIf="order.customerPhone"><i class="feather icon-phone mr-1"></i>{{ order.customerPhone }}</p>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-header py-3">
+            <h6 class="mb-0"><i class="feather icon-map-pin mr-2"></i>Adresse de livraison</h6>
+          </div>
+          <div class="card-body">
+            <p class="mb-0 small" *ngIf="order.shippingAddress">
+              {{ order.shippingAddress.street }}<br>
+              {{ order.shippingAddress.city }}
+              <span *ngIf="order.shippingAddress.postalCode">, {{ order.shippingAddress.postalCode }}</span><br>
+              {{ order.shippingAddress.country }}
+              <span *ngIf="order.shippingAddress.additionalInfo"><br><em>{{ order.shippingAddress.additionalInfo }}</em></span>
+            </p>
+            <p class="mb-0 text-muted small" *ngIf="!order.shippingAddress">Non renseignée</p>
+          </div>
+        </div>
+
+        <div class="card" *ngIf="order.paymentMethod">
+          <div class="card-header py-3">
+            <h6 class="mb-0"><i class="feather icon-credit-card mr-2"></i>Paiement</h6>
+          </div>
+          <div class="card-body">
+            <p class="mb-1"><strong>Méthode :</strong> {{ order.paymentMethod }}</p>
+            <p class="mb-0">
+              <strong>Statut :</strong>
+              <span class="badge ml-1" [ngClass]="getPaymentClass(order.paymentStatus)">{{ getPaymentLabel(order.paymentStatus) }}</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="card mt-3" *ngIf="order.customerNotes">
+          <div class="card-header py-3">
+            <h6 class="mb-0"><i class="feather icon-message-circle mr-2"></i>Notes du client</h6>
+          </div>
+          <div class="card-body">
+            <p class="mb-0 small">{{ order.customerNotes }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal tracking info -->
+  <div *ngIf="showTrackingModal" class="modal-backdrop-custom" (click)="cancelTracking()">
+    <div class="modal-content-custom" (click)="$event.stopPropagation()">
+      <h6 class="mb-3"><i class="feather icon-truck mr-2"></i>Informations d'expédition</h6>
+      <div class="form-group">
+        <label class="form-label small">Transporteur</label>
+        <input type="text" class="form-control form-control-sm" [(ngModel)]="carrier" placeholder="Ex: DHL, Colissimo, ...">
+      </div>
+      <div class="form-group">
+        <label class="form-label small">Numéro de suivi</label>
+        <input type="text" class="form-control form-control-sm" [(ngModel)]="trackingNumber" placeholder="Ex: 1Z999AA10123456789">
+      </div>
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button class="btn btn-sm btn-outline-secondary" (click)="cancelTracking()" style="margin-right: 6px;">Annuler</button>
+        <button class="btn btn-sm btn-primary" (click)="confirmTracking()">
+          <i class="feather icon-truck mr-1"></i>Confirmer l'expédition
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

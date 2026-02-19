@@ -55,6 +55,10 @@ export class MapEditorComponent implements OnInit {
   navigationNodes: NavigationNode[] = [];
   navigationEdges: NavigationEdge[] = [];
 
+  // Emplacements existants sans mapShape (pas encore placés sur la carte)
+  unplacedBoutiques: any[] = [];
+  selectedUnplacedId = '';
+
   specialSpaceTypes = SPECIAL_SPACE_TYPES;
   typeLabels: Record<string, string> = {
     relax: 'Détente',
@@ -113,7 +117,7 @@ export class MapEditorComponent implements OnInit {
     this.edgeForm = this.fb.group({
       fromNode: ['', Validators.required],
       toNode: ['', Validators.required],
-      cost: [0, [Validators.min(0.1)]],
+      cost: [0, [Validators.min(0)]],
       isBidirectional: [true],
       accessible: [true]
     });
@@ -168,6 +172,7 @@ export class MapEditorComponent implements OnInit {
         this.data = res.data;
         this.loading = false;
         if (this.floorId) this.loadNavigationData();
+        this.loadUnplacedBoutiques();
       },
       error: (err: ApiErrorBody) => {
         this.loading = false;
@@ -191,6 +196,17 @@ export class MapEditorComponent implements OnInit {
       x: z.x, y: z.y, width: z.width, height: z.height
     });
     this.addingZone = false;
+    // Si on est en mode ajout de boutique, pré-remplir les coordonnées au coin de la zone
+    if (this.addingBoutique) {
+      const bw = Math.min(this.boutiqueForm.value.width || 10, z.width);
+      const bh = Math.min(this.boutiqueForm.value.height || 10, z.height);
+      this.boutiqueForm.patchValue({
+        x: z.x + 2,
+        y: z.y + 2,
+        width: bw,
+        height: bh
+      });
+    }
   }
 
   onSpecialSpaceClick(s: SpecialSpace): void {
@@ -376,6 +392,72 @@ export class MapEditorComponent implements OnInit {
     });
   }
 
+  /** Charge les emplacements créés mais pas encore placés sur la carte (sans mapShape) */
+  loadUnplacedBoutiques(): void {
+    this.boutiqueService.getAll({ limit: 100 }).subscribe({
+      next: (res) => {
+        const all = res.data?.boutiques || [];
+        // Garder ceux qui n'ont pas de mapShape (pas encore positionnés)
+        this.unplacedBoutiques = all.filter((b: any) => !b.mapShape || b.mapShape.x == null);
+      },
+      error: () => { this.unplacedBoutiques = []; }
+    });
+  }
+
+  /** Quand on sélectionne un emplacement existant dans le dropdown */
+  onSelectUnplaced(boutiqueId: string): void {
+    this.selectedUnplacedId = boutiqueId;
+    if (boutiqueId) {
+      // Emplacement existant : categoryId pas nécessaire (déjà défini en base)
+      this.boutiqueForm.get('categoryId')?.clearValidators();
+      this.boutiqueForm.get('categoryId')?.updateValueAndValidity();
+      const b = this.unplacedBoutiques.find((x: any) => x._id === boutiqueId);
+      if (b) {
+        this.boutiqueForm.patchValue({
+          name: b.name || 'Emplacement',
+          categoryId: b.categoryId?._id || b.categoryId || '',
+          surface: b.surface ?? 20,
+          price: b.price ?? 0
+        });
+      }
+    } else {
+      // Retour au mode création : categoryId requis
+      this.boutiqueForm.get('categoryId')?.setValidators(Validators.required);
+      this.boutiqueForm.get('categoryId')?.updateValueAndValidity();
+    }
+  }
+
+  /** Place un emplacement existant sur la carte (update avec mapShape/zone/floor) */
+  placeExistingBoutique(): void {
+    if (!this.selectedUnplacedId || !this.selectedZone || !this.floorId) {
+      this.errorMessage = 'Sélectionnez un emplacement existant et une zone sur la carte.';
+      return;
+    }
+    const val = this.boutiqueForm.value;
+    this.savingBoutique = true;
+    this.errorMessage = '';
+    this.boutiqueService.update(this.selectedUnplacedId, {
+      zoneId: this.selectedZone._id,
+      floorId: this.floorId,
+      mapShape: { x: Number(val.x), y: Number(val.y), width: Number(val.width), height: Number(val.height) },
+      surface: Number(val.surface),
+      price: Number(val.price) || 0
+    }).subscribe({
+      next: () => {
+        this.savingBoutique = false;
+        this.addingBoutique = false;
+        this.selectedZone = null;
+        this.selectedUnplacedId = '';
+        this.successMessage = 'Emplacement placé sur la carte.';
+        this.loadFloorMap();
+      },
+      error: (err: ApiErrorBody) => {
+        this.savingBoutique = false;
+        this.errorMessage = err.message || 'Erreur placement emplacement.';
+      }
+    });
+  }
+
   saveBoutique(): void {
     const val = this.boutiqueForm.value;
     if (this.addingBoutique) {
@@ -388,21 +470,18 @@ export class MapEditorComponent implements OnInit {
       const floorOrder = this.floorId ? (this.floors.find(f => f._id === this.floorId)?.order ?? 0) : 0;
       this.savingBoutique = true;
       this.errorMessage = '';
-      this.boutiqueService.create({
-        name: val.name || 'Emplacement',
-        description: '',
+      const createBody: any = {
         categoryId: val.categoryId,
-        logo: '',
-        contact: { phone: '', email: '' },
         location: { floor: floorOrder, zone: zone.name, number: `Z-${zone.name}-${Date.now().toString(36).slice(-4)}` },
-        userId: null as any,
         zoneId: this.selectedZone._id,
         floorId: this.floorId,
         mapShape: { x: Number(val.x), y: Number(val.y), width: Number(val.width), height: Number(val.height) },
         surface: Number(val.surface),
         price: Number(val.price) || 0,
         emplacementStatus: 'libre'
-      }).subscribe({
+      };
+      if (val.name && val.name.trim()) createBody.name = val.name.trim();
+      this.boutiqueService.create(createBody).subscribe({
         next: () => {
           this.savingBoutique = false;
           this.addingBoutique = false;
@@ -487,13 +566,24 @@ export class MapEditorComponent implements OnInit {
   }
 
   startAddNode(): void {
-    this.selectedNavigationNode = null;
     this.selectedNavigationEdge = null;
+    // Pré-remplir au dernier noeud + offset, ou au centre du plan
+    let startX = this.data?.floor ? Math.round(this.data.floor.width / 2) : 50;
+    let startY = this.data?.floor ? Math.round(this.data.floor.height / 2) : 50;
+    if (this.selectedNavigationNode) {
+      startX = this.selectedNavigationNode.x + 20;
+      startY = this.selectedNavigationNode.y;
+    } else if (this.navigationNodes.length > 0) {
+      const last = this.navigationNodes[this.navigationNodes.length - 1];
+      startX = last.x + 20;
+      startY = last.y;
+    }
+    this.selectedNavigationNode = null;
     this.nodeForm.reset({
       type: 'intersection',
       label: '',
-      x: 0,
-      y: 0,
+      x: startX,
+      y: startY,
       specialSpaceId: '',
       accessible: true
     });
@@ -515,7 +605,7 @@ export class MapEditorComponent implements OnInit {
       x: Number(val.x),
       y: Number(val.y),
       label: val.label || undefined,
-      specialSpaceId: val.specialSpaceId || null,
+      specialSpaceId: val.specialSpaceId || undefined,
       accessible: val.accessible !== false
     };
     if (this.addingNode) {
@@ -563,10 +653,12 @@ export class MapEditorComponent implements OnInit {
   }
 
   startAddEdge(): void {
+    // Pré-remplir fromNode avec le noeud sélectionné
+    const preselectedFrom = this.selectedNavigationNode?._id || '';
     this.selectedNavigationEdge = null;
     this.selectedNavigationNode = null;
     this.edgeForm.reset({
-      fromNode: '',
+      fromNode: preselectedFrom,
       toNode: '',
       cost: 0,
       isBidirectional: true,

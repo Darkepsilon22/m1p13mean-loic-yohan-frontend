@@ -17,16 +17,16 @@ export class MyProfileComponent implements OnInit {
   errorMessage = '';
   fieldErrors: Record<string, string> = {};
 
-  // Orders
+  // Orders (5 dernières uniquement)
   orders: Order[] = [];
   loadingOrders = false;
   orderError = '';
-  statusFilter = '';
-  pagination = { page: 1, limit: 10, total: 0, pages: 0 };
+  totalOrders = 0;
   expandedOrderId: string | null = null;
 
-  // Export
-  exporting = false;
+  // Confirm reception
+  confirmingOrderId: string | null = null;
+  receptionSuccess: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -104,19 +104,15 @@ export class MyProfileComponent implements OnInit {
     });
   }
 
-  // --- Orders ---
+  // --- Orders (5 dernières) ---
 
   loadOrders(): void {
     this.loadingOrders = true;
     this.orderError = '';
-    this.orderService.getMyOrders({
-      status: this.statusFilter || undefined,
-      page: this.pagination.page,
-      limit: this.pagination.limit
-    }).subscribe({
+    this.orderService.getMyOrders({ page: 1, limit: 5 }).subscribe({
       next: (res: any) => {
         this.orders = res.data?.orders ?? res.data ?? [];
-        this.pagination = res.data?.pagination ?? res.pagination ?? this.pagination;
+        this.totalOrders = res.data?.pagination?.total ?? res.pagination?.total ?? 0;
         this.loadingOrders = false;
       },
       error: (err: ApiErrorBody) => {
@@ -124,17 +120,6 @@ export class MyProfileComponent implements OnInit {
         this.orderError = err.message || 'Erreur lors du chargement des commandes.';
       }
     });
-  }
-
-  onStatusFilterChange(): void {
-    this.pagination.page = 1;
-    this.loadOrders();
-  }
-
-  goToPage(p: number): void {
-    if (p < 1 || p > this.pagination.pages) return;
-    this.pagination.page = p;
-    this.loadOrders();
   }
 
   toggleOrderDetail(orderId: string): void {
@@ -170,42 +155,22 @@ export class MyProfileComponent implements OnInit {
     return map[status] || 'badge-secondary';
   }
 
-  // --- Export ---
+  // --- Confirm reception ---
 
-  exportPDF(): void {
-    this.exporting = true;
-    this.orderService.exportMyOrdersPDF(this.statusFilter || undefined).subscribe({
-      next: (blob) => {
-        this.downloadBlob(blob, `historique-achats-${Date.now()}.pdf`);
-        this.exporting = false;
+  confirmReception(order: Order): void {
+    this.confirmingOrderId = order._id;
+    this.receptionSuccess = null;
+    this.orderService.confirmReception(order._id).subscribe({
+      next: () => {
+        this.confirmingOrderId = null;
+        this.receptionSuccess = order._id;
+        order.status = 'completed';
+        setTimeout(() => this.receptionSuccess = null, 4000);
       },
-      error: () => {
-        this.orderError = 'Erreur lors de l\'export PDF.';
-        this.exporting = false;
+      error: (err: ApiErrorBody) => {
+        this.confirmingOrderId = null;
+        this.orderError = err.message || 'Erreur lors de la confirmation.';
       }
     });
-  }
-
-  exportExcel(): void {
-    this.exporting = true;
-    this.orderService.exportMyOrdersExcel(this.statusFilter || undefined).subscribe({
-      next: (blob) => {
-        this.downloadBlob(blob, `historique-achats-${Date.now()}.xlsx`);
-        this.exporting = false;
-      },
-      error: () => {
-        this.orderError = 'Erreur lors de l\'export Excel.';
-        this.exporting = false;
-      }
-    });
-  }
-
-  private downloadBlob(blob: Blob, filename: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    window.URL.revokeObjectURL(url);
   }
 }
