@@ -186,7 +186,7 @@ const BoutiqueNavigationItems: NavigationItem[] = [
     id: 'boutique-navigation',
     title: 'Ma Boutique',
     type: 'group',
-    icon: 'feather icon-shopping-bag',
+    icon: 'feather icon-shopping-cart',
     children: [
       {
         id: 'home',
@@ -209,6 +209,21 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/boutique-stats',
         icon: 'feather icon-pie-chart'
+      }
+    ]
+  },
+  {
+    id: 'boutique-orders',
+    title: 'Commandes',
+    type: 'group',
+    icon: 'feather icon-clipboard',
+    children: [
+      {
+        id: 'orders-list',
+        title: 'Mes commandes',
+        type: 'item',
+        url: '/boutique-orders',
+        icon: 'feather icon-clipboard'
       }
     ]
   },
@@ -366,6 +381,21 @@ const AcheteurNavigationItems: NavigationItem[] = [
     ]
   },
   {
+    id: 'acheteur-orders',
+    title: 'Commandes',
+    type: 'group',
+    icon: 'feather icon-clipboard',
+    children: [
+      {
+        id: 'my-orders',
+        title: 'Mes commandes',
+        type: 'item',
+        url: '/my-orders',
+        icon: 'feather icon-clipboard'
+      }
+    ]
+  },
+  {
     id: 'acheteur-account',
     title: 'Mon compte',
     type: 'group',
@@ -403,7 +433,7 @@ const DefaultNavigationItems: NavigationItem[] = [
         title: 'Boutiques',
         type: 'item',
         url: '/boutique/list',
-        icon: 'feather icon-shopping-bag'
+        icon: 'feather icon-shopping-cart'
       }
     ]
   },

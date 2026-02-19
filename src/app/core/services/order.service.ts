@@ -59,6 +59,9 @@ export interface CreateOrderBody {
 
 export interface OrderListParams {
   status?: string;
+  paymentStatus?: string;
+  startDate?: string;
+  endDate?: string;
   page?: number;
   limit?: number;
 }
@@ -95,6 +98,8 @@ export class OrderService {
   getMyOrders(params?: OrderListParams): Observable<OrdersResponse> {
     const q = new URLSearchParams();
     if (params?.status) q.set('status', params.status);
+    if (params?.startDate) q.set('startDate', params.startDate);
+    if (params?.endDate) q.set('endDate', params.endDate);
     if (params?.page != null) q.set('page', String(params.page));
     if (params?.limit != null) q.set('limit', String(params.limit));
     const query = q.toString() ? '?' + q.toString() : '';
@@ -120,15 +125,31 @@ export class OrderService {
   getBoutiqueOrders(params?: OrderListParams): Observable<OrdersResponse> {
     const q = new URLSearchParams();
     if (params?.status) q.set('status', params.status);
+    if (params?.paymentStatus) q.set('paymentStatus', params.paymentStatus);
     if (params?.page != null) q.set('page', String(params.page));
     if (params?.limit != null) q.set('limit', String(params.limit));
     const query = q.toString() ? '?' + q.toString() : '';
     return this.http.get<OrdersResponse>(`${API}/orders/boutique${query}`).pipe(catchError(handleError));
   }
 
+  /** Boutique: détail d'une commande */
+  getBoutiqueOrderById(id: string): Observable<OrderResponse> {
+    return this.http.get<OrderResponse>(`${API}/orders/boutique/${id}`).pipe(catchError(handleError));
+  }
+
   /** Boutique: statistiques des commandes */
   getBoutiqueStats(): Observable<{ success: boolean; data: any }> {
     return this.http.get<{ success: boolean; data: any }>(`${API}/orders/boutique/stats`).pipe(catchError(handleError));
+  }
+
+  /** Boutique: met à jour le statut d'une commande */
+  boutiqueUpdateOrderStatus(id: string, status: string, trackingInfo?: { trackingNumber?: string; carrier?: string }): Observable<OrderResponse> {
+    return this.http.patch<OrderResponse>(`${API}/orders/boutique/${id}/status`, { status, ...trackingInfo }).pipe(catchError(handleError));
+  }
+
+  /** Acheteur: confirme la réception d'une commande */
+  confirmReception(id: string): Observable<OrderResponse> {
+    return this.http.patch<OrderResponse>(`${API}/orders/${id}/confirm-reception`, {}).pipe(catchError(handleError));
   }
 
   /** Admin: toutes les commandes */
@@ -152,14 +173,22 @@ export class OrderService {
   }
 
   /** Export PDF des commandes de l'utilisateur */
-  exportMyOrdersPDF(status?: string): Observable<Blob> {
-    const query = status ? `?status=${status}` : '';
+  exportMyOrdersPDF(params?: { status?: string; startDate?: string; endDate?: string }): Observable<Blob> {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    if (params?.startDate) q.set('startDate', params.startDate);
+    if (params?.endDate) q.set('endDate', params.endDate);
+    const query = q.toString() ? '?' + q.toString() : '';
     return this.http.get(`${API}/orders/my-orders/export/pdf${query}`, { responseType: 'blob' });
   }
 
   /** Export Excel des commandes de l'utilisateur */
-  exportMyOrdersExcel(status?: string): Observable<Blob> {
-    const query = status ? `?status=${status}` : '';
+  exportMyOrdersExcel(params?: { status?: string; startDate?: string; endDate?: string }): Observable<Blob> {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    if (params?.startDate) q.set('startDate', params.startDate);
+    if (params?.endDate) q.set('endDate', params.endDate);
+    const query = q.toString() ? '?' + q.toString() : '';
     return this.http.get(`${API}/orders/my-orders/export/excel${query}`, { responseType: 'blob' });
   }
 

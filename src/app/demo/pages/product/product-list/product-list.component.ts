@@ -45,7 +45,7 @@ export class ProductListComponent implements OnInit {
   }
 
   loadBoutiques(): void {
-    this.boutiqueService.getAll({ limit: 200 }).subscribe({
+    this.boutiqueService.getAll({ limit: 100 }).subscribe({
       next: (res) => {
         this.boutiques = res.data?.boutiques ?? [];
       },

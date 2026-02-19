@@ -1,0 +1,81 @@
+.boutique-orders-page {
+  .stat-card {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+    &.border-left-warning { border-left: 4px solid #ffc107; }
+    &.border-left-primary { border-left: 4px solid #4680ff; }
+    &.border-left-success { border-left: 4px solid #28a745; }
+    &.border-left-info { border-left: 4px solid #17a2b8; }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .bg-light-warning { background: rgba(255, 193, 7, 0.12); }
+    .bg-light-primary { background: rgba(70, 128, 255, 0.12); }
+    .bg-light-success { background: rgba(40, 167, 69, 0.12); }
+    .bg-light-info { background: rgba(23, 162, 184, 0.12); }
+  }
+
+  .table {
+    th {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6c757d;
+      border-top: none;
+      white-space: nowrap;
+    }
+    td {
+      vertical-align: middle;
+      font-size: 0.88rem;
+    }
+    tr.cursor-pointer:hover {
+      background-color: #f8f9fe;
+      cursor: pointer;
+    }
+  }
+
+  .badge {
+    font-weight: 500;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+
+    &.badge-warning { background-color: #fff3cd; color: #856404; }
+    &.badge-info { background-color: #d1ecf1; color: #0c5460; }
+    &.badge-primary { background-color: #d6e4ff; color: #2952cc; }
+    &.badge-accent { background-color: #e8d5f5; color: #6f42c1; }
+    &.badge-success { background-color: #d4edda; color: #155724; }
+    &.badge-danger { background-color: #f8d7da; color: #721c24; }
+    &.badge-secondary { background-color: #e2e3e5; color: #383d41; }
+  }
+
+  .tracking-indicator {
+    .tracking-dots {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: #dee2e6;
+        transition: background-color 0.2s;
+
+        &.active {
+          background-color: #28a745;
+        }
+      }
+    }
+  }
+}

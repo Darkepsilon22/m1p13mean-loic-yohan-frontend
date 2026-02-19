@@ -123,10 +123,21 @@
 
         <!-- Boutiques / Emplacements -->
         <div *ngIf="activePanel === 'boutiques'" class="sidebar-panel">
-          <button type="button" class="btn btn-primary btn-sm mb-2" (click)="startAddBoutique()">Ajouter un emplacement</button>
-          <div *ngIf="addingBoutique && !selectedZone" class="alert alert-info small">Cliquez sur une zone dans la carte pour y ajouter un emplacement.</div>
+          <div class="d-flex gap-1 mb-2">
+            <button type="button" class="btn btn-primary btn-sm" (click)="startAddBoutique()">Ajouter un emplacement</button>
+          </div>
+          <!-- Placer un emplacement existant -->
+          <div *ngIf="unplacedBoutiques.length > 0 && addingBoutique" class="card card-body bg-light mb-2">
+            <h6 class="mb-2 small">Ou placer un emplacement existant</h6>
+            <select class="form-control form-control-sm mb-2" [value]="selectedUnplacedId" (change)="onSelectUnplaced($any($event.target).value)">
+              <option value="">-- Emplacement existant --</option>
+              <option *ngFor="let b of unplacedBoutiques" [value]="b._id">{{ b.name || 'Sans nom' }} ({{ b.categoryId?.name || '?' }})</option>
+            </select>
+            <p class="small text-muted mb-0">Ces emplacements ont été créés mais ne sont pas encore positionnés sur la carte.</p>
+          </div>
+          <div *ngIf="addingBoutique && !selectedZone" class="alert alert-info small">Cliquez sur une zone dans la carte pour y placer un emplacement.</div>
           <div *ngIf="(addingBoutique && selectedZone) || (selectedBoutique && !addingBoutique)" class="card card-body bg-light mb-2">
-            <h6 class="mb-2">{{ addingBoutique ? 'Nouvel emplacement dans ' + selectedZone?.name : 'Modifier l\'emplacement' }}</h6>
+            <h6 class="mb-2">{{ addingBoutique ? (selectedUnplacedId ? 'Placer dans ' + selectedZone?.name : 'Nouvel emplacement dans ' + selectedZone?.name) : 'Modifier l\'emplacement' }}</h6>
             <div *ngIf="selectedZone" class="alert alert-secondary py-2 small mb-2">
               <strong>Contrainte zone « {{ selectedZone.name }} » :</strong> Surface utilisée {{ getZoneSurfaceUsed(selectedZone._id) }} m² / {{ selectedZone.surfaceTotal }} m²
               ({{ getZoneSurfaceRemaining(selectedZone._id) }} m² restants). Votre emplacement ne doit pas dépasser la surface restante.
@@ -134,12 +145,12 @@
             <div *ngIf="addingBoutique && selectedZone && boutiqueForm.get('surface')?.value > getZoneSurfaceRemaining(selectedZone._id)" class="alert alert-warning py-2 small mb-2">
               La surface saisie dépasse la surface restante dans la zone. Réduisez la surface ou choisissez une autre zone.
             </div>
-            <form [formGroup]="boutiqueForm" (ngSubmit)="saveBoutique()">
+            <form [formGroup]="boutiqueForm" (ngSubmit)="selectedUnplacedId ? placeExistingBoutique() : saveBoutique()">
               <div class="mb-2">
                 <label class="form-label">Nom</label>
                 <input type="text" class="form-control form-control-sm" formControlName="name" />
               </div>
-              <div class="mb-2" *ngIf="addingBoutique">
+              <div class="mb-2" *ngIf="addingBoutique && !selectedUnplacedId">
                 <label class="form-label">Catégorie</label>
                 <select class="form-control form-control-sm" formControlName="categoryId">
                   <option value="">-- Choisir --</option>
@@ -157,7 +168,7 @@
                 <div class="col-6"><label class="form-label">Hauteur</label><input type="number" class="form-control form-control-sm" formControlName="height" /></div>
               </div>
               <div class="d-flex gap-1">
-                <button type="submit" class="btn btn-success btn-sm" [disabled]="boutiqueForm.invalid || savingBoutique">{{ savingBoutique ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button type="submit" class="btn btn-success btn-sm" [disabled]="boutiqueForm.invalid || savingBoutique">{{ savingBoutique ? 'Enregistrement...' : (selectedUnplacedId ? 'Placer sur la carte' : 'Enregistrer') }}</button>
                 <button *ngIf="selectedBoutique && !addingBoutique" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteBoutique()">Supprimer</button>
               </div>
             </form>
