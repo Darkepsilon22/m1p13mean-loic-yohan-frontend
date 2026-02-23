@@ -1,5 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
+import { Router } from '@angular/router';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
@@ -11,7 +12,7 @@ export class SocketService implements OnDestroy {
   private connected$ = new BehaviorSubject<boolean>(false);
   private destroyed$ = new Subject<void>();
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, private router: Router) {}
 
   get isConnected$(): Observable<boolean> {
     return this.connected$.asObservable();
@@ -51,6 +52,13 @@ export class SocketService implements OnDestroy {
     this.socket.on('connect_error', (err: Error) => {
       console.error('[Socket.io] Erreur de connexion :', err.message);
       this.connected$.next(false);
+
+      const msg = err.message || '';
+      if (msg.includes('Authentification') || msg.includes('expiré') || msg.includes('invalide')) {
+        this.disconnect();
+        this.auth.logout();
+        this.router.navigate(['/auth/signin']);
+      }
     });
   }
 
