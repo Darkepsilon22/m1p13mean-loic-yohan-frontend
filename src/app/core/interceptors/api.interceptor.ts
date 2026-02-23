@@ -8,6 +8,7 @@ import {
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../services/auth.service';
 
@@ -194,7 +195,7 @@ function translateErrorBodyToFr(body: any): any {
 @Injectable()
 export class ApiInterceptor implements HttpInterceptor {
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, private router: Router) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     let url = request.url;
@@ -209,8 +210,11 @@ export class ApiInterceptor implements HttpInterceptor {
     const req = request.clone({ url, headers });
     return next.handle(req).pipe(
       catchError((err: any) => {
-        // Translate API error messages to French (frontend only)
         if (err instanceof HttpErrorResponse) {
+          if (err.status === 401 && this.auth.isLoggedIn()) {
+            this.auth.logout();
+            this.router.navigate(['/auth/signin']);
+          }
           const translated = translateErrorBodyToFr(err.error);
           return throwError(() => new HttpErrorResponse({ ...err, error: translated }));
         }
