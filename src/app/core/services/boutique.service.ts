@@ -285,4 +285,28 @@ export class BoutiqueService {
       })
     );
   }
+
+  importTemplate(): Observable<Blob> {
+    return this.http.get(`${API}/boutiques/import/template`, { responseType: 'blob' }).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object' && 'message' in err.error) {
+          return throwError(() => err.error as ApiErrorBody);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau', errors: [] } as ApiErrorBody));
+      })
+    );
+  }
+
+  importExcel(file: File): Observable<{ success: boolean; message: string; data: { created: number; errors: any[] } }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${API}/boutiques/import`, formData).pipe(
+      catchError(err => {
+        if (err.error && typeof err.error === 'object' && 'message' in err.error) {
+          return throwError(() => err.error as ApiErrorBody);
+        }
+        return throwError(() => ({ success: false, message: err.message || 'Erreur réseau', errors: [] } as ApiErrorBody));
+      })
+    );
+  }
 }

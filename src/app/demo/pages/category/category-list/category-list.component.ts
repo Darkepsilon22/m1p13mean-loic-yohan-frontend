@@ -26,6 +26,12 @@ export class CategoryListComponent implements OnInit {
   deleteLoading = false;
   deleteError = '';
 
+  // Import Excel
+  showImportModal = false;
+  importFile: File | null = null;
+  importing = false;
+  importResult: { created: number; errors: any[] } | null = null;
+
   constructor(
     private categoryService: CategoryService,
     private auth: AuthService,
@@ -115,5 +121,43 @@ export class CategoryListComponent implements OnInit {
     const p = c.parentId;
     if (!p) return '—';
     return typeof p === 'object' && p?.name ? p.name : '—';
+  }
+
+  downloadTemplate(): void {
+    this.categoryService.importTemplate().subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'template-categories.xlsx';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.importFile = input.files[0];
+      this.importResult = null;
+    }
+  }
+
+  doImport(): void {
+    if (!this.importFile) return;
+    this.importing = true;
+    this.importResult = null;
+    this.categoryService.importExcel(this.importFile).subscribe({
+      next: (res) => {
+        this.importing = false;
+        this.importResult = res.data;
+        if (res.data.created > 0) {
+          this.loadCategories(this.pagination?.page ?? 1);
+        }
+      },
+      error: (err) => {
+        this.importing = false;
+        this.importResult = { created: 0, errors: [{ row: 0, message: err.message || 'Erreur import' }] };
+      }
+    });
   }
 }

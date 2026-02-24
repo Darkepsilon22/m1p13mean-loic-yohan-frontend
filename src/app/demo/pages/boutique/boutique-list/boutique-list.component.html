@@ -5,9 +5,14 @@
       <h4 class="al-title"><i class="feather icon-list"></i> Liste des emplacements</h4>
       <p class="al-subtitle">Gérez tous les emplacements du centre</p>
     </div>
-    <a routerLink="/boutique/create" class="al-action-btn al-action-primary">
-      <i class="feather icon-plus"></i> Nouvel emplacement
-    </a>
+    <div class="al-header-actions">
+      <button class="al-action-btn al-action-outline" (click)="showImportModal = true">
+        <i class="feather icon-upload"></i> Import Excel
+      </button>
+      <a routerLink="/boutique/create" class="al-action-btn al-action-primary">
+        <i class="feather icon-plus"></i> Nouvel emplacement
+      </a>
+    </div>
   </div>
 
   <!-- Filters -->
@@ -105,6 +110,43 @@
       <button class="page-btn" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">
         <i class="feather icon-chevron-right"></i>
       </button>
+    </div>
+  </div>
+
+  <!-- Import Modal -->
+  <div class="import-overlay" *ngIf="showImportModal" (click)="showImportModal = false">
+    <div class="import-modal" (click)="$event.stopPropagation()">
+      <div class="import-modal-header">
+        <h5><i class="feather icon-upload"></i> Importer des emplacements</h5>
+        <button class="import-close" (click)="showImportModal = false"><i class="feather icon-x"></i></button>
+      </div>
+      <div class="import-modal-body">
+        <p class="import-info">Importez des emplacements en masse via un fichier Excel (.xlsx). Colonnes : <strong>Nom, Description, Catégorie (nom), Étage, Zone, Numéro, Surface (m²), Prix (Ar)</strong>.</p>
+        <button class="import-template-btn" (click)="downloadTemplate()">
+          <i class="feather icon-download"></i> Télécharger le template
+        </button>
+        <div class="import-dropzone" (click)="fileInput.click()" [class.has-file]="importFile">
+          <input #fileInput type="file" accept=".xlsx,.xls" (change)="onFileSelected($event)" hidden>
+          <i class="feather icon-file"></i>
+          <span *ngIf="!importFile">Cliquez pour sélectionner un fichier Excel</span>
+          <span *ngIf="importFile">{{ importFile.name }}</span>
+        </div>
+        <div *ngIf="importResult" class="import-result" [class.has-errors]="importResult.errors?.length > 0">
+          <p class="import-success">{{ importResult.created }} emplacement(s) importé(s)</p>
+          <div *ngIf="importResult.errors?.length > 0" class="import-errors">
+            <p><strong>Erreurs :</strong></p>
+            <ul>
+              <li *ngFor="let e of importResult.errors">Ligne {{ e.row }} : {{ e.message }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="import-modal-footer">
+        <button class="al-action-btn al-action-outline" (click)="showImportModal = false">Fermer</button>
+        <button class="al-action-btn al-action-primary" [disabled]="!importFile || importing" (click)="doImport()">
+          <i class="feather icon-upload"></i> {{ importing ? 'Import en cours...' : 'Importer' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

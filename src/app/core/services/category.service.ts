@@ -115,4 +115,24 @@ export class CategoryService {
       })
     );
   }
+
+  importTemplate(): Observable<Blob> {
+    return this.http.get(`${API}/categories/import/template`, { responseType: 'blob' }).pipe(
+      catchError(err => {
+        const msg = err.error?.message || err.message || 'Erreur réseau';
+        return throwError(() => ({ success: false, message: msg }));
+      })
+    );
+  }
+
+  importExcel(file: File): Observable<{ success: boolean; message: string; data: { created: number; errors: any[] } }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${API}/categories/import`, formData).pipe(
+      catchError(err => {
+        const msg = err.error?.message || err.message || 'Erreur réseau';
+        return throwError(() => ({ success: false, message: msg }));
+      })
+    );
+  }
 }

@@ -9,6 +9,9 @@
       <a routerLink="/products/stock" class="mp-action-btn mp-action-outline">
         <i class="feather icon-trending-up"></i> Vue stock
       </a>
+      <button class="mp-action-btn mp-action-outline" (click)="showImportModal = true">
+        <i class="feather icon-upload"></i> Import Excel
+      </button>
       <a routerLink="/products/my/create" class="mp-action-btn mp-action-primary">
         <i class="feather icon-plus"></i> Nouveau produit
       </a>
@@ -119,6 +122,43 @@
       <button class="page-btn" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">
         <i class="feather icon-chevron-right"></i>
       </button>
+    </div>
+  </div>
+
+  <!-- Import Modal -->
+  <div class="import-overlay" *ngIf="showImportModal" (click)="showImportModal = false">
+    <div class="import-modal" (click)="$event.stopPropagation()">
+      <div class="import-modal-header">
+        <h5><i class="feather icon-upload"></i> Importer des produits</h5>
+        <button class="import-close" (click)="showImportModal = false"><i class="feather icon-x"></i></button>
+      </div>
+      <div class="import-modal-body">
+        <p class="import-info">Importez vos produits en masse via un fichier Excel (.xlsx). Les colonnes attendues sont : <strong>Nom, Description, Prix, Prix original, Catégorie interne, Stock, Seuil stock bas</strong>.</p>
+        <button class="import-template-btn" (click)="downloadTemplate()">
+          <i class="feather icon-download"></i> Télécharger le template
+        </button>
+        <div class="import-dropzone" (click)="fileInput.click()" [class.has-file]="importFile">
+          <input #fileInput type="file" accept=".xlsx,.xls" (change)="onFileSelected($event)" hidden>
+          <i class="feather icon-file"></i>
+          <span *ngIf="!importFile">Cliquez pour sélectionner un fichier Excel</span>
+          <span *ngIf="importFile">{{ importFile.name }}</span>
+        </div>
+        <div *ngIf="importResult" class="import-result" [class.has-errors]="importResult.errors?.length > 0">
+          <p class="import-success">{{ importResult.created }} produit(s) importé(s)</p>
+          <div *ngIf="importResult.errors?.length > 0" class="import-errors">
+            <p><strong>Erreurs :</strong></p>
+            <ul>
+              <li *ngFor="let e of importResult.errors">Ligne {{ e.row }} : {{ e.message }}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="import-modal-footer">
+        <button class="mp-action-btn mp-action-outline" (click)="showImportModal = false">Fermer</button>
+        <button class="mp-action-btn mp-action-primary" [disabled]="!importFile || importing" (click)="doImport()">
+          <i class="feather icon-upload"></i> {{ importing ? 'Import en cours...' : 'Importer' }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

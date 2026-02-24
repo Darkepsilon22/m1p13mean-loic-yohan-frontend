@@ -19,6 +19,12 @@ export class BoutiqueListComponent implements OnInit {
   pageSizeOptions = [5, 10, 20, 50, 100];
   selectedPageSize = 20;
 
+  // Import Excel
+  showImportModal = false;
+  importFile: File | null = null;
+  importing = false;
+  importResult: { created: number; errors: any[] } | null = null;
+
   constructor(
     private boutiqueService: BoutiqueService,
     private auth: AuthService,
@@ -84,5 +90,43 @@ export class BoutiqueListComponent implements OnInit {
       rejected: 'badge-danger'
     };
     return classes[status] || 'badge-secondary';
+  }
+
+  downloadTemplate(): void {
+    this.boutiqueService.importTemplate().subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'template-emplacements.xlsx';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.importFile = input.files[0];
+      this.importResult = null;
+    }
+  }
+
+  doImport(): void {
+    if (!this.importFile) return;
+    this.importing = true;
+    this.importResult = null;
+    this.boutiqueService.importExcel(this.importFile).subscribe({
+      next: (res) => {
+        this.importing = false;
+        this.importResult = res.data;
+        if (res.data.created > 0) {
+          this.loadBoutiques(this.pagination?.page ?? 1);
+        }
+      },
+      error: (err) => {
+        this.importing = false;
+        this.importResult = { created: 0, errors: [{ row: 0, message: err.message || 'Erreur import' }] };
+      }
+    });
   }
 }

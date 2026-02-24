@@ -193,4 +193,14 @@ export class ProductService {
   delete(id: string): Observable<ProductResponse> {
     return this.http.delete<ProductResponse>(`${API}/products/${id}`).pipe(catchError(handleError));
   }
+
+  importTemplate(): Observable<Blob> {
+    return this.http.get(`${API}/products/import/template`, { responseType: 'blob' }).pipe(catchError(handleError));
+  }
+
+  importExcel(file: File): Observable<{ success: boolean; message: string; data: { created: number; errors: any[] } }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${API}/products/import`, formData).pipe(catchError(handleError));
+  }
 }
