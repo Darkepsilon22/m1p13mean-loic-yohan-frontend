@@ -105,31 +105,69 @@ export class BoutiqueStatsComponent implements OnInit, OnDestroy {
     this.initDayOfWeekChart();
   }
 
-  // ===== Graphique CA Mensuel (Area chart) =====
+  // Generate the last N months as labels and map data to them
+  private generateLast12Months(): { labels: string[]; keys: string[] } {
+    const now = new Date();
+    const labels: string[] = [];
+    const keys: string[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const month = d.getMonth() + 1;
+      const year = d.getFullYear();
+      labels.push(this.monthNames[month - 1] + ' ' + year);
+      keys.push(`${year}-${month}`);
+    }
+    return { labels, keys };
+  }
+
+  // ===== Graphique CA Mensuel (Area chart) — with 12 months filled =====
   private initRevenueChart(): void {
     const el = document.querySelector('#revenue-chart');
-    if (!el || !this.trends?.monthlyTrends?.length) return;
+    if (!el) return;
 
-    const monthlyTrends = this.trends.monthlyTrends;
-    const labels = monthlyTrends.map((t: any) => this.monthNames[(t._id.month || 1) - 1] + ' ' + t._id.year);
-    const revenueData = monthlyTrends.map((t: any) => t.revenue || 0);
-    const ordersData = monthlyTrends.map((t: any) => t.ordersCount || 0);
+    const { labels, keys } = this.generateLast12Months();
+    const monthlyTrends = this.trends?.monthlyTrends || [];
+
+    // Map API data into a lookup by "year-month"
+    const dataMap = new Map<string, { revenue: number; ordersCount: number }>();
+    for (const t of monthlyTrends) {
+      const key = `${t._id.year}-${t._id.month}`;
+      dataMap.set(key, { revenue: t.revenue || 0, ordersCount: t.ordersCount || 0 });
+    }
+
+    const revenueData = keys.map(k => dataMap.get(k)?.revenue || 0);
+    const ordersData = keys.map(k => dataMap.get(k)?.ordersCount || 0);
 
     this.revenueChart = new ApexCharts(el, {
-      chart: { type: 'area', height: 320, toolbar: { show: false }, fontFamily: 'inherit' },
+      chart: {
+        type: 'area',
+        height: 360,
+        toolbar: { show: true, tools: { download: true, selection: false, zoom: false, zoomin: false, zoomout: false, pan: false, reset: false } },
+        fontFamily: 'inherit',
+        dropShadow: { enabled: true, top: 4, left: 0, blur: 8, opacity: 0.12, color: '#4680ff' }
+      },
       series: [
         { name: 'Chiffre d\'affaires (Ar)', data: revenueData },
         { name: 'Commandes', data: ordersData }
       ],
-      xaxis: { categories: labels },
+      xaxis: {
+        categories: labels,
+        labels: { style: { fontSize: '11px', colors: '#999' }, rotate: -45, rotateAlways: false },
+        axisBorder: { show: false },
+        axisTicks: { show: false }
+      },
       yaxis: [
-        { title: { text: 'CA (Ar)' }, labels: { formatter: (val: number) => this.formatNumber(val) + ' Ar' } },
-        { opposite: true, title: { text: 'Commandes' }, labels: { formatter: (val: number) => Math.round(val).toString() } }
+        { title: { text: 'CA (Ar)', style: { fontSize: '12px', fontWeight: 600, color: '#666' } }, labels: { formatter: (val: number) => this.formatNumber(val) + ' Ar', style: { fontSize: '11px', colors: '#999' } } },
+        { opposite: true, title: { text: 'Commandes', style: { fontSize: '12px', fontWeight: 600, color: '#666' } }, labels: { formatter: (val: number) => Math.round(val).toString(), style: { fontSize: '11px', colors: '#999' } } }
       ],
       colors: ['#4680ff', '#2ed8a3'],
-      stroke: { width: [2, 2], curve: 'smooth' },
-      fill: { type: 'gradient', gradient: { opacityFrom: 0.4, opacityTo: 0.1 } },
+      stroke: { width: [3, 3], curve: 'smooth' },
+      fill: {
+        type: 'gradient',
+        gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05, stops: [0, 90, 100] }
+      },
       tooltip: {
+        theme: 'dark',
         y: {
           formatter: (val: number, opts: any) => {
             if (opts.seriesIndex === 0) return this.formatNumber(val) + ' Ar';
@@ -137,8 +175,10 @@ export class BoutiqueStatsComponent implements OnInit, OnDestroy {
           }
         }
       },
+      markers: { size: 4, strokeWidth: 2, hover: { size: 6 } },
       dataLabels: { enabled: false },
-      grid: { borderColor: '#f1f1f1' }
+      grid: { borderColor: '#f1f1f1', strokeDashArray: 4, padding: { left: 8, right: 8 } },
+      legend: { position: 'top', horizontalAlign: 'right', fontSize: '12px', fontWeight: 600, markers: { radius: 4 } }
     });
     this.revenueChart.render();
   }
@@ -156,20 +196,26 @@ export class BoutiqueStatsComponent implements OnInit, OnDestroy {
     this.topProductsChart = new ApexCharts(el, {
       chart: { type: 'line', height: 320, toolbar: { show: false }, fontFamily: 'inherit' },
       series,
-      xaxis: { categories: this.topProductsTrends.months },
+      xaxis: {
+        categories: this.topProductsTrends.months,
+        labels: { style: { fontSize: '11px', colors: '#999' } },
+        axisBorder: { show: false },
+        axisTicks: { show: false }
+      },
       yaxis: {
-        title: { text: 'Quantité vendue' },
-        labels: { formatter: (val: number) => Math.round(val).toString() }
+        title: { text: 'Quantité vendue', style: { fontSize: '12px', fontWeight: 600, color: '#666' } },
+        labels: { formatter: (val: number) => Math.round(val).toString(), style: { fontSize: '11px', colors: '#999' } }
       },
       colors: this.topColors,
       stroke: { width: 3, curve: 'smooth' },
-      markers: { size: 4, hover: { size: 6 } },
+      markers: { size: 5, strokeWidth: 2, hover: { size: 7 } },
       tooltip: {
+        theme: 'dark',
         y: { formatter: (val: number) => Math.round(val) + ' vendus' }
       },
-      legend: { position: 'bottom', fontSize: '12px' },
+      legend: { position: 'bottom', fontSize: '12px', fontWeight: 500, markers: { radius: 4 } },
       dataLabels: { enabled: false },
-      grid: { borderColor: '#f1f1f1' }
+      grid: { borderColor: '#f1f1f1', strokeDashArray: 4 }
     });
     this.topProductsChart.render();
   }
@@ -187,20 +233,26 @@ export class BoutiqueStatsComponent implements OnInit, OnDestroy {
     this.lowProductsChart = new ApexCharts(el, {
       chart: { type: 'line', height: 320, toolbar: { show: false }, fontFamily: 'inherit' },
       series,
-      xaxis: { categories: this.lowProductsTrends.months },
+      xaxis: {
+        categories: this.lowProductsTrends.months,
+        labels: { style: { fontSize: '11px', colors: '#999' } },
+        axisBorder: { show: false },
+        axisTicks: { show: false }
+      },
       yaxis: {
-        title: { text: 'Quantité vendue' },
-        labels: { formatter: (val: number) => Math.round(val).toString() }
+        title: { text: 'Quantité vendue', style: { fontSize: '12px', fontWeight: 600, color: '#666' } },
+        labels: { formatter: (val: number) => Math.round(val).toString(), style: { fontSize: '11px', colors: '#999' } }
       },
       colors: this.lowColors,
       stroke: { width: 3, curve: 'smooth', dashArray: [0, 5, 0, 5, 0] },
-      markers: { size: 4, hover: { size: 6 } },
+      markers: { size: 5, strokeWidth: 2, hover: { size: 7 } },
       tooltip: {
+        theme: 'dark',
         y: { formatter: (val: number) => Math.round(val) + ' vendus' }
       },
-      legend: { position: 'bottom', fontSize: '12px' },
+      legend: { position: 'bottom', fontSize: '12px', fontWeight: 500, markers: { radius: 4 } },
       dataLabels: { enabled: false },
-      grid: { borderColor: '#f1f1f1' }
+      grid: { borderColor: '#f1f1f1', strokeDashArray: 4 }
     });
     this.lowProductsChart.render();
   }
@@ -219,14 +271,37 @@ export class BoutiqueStatsComponent implements OnInit, OnDestroy {
     });
 
     this.dayOfWeekChart = new ApexCharts(el, {
-      chart: { type: 'bar', height: 260, toolbar: { show: false }, fontFamily: 'inherit' },
+      chart: { type: 'bar', height: 300, toolbar: { show: false }, fontFamily: 'inherit' },
       series: [{ name: 'Revenu (Ar)', data: revenues }],
-      xaxis: { categories: labels },
+      xaxis: {
+        categories: labels,
+        labels: { style: { fontSize: '12px', fontWeight: 600, colors: '#666' } },
+        axisBorder: { show: false },
+        axisTicks: { show: false }
+      },
+      yaxis: {
+        labels: { formatter: (val: number) => this.formatNumber(val), style: { fontSize: '11px', colors: '#999' } }
+      },
       colors: ['#6c5ce7'],
-      plotOptions: { bar: { columnWidth: '50%', borderRadius: 6 } },
+      plotOptions: {
+        bar: {
+          columnWidth: '45%',
+          borderRadius: 8,
+          distributed: true,
+          dataLabels: { position: 'top' }
+        }
+      },
+      fill: {
+        type: 'gradient',
+        gradient: { shade: 'light', type: 'vertical', shadeIntensity: 0.4, opacityFrom: 1, opacityTo: 0.85, stops: [0, 100] }
+      },
       dataLabels: { enabled: false },
-      tooltip: { y: { formatter: (val: number) => this.formatNumber(val) + ' Ar' } },
-      grid: { borderColor: '#f1f1f1' }
+      tooltip: {
+        theme: 'dark',
+        y: { formatter: (val: number) => this.formatNumber(val) + ' Ar' }
+      },
+      grid: { borderColor: '#f1f1f1', strokeDashArray: 4 },
+      legend: { show: false }
     });
     this.dayOfWeekChart.render();
   }

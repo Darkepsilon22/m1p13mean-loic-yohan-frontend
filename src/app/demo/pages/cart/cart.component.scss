@@ -845,7 +845,7 @@ $shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.14), 0 4px 16px rgba(0, 0, 0, 0.06);
   background: $surface;
   border-radius: $radius-lg;
   width: 100%;
-  max-width: 620px;
+  max-width: 660px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
@@ -1085,7 +1085,7 @@ $shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.14), 0 4px 16px rgba(0, 0, 0, 0.06);
   margin-bottom: 12px;
 
   &.three-cols {
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 }
 
@@ -1143,17 +1143,19 @@ $shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.14), 0 4px 16px rgba(0, 0, 0, 0.06);
 
   i {
     position: absolute;
-    left: 14px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 15px;
+    font-size: 14px;
     color: $ink-faint;
     pointer-events: none;
     transition: color $transition-fast;
   }
 
   input {
-    padding-left: 42px;
+    padding-left: 38px;
+    min-width: 0;
+    text-overflow: ellipsis;
   }
 
   input:focus + i,

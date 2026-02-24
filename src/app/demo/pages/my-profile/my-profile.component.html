@@ -1,178 +1,212 @@
-<div class="row">
-  <!-- Section Profil -->
-  <div class="col-lg-4 col-md-5">
-    <app-card cardTitle="Mon profil" [options]="false">
-      <div *ngIf="successMessage" class="alert alert-success py-2">{{ successMessage }}</div>
-      <div *ngIf="errorMessage" class="alert alert-danger py-2">{{ errorMessage }}</div>
+<div class="mp-page">
 
-      <!-- Avatar preview -->
-      <div class="text-center mb-3" *ngIf="currentUser">
-        <div class="profile-avatar-wrap">
-          <img *ngIf="currentUser.avatar" [src]="currentUser.avatar" alt="Avatar" class="profile-avatar">
-          <div *ngIf="!currentUser.avatar" class="profile-avatar-placeholder">
-            <i class="feather icon-user"></i>
-          </div>
+  <!-- ── Profile Hero Card ── -->
+  <div class="mp-hero">
+    <div class="mp-hero-bg"></div>
+    <div class="mp-hero-content">
+      <div class="mp-avatar-wrap">
+        <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" alt="Avatar" class="mp-avatar-img">
+        <div *ngIf="!currentUser?.avatar" class="mp-avatar-placeholder">
+          <span>{{ currentUser?.firstName?.charAt(0) || 'U' }}</span>
         </div>
-        <h6 class="mt-2 mb-0">{{ currentUser.firstName }} {{ currentUser.lastName }}</h6>
-        <small class="text-muted">{{ currentUser.email }}</small>
+        <span class="mp-avatar-badge"><i class="feather icon-check"></i></span>
       </div>
-
-      <form [formGroup]="form" (ngSubmit)="onSubmitProfile()">
-        <div class="form-group">
-          <label class="form-label">Prénom <span class="text-danger">*</span></label>
-          <input type="text" class="form-control form-control-sm" formControlName="firstName" placeholder="Prénom">
-          <small class="text-danger" *ngIf="getError('firstName')">{{ getError('firstName') }}</small>
+      <div class="mp-hero-info">
+        <h3 class="mp-hero-name">{{ currentUser?.firstName }} {{ currentUser?.lastName }}</h3>
+        <p class="mp-hero-email"><i class="feather icon-mail"></i> {{ currentUser?.email }}</p>
+        <div class="mp-hero-meta">
+          <span class="mp-role-tag" *ngIf="currentUser?.role">{{ currentUser.role === 'acheteur' ? 'Acheteur' : currentUser.role === 'boutique' ? 'Boutique' : currentUser.role }}</span>
+          <span class="mp-meta-item" *ngIf="currentUser?.phone"><i class="feather icon-phone"></i> {{ currentUser.phone }}</span>
         </div>
-        <div class="form-group">
-          <label class="form-label">Nom <span class="text-danger">*</span></label>
-          <input type="text" class="form-control form-control-sm" formControlName="lastName" placeholder="Nom">
-          <small class="text-danger" *ngIf="getError('lastName')">{{ getError('lastName') }}</small>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Téléphone</label>
-          <input type="text" class="form-control form-control-sm" formControlName="phone" placeholder="034 00 000 00">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Photo de profil (URL)</label>
-          <input type="url" class="form-control form-control-sm" formControlName="avatar" placeholder="https://...">
-        </div>
-        <button type="submit" class="btn btn-primary btn-block btn-sm" [disabled]="loading">
-          <i class="feather icon-save mr-1"></i>{{ loading ? 'Enregistrement...' : 'Enregistrer' }}
-        </button>
-      </form>
-
-      <hr>
-      <a routerLink="/auth/change-password" class="btn btn-outline-secondary btn-block btn-sm">
-        <i class="feather icon-lock mr-1"></i>Changer le mot de passe
+      </div>
+      <a routerLink="/auth/change-password" class="mp-hero-action">
+        <i class="feather icon-lock"></i>
+        <span>Mot de passe</span>
       </a>
-    </app-card>
+    </div>
   </div>
 
-  <!-- Section Dernières commandes (5 max) -->
-  <div class="col-lg-8 col-md-7">
-    <app-card [options]="false">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h6 class="mb-0"><i class="feather icon-shopping-bag mr-2"></i>Dernières commandes</h6>
-        <a routerLink="/my-orders" class="btn btn-sm btn-outline-primary">
-          <i class="feather icon-list mr-1"></i>Voir toutes ({{ totalOrders }})
+  <div class="mp-grid">
+    <!-- ── Edit Profile ── -->
+    <div class="mp-section mp-edit-section">
+      <div class="mp-section-header">
+        <div class="mp-section-icon"><i class="feather icon-edit"></i></div>
+        <div>
+          <h5 class="mp-section-title">Informations personnelles</h5>
+          <p class="mp-section-sub">Modifiez vos informations de profil</p>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div *ngIf="successMessage" class="mp-msg mp-msg-success">
+        <i class="feather icon-check-circle"></i>
+        <span>{{ successMessage }}</span>
+      </div>
+      <div *ngIf="errorMessage" class="mp-msg mp-msg-error">
+        <i class="feather icon-alert-circle"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmitProfile()" class="mp-form">
+        <div class="mp-form-row">
+          <div class="mp-field">
+            <label class="mp-label">Prénom <span class="mp-required">*</span></label>
+            <input type="text" class="mp-input" formControlName="firstName" placeholder="Votre prénom">
+            <span class="mp-field-error" *ngIf="getError('firstName')">{{ getError('firstName') }}</span>
+          </div>
+          <div class="mp-field">
+            <label class="mp-label">Nom <span class="mp-required">*</span></label>
+            <input type="text" class="mp-input" formControlName="lastName" placeholder="Votre nom">
+            <span class="mp-field-error" *ngIf="getError('lastName')">{{ getError('lastName') }}</span>
+          </div>
+        </div>
+        <div class="mp-form-row">
+          <div class="mp-field">
+            <label class="mp-label">Téléphone</label>
+            <div class="mp-input-icon">
+              <i class="feather icon-phone"></i>
+              <input type="text" class="mp-input mp-input-with-icon" formControlName="phone" placeholder="034 00 000 00">
+            </div>
+          </div>
+          <div class="mp-field">
+            <label class="mp-label">Photo de profil (URL)</label>
+            <div class="mp-input-icon">
+              <i class="feather icon-image"></i>
+              <input type="url" class="mp-input mp-input-with-icon" formControlName="avatar" placeholder="https://...">
+            </div>
+          </div>
+        </div>
+        <div class="mp-form-actions">
+          <button type="submit" class="mp-btn-save" [disabled]="loading">
+            <i class="feather icon-save" *ngIf="!loading"></i>
+            {{ loading ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ── Orders Section (acheteur only) ── -->
+    <div class="mp-section mp-orders-section" *ngIf="currentUser?.role === 'acheteur'">
+      <div class="mp-section-header">
+        <div class="mp-section-icon mp-icon-orders"><i class="feather icon-shopping-cart"></i></div>
+        <div>
+          <h5 class="mp-section-title">Dernières commandes</h5>
+          <p class="mp-section-sub">Vos 5 commandes les plus récentes</p>
+        </div>
+        <a routerLink="/my-orders" class="mp-view-all" *ngIf="totalOrders > 0">
+          <i class="feather icon-list"></i>
+          Voir toutes ({{ totalOrders }})
         </a>
       </div>
 
-      <div *ngIf="orderError" class="alert alert-danger py-2">{{ orderError }}</div>
-      <div *ngIf="loadingOrders" class="text-center py-4">Chargement...</div>
-
-      <div *ngIf="!loadingOrders && orders.length === 0" class="text-muted text-center py-4">
-        <i class="feather icon-shopping-bag" style="font-size: 2rem;"></i>
-        <p class="mt-2 mb-0">Aucune commande pour le moment.</p>
+      <!-- Error -->
+      <div *ngIf="orderError" class="mp-msg mp-msg-error">
+        <i class="feather icon-alert-circle"></i>
+        <span>{{ orderError }}</span>
       </div>
 
-      <!-- Tableau des 5 dernières commandes -->
-      <div *ngIf="!loadingOrders && orders.length > 0" class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>Référence</th>
-              <th>Date</th>
-              <th>Articles</th>
-              <th>Total</th>
-              <th>Statut</th>
-              <th>Paiement</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <ng-container *ngFor="let o of orders">
-              <tr class="cursor-pointer" (click)="toggleOrderDetail(o._id)">
-                <td><strong class="text-primary">{{ o.orderReference }}</strong></td>
-                <td><small>{{ o.createdAt | date:'dd/MM/yyyy HH:mm' }}</small></td>
-                <td>{{ getItemsCount(o) }} article(s)</td>
-                <td><strong>{{ o.totalAmount | number:'1.0-0' }} Ar</strong></td>
-                <td><span class="badge" [ngClass]="getStatusClass(o.status)">{{ orderService.getStatusLabel(o.status) }}</span></td>
-                <td><span class="badge" [ngClass]="getPaymentClass(o.paymentStatus)">{{ orderService.getPaymentStatusLabel(o.paymentStatus) }}</span></td>
-                <td>
-                  <i class="feather" [ngClass]="expandedOrderId === o._id ? 'icon-chevron-up' : 'icon-chevron-down'"></i>
-                </td>
-              </tr>
-              <!-- Détail de commande (expandable) -->
-              <tr *ngIf="expandedOrderId === o._id" class="order-detail-row">
-                <td colspan="7" class="p-0">
-                  <div class="order-detail-panel">
-                    <div class="row">
-                      <div class="col-md-8">
-                        <h6 class="mb-2">Articles commandés</h6>
-                        <table class="table table-sm table-borderless mb-0">
-                          <tbody>
-                            <tr *ngFor="let item of o.items">
-                              <td style="width: 40px;">
-                                <img *ngIf="item.productImage" [src]="item.productImage" alt="" style="width: 36px; height: 36px; object-fit: cover; border-radius: 4px;">
-                                <div *ngIf="!item.productImage" style="width: 36px; height: 36px; background: #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
-                                  <i class="feather icon-box" style="font-size: 14px; color: #999;"></i>
-                                </div>
-                              </td>
-                              <td>
-                                <strong>{{ item.productName }}</strong><br>
-                                <small class="text-muted">{{ item.quantity }} x {{ item.unitPrice | number:'1.0-0' }} Ar</small>
-                              </td>
-                              <td class="text-right"><strong>{{ item.totalPrice | number:'1.0-0' }} Ar</strong></td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                      <div class="col-md-4">
-                        <h6 class="mb-2">Récapitulatif</h6>
-                        <div class="small">
-                          <div class="d-flex justify-content-between">
-                            <span>Sous-total</span>
-                            <span>{{ o.subtotal | number:'1.0-0' }} Ar</span>
-                          </div>
-                          <div class="d-flex justify-content-between" *ngIf="o.shippingFee">
-                            <span>Livraison</span>
-                            <span>{{ o.shippingFee | number:'1.0-0' }} Ar</span>
-                          </div>
-                          <div class="d-flex justify-content-between" *ngIf="o.discount">
-                            <span>Remise</span>
-                            <span class="text-success">-{{ o.discount | number:'1.0-0' }} Ar</span>
-                          </div>
-                          <hr class="my-1">
-                          <div class="d-flex justify-content-between font-weight-bold">
-                            <span>Total</span>
-                            <span>{{ o.totalAmount | number:'1.0-0' }} Ar</span>
-                          </div>
-                        </div>
-                        <hr class="my-2">
-                        <div class="small text-muted" *ngIf="o.shippingAddress">
-                          <strong>Adresse :</strong><br>
-                          {{ o.shippingAddress.street }}<br>
-                          {{ o.shippingAddress.city }} {{ o.shippingAddress.postalCode }}<br>
-                          {{ o.shippingAddress.country }}
-                        </div>
+      <!-- Loading -->
+      <div *ngIf="loadingOrders" class="mp-loading">
+        <div class="mp-loader-track"><div class="mp-loader-fill"></div></div>
+        <p>Chargement des commandes...</p>
+      </div>
 
-                        <!-- Bouton confirmer réception -->
-                        <div *ngIf="o.status === 'delivered' || o.status === 'shipped'" class="mt-3">
-                          <button class="btn btn-sm btn-success btn-block" [disabled]="confirmingOrderId === o._id" (click)="confirmReception(o); $event.stopPropagation()">
-                            <i class="feather icon-check-circle mr-1"></i>
-                            {{ confirmingOrderId === o._id ? 'Confirmation...' : 'Confirmer la réception' }}
-                          </button>
-                        </div>
-                        <div *ngIf="receptionSuccess === o._id" class="alert alert-success py-1 px-2 mt-2 small mb-0">
-                          <i class="feather icon-check mr-1"></i>Réception confirmée !
-                        </div>
-                      </div>
-                    </div>
+      <!-- Empty -->
+      <div *ngIf="!loadingOrders && orders.length === 0 && !orderError" class="mp-empty">
+        <div class="mp-empty-icon"><i class="feather icon-inbox"></i></div>
+        <h6>Aucune commande</h6>
+        <p>Vous n'avez pas encore passé de commande.</p>
+      </div>
+
+      <!-- Orders List -->
+      <div *ngIf="!loadingOrders && orders.length > 0" class="mp-orders-list">
+        <div *ngFor="let o of orders" class="mp-order-card" [class.mp-order-expanded]="expandedOrderId === o._id">
+          <div class="mp-order-row" (click)="toggleOrderDetail(o._id)">
+            <div class="mp-order-ref">
+              <span class="mp-ref-code">{{ o.orderReference }}</span>
+              <span class="mp-order-date">{{ o.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="mp-order-meta">
+              <span class="mp-order-items">{{ getItemsCount(o) }} article{{ getItemsCount(o) > 1 ? 's' : '' }}</span>
+              <span class="mp-order-total">{{ o.totalAmount | number:'1.0-0' }} Ar</span>
+            </div>
+            <div class="mp-order-status-group">
+              <span class="mp-status-pill" [ngClass]="getStatusClass(o.status)">{{ orderService.getStatusLabel(o.status) }}</span>
+              <span class="mp-payment-pill" [ngClass]="getPaymentClass(o.paymentStatus)">{{ orderService.getPaymentStatusLabel(o.paymentStatus) }}</span>
+            </div>
+            <i class="feather mp-chevron" [ngClass]="expandedOrderId === o._id ? 'icon-chevron-up' : 'icon-chevron-down'"></i>
+          </div>
+
+          <!-- Expanded Detail -->
+          <div class="mp-order-detail" *ngIf="expandedOrderId === o._id">
+            <div class="mp-detail-grid">
+              <div class="mp-detail-items">
+                <h6 class="mp-detail-title">Articles commandés</h6>
+                <div class="mp-item-row" *ngFor="let item of o.items">
+                  <div class="mp-item-thumb">
+                    <img *ngIf="item.productImage" [src]="item.productImage" alt="">
+                    <div *ngIf="!item.productImage" class="mp-item-thumb-empty"><i class="feather icon-box"></i></div>
                   </div>
-                </td>
-              </tr>
-            </ng-container>
-          </tbody>
-        </table>
+                  <div class="mp-item-info">
+                    <span class="mp-item-name">{{ item.productName }}</span>
+                    <span class="mp-item-qty">{{ item.quantity }} x {{ item.unitPrice | number:'1.0-0' }} Ar</span>
+                  </div>
+                  <span class="mp-item-total">{{ item.totalPrice | number:'1.0-0' }} Ar</span>
+                </div>
+              </div>
+              <div class="mp-detail-summary">
+                <h6 class="mp-detail-title">Récapitulatif</h6>
+                <div class="mp-summary-line">
+                  <span>Sous-total</span>
+                  <span>{{ o.subtotal | number:'1.0-0' }} Ar</span>
+                </div>
+                <div class="mp-summary-line" *ngIf="o.shippingFee">
+                  <span>Livraison</span>
+                  <span>{{ o.shippingFee | number:'1.0-0' }} Ar</span>
+                </div>
+                <div class="mp-summary-line mp-summary-discount" *ngIf="o.discount">
+                  <span>Remise</span>
+                  <span>-{{ o.discount | number:'1.0-0' }} Ar</span>
+                </div>
+                <div class="mp-summary-divider"></div>
+                <div class="mp-summary-line mp-summary-total">
+                  <span>Total</span>
+                  <span>{{ o.totalAmount | number:'1.0-0' }} Ar</span>
+                </div>
+
+                <div class="mp-address" *ngIf="o.shippingAddress">
+                  <span class="mp-address-label"><i class="feather icon-map-pin"></i> Adresse de livraison</span>
+                  <p class="mp-address-text">
+                    {{ o.shippingAddress.street }}<br>
+                    {{ o.shippingAddress.city }} {{ o.shippingAddress.postalCode }}<br>
+                    {{ o.shippingAddress.country }}
+                  </p>
+                </div>
+
+                <!-- Confirm reception -->
+                <button *ngIf="o.status === 'delivered' || o.status === 'shipped'"
+                        class="mp-btn-confirm"
+                        [disabled]="confirmingOrderId === o._id"
+                        (click)="confirmReception(o); $event.stopPropagation()">
+                  <i class="feather icon-check-circle"></i>
+                  {{ confirmingOrderId === o._id ? 'Confirmation...' : 'Confirmer la réception' }}
+                </button>
+                <div *ngIf="receptionSuccess === o._id" class="mp-msg mp-msg-success mp-msg-sm">
+                  <i class="feather icon-check-circle"></i> Réception confirmée !
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Lien vers toutes les commandes -->
-      <div *ngIf="!loadingOrders && totalOrders > 5" class="text-center mt-3">
-        <a routerLink="/my-orders" class="text-primary small">
-          <i class="feather icon-arrow-right mr-1"></i>Voir les {{ totalOrders }} commandes
+      <!-- Link to all orders -->
+      <div *ngIf="!loadingOrders && totalOrders > 5" class="mp-all-orders-link">
+        <a routerLink="/my-orders">
+          <i class="feather icon-arrow-right"></i>
+          Voir les {{ totalOrders }} commandes
         </a>
       </div>
-    </app-card>
+    </div>
   </div>
 </div>

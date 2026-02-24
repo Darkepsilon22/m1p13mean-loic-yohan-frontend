@@ -1,48 +1,886 @@
-.profile-avatar-wrap {
-  display: inline-block;
+// ============================================
+// My Profile — Warm Editorial
+// ============================================
+
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.profile-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #e8e8e8;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-.profile-avatar-placeholder {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: #e8e8e8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
+@keyframes slideLoader {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
 
-  i {
-    font-size: 2rem;
-    color: #aaa;
+.mp-page {
+  padding-bottom: 2rem;
+  animation: fadeInUp 0.3s ease;
+}
+
+// ============================================
+// HERO CARD
+// ============================================
+
+.mp-hero {
+  position: relative;
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.mp-hero-bg {
+  height: 100px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background: radial-gradient(circle at 80% 30%, rgba($blue, 0.25) 0%, transparent 70%);
   }
 }
 
-.cursor-pointer {
+.mp-hero-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 28px 22px;
+  margin-top: -40px;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.mp-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mp-avatar-img {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid $surface;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.mp-avatar-placeholder {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+  border: 4px solid $surface;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  span {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+  }
+}
+
+.mp-avatar-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: $green;
+  border: 2px solid $surface;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 10px;
+    color: #fff;
+  }
+}
+
+.mp-hero-info {
+  flex: 1;
+  min-width: 0;
+  padding-top: 44px;
+}
+
+.mp-hero-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: $ink;
+  margin: 0 0 2px;
+  letter-spacing: -0.02em;
+}
+
+.mp-hero-email {
+  font-size: 13px;
+  color: $ink-muted;
+  margin: 0 0 8px;
+
+  i {
+    font-size: 13px;
+    margin-right: 5px;
+    opacity: 0.6;
+  }
+}
+
+.mp-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mp-role-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 12px;
+  border-radius: 50px;
+  background: rgba($blue, 0.08);
+  color: $blue;
+}
+
+.mp-meta-item {
+  font-size: 12px;
+  color: $ink-faint;
+
+  i {
+    font-size: 12px;
+    margin-right: 4px;
+  }
+}
+
+.mp-hero-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  background: $surface;
+  color: $ink-muted;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all $transition;
+  margin-top: 44px;
+  flex-shrink: 0;
+
+  i { font-size: 14px; }
+
+  &:hover {
+    border-color: $ink;
+    color: $ink;
+    text-decoration: none;
+    background: $surface-warm;
+  }
+}
+
+// ============================================
+// GRID LAYOUT
+// ============================================
+
+.mp-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ============================================
+// SECTIONS
+// ============================================
+
+.mp-section {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  padding: 24px;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.mp-edit-section {
+  animation-delay: 0.05s;
+}
+
+.mp-orders-section {
+  animation-delay: 0.1s;
+}
+
+.mp-section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.mp-section-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba($blue, 0.08);
+  color: $blue;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i { font-size: 18px; }
+
+  &.mp-icon-orders {
+    background: rgba($purple, 0.08);
+    color: $purple;
+  }
+}
+
+.mp-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: $ink;
+  margin: 0;
+}
+
+.mp-section-sub {
+  font-size: 12px;
+  color: $ink-faint;
+  margin: 2px 0 0;
+}
+
+// ============================================
+// MESSAGES
+// ============================================
+
+.mp-msg {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  animation: fadeIn 0.25s ease;
+
+  i { font-size: 16px; flex-shrink: 0; }
+
+  &.mp-msg-success {
+    background: rgba($green, 0.08);
+    color: darken($green, 15%);
+    border: 1px solid rgba($green, 0.15);
+  }
+
+  &.mp-msg-error {
+    background: rgba($red, 0.06);
+    color: $red;
+    border: 1px solid rgba($red, 0.12);
+  }
+
+  &.mp-msg-sm {
+    padding: 8px 12px;
+    font-size: 12px;
+    margin-bottom: 0;
+    margin-top: 10px;
+
+    i { font-size: 14px; }
+  }
+}
+
+// ============================================
+// FORM
+// ============================================
+
+.mp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mp-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.mp-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.mp-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: $ink-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.mp-required {
+  color: $red;
+}
+
+.mp-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  font-size: 14px;
+  color: $ink;
+  background: $surface;
+  font-family: inherit;
+  transition: border-color $transition, box-shadow $transition;
+
+  &:focus {
+    outline: none;
+    border-color: $blue;
+    box-shadow: 0 0 0 3px rgba($blue, 0.1);
+  }
+
+  &::placeholder {
+    color: $ink-faint;
+  }
+}
+
+.mp-input-icon {
+  position: relative;
+
+  i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: $ink-faint;
+    pointer-events: none;
+  }
+}
+
+.mp-input-with-icon {
+  padding-left: 40px;
+}
+
+.mp-field-error {
+  font-size: 11px;
+  color: $red;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.mp-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.mp-btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: none;
+  background: $ink;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
+  transition: all $transition;
+  font-family: inherit;
+
+  i { font-size: 14px; }
+
+  &:hover:not(:disabled) {
+    background: $blue;
+    box-shadow: 0 4px 14px rgba($blue, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
 
-.order-detail-row td {
-  background: #f9fafb;
+// ============================================
+// VIEW ALL BUTTON
+// ============================================
+
+.mp-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 6px 14px;
+  border: 1.5px solid $border;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $ink-muted;
+  text-decoration: none;
+  transition: all $transition;
+
+  i { font-size: 13px; }
+
+  &:hover {
+    border-color: $blue;
+    color: $blue;
+    text-decoration: none;
+  }
 }
 
-.order-detail-panel {
-  padding: 16px 20px;
+// ============================================
+// LOADING / EMPTY
+// ============================================
+
+.mp-loading {
+  text-align: center;
+  padding: 40px 20px;
+
+  p { color: $ink-faint; font-size: 13px; margin-top: 14px; }
 }
 
-.spin {
-  animation: spin 1s linear infinite;
+.mp-loader-track {
+  width: 180px;
+  height: 3px;
+  border-radius: 3px;
+  background: $surface-dim;
+  overflow: hidden;
+  margin: 0 auto;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.mp-loader-fill {
+  width: 50%;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, $blue, $purple);
+  animation: slideLoader 1.2s ease-in-out infinite;
+}
+
+.mp-empty {
+  text-align: center;
+  padding: 40px 20px;
+
+  h6 { font-weight: 700; color: $ink; margin-bottom: 4px; }
+  p { color: $ink-muted; font-size: 13px; margin: 0; }
+}
+
+.mp-empty-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: $surface-dim;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+
+  i { font-size: 22px; color: $ink-faint; }
+}
+
+// ============================================
+// ORDERS LIST
+// ============================================
+
+.mp-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mp-order-card {
+  border: 1px solid $border-light;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  transition: border-color $transition, box-shadow $transition;
+
+  &:hover {
+    border-color: $border;
+  }
+
+  &.mp-order-expanded {
+    border-color: rgba($blue, 0.2);
+    box-shadow: 0 2px 12px rgba($blue, 0.06);
+  }
+}
+
+.mp-order-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: background $transition;
+
+  &:hover { background: $surface-warm; }
+}
+
+.mp-order-ref {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+}
+
+.mp-ref-code {
+  font-size: 13px;
+  font-weight: 700;
+  color: $blue;
+  letter-spacing: 0.02em;
+}
+
+.mp-order-date {
+  font-size: 11px;
+  color: $ink-faint;
+  margin-top: 2px;
+}
+
+.mp-order-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 100px;
+}
+
+.mp-order-items {
+  font-size: 12px;
+  color: $ink-muted;
+}
+
+.mp-order-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: $ink;
+  font-variant-numeric: tabular-nums;
+}
+
+.mp-order-status-group {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.mp-status-pill,
+.mp-payment-pill {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 50px;
+  white-space: nowrap;
+}
+
+// Status colors
+.badge-warning { background: rgba($orange, 0.12); color: darken($orange, 22%); }
+.badge-info { background: rgba($blue, 0.1); color: $blue; }
+.badge-primary { background: rgba($blue, 0.12); color: darken($blue, 8%); }
+.badge-success { background: rgba($green, 0.1); color: darken($green, 12%); }
+.badge-danger { background: rgba($red, 0.1); color: $red; }
+.badge-secondary { background: rgba($ink-faint, 0.15); color: $ink-muted; }
+
+.mp-chevron {
+  font-size: 16px;
+  color: $ink-faint;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+// ============================================
+// ORDER DETAIL (Expanded)
+// ============================================
+
+.mp-order-detail {
+  border-top: 1px solid $border-light;
+  background: $surface-warm;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.mp-detail-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+}
+
+.mp-detail-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: $ink;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 12px;
+}
+
+.mp-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid $border-light;
+  }
+}
+
+.mp-item-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.mp-item-thumb-empty {
+  width: 100%;
+  height: 100%;
+  background: $surface-dim;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i { font-size: 14px; color: $ink-faint; }
+}
+
+.mp-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mp-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: $ink;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mp-item-qty {
+  font-size: 11px;
+  color: $ink-faint;
+}
+
+.mp-item-total {
+  font-size: 13px;
+  font-weight: 700;
+  color: $ink;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+// Summary
+.mp-summary-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: $ink-muted;
+  padding: 3px 0;
+}
+
+.mp-summary-discount span:last-child {
+  color: $green;
+  font-weight: 600;
+}
+
+.mp-summary-divider {
+  height: 1px;
+  background: $border-light;
+  margin: 6px 0;
+}
+
+.mp-summary-total {
+  font-weight: 700;
+  color: $ink;
+  font-size: 14px;
+}
+
+.mp-address {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid $border-light;
+}
+
+.mp-address-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: $ink-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  i { font-size: 12px; margin-right: 4px; }
+}
+
+.mp-address-text {
+  font-size: 13px;
+  color: $ink-soft;
+  line-height: 1.5;
+  margin: 6px 0 0;
+}
+
+// Confirm button
+.mp-btn-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  justify-content: center;
+  padding: 9px 16px;
+  border: none;
+  background: $green;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition;
+  font-family: inherit;
+  margin-top: 14px;
+
+  i { font-size: 14px; }
+
+  &:hover:not(:disabled) {
+    background: darken($green, 8%);
+    box-shadow: 0 4px 14px rgba($green, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ============================================
+// ALL ORDERS LINK
+// ============================================
+
+.mp-all-orders-link {
+  text-align: center;
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid $border-light;
+
+  a {
+    font-size: 13px;
+    font-weight: 600;
+    color: $blue;
+    text-decoration: none;
+
+    i { margin-right: 5px; }
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+
+@media (max-width: 768px) {
+  .mp-hero-content {
+    padding: 0 18px 18px;
+    gap: 14px;
+  }
+
+  .mp-hero-info {
+    padding-top: 36px;
+  }
+
+  .mp-hero-action {
+    margin-top: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mp-hero-name {
+    font-size: 1.15rem;
+  }
+
+  .mp-section {
+    padding: 18px;
+  }
+
+  .mp-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .mp-order-row {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .mp-order-ref {
+    min-width: auto;
+    flex: 1;
+  }
+
+  .mp-order-meta {
+    min-width: auto;
+    align-items: flex-start;
+  }
+
+  .mp-order-status-group {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .mp-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mp-avatar-img,
+  .mp-avatar-placeholder {
+    width: 68px;
+    height: 68px;
+  }
+
+  .mp-avatar-placeholder span {
+    font-size: 22px;
+  }
 }

@@ -5,6 +5,7 @@ import { ProductService, ProductListParams } from '../../../core/services/produc
 import { BoutiqueService } from '../../../core/services/boutique.service';
 import { PromotionService } from '../../../core/services/promotion.service';
 import { EventService, EventItem } from '../../../core/services/event.service';
+import { StatsService } from '../../../core/services/stats.service';
 import { ApiErrorBody } from '../../../core/services/auth.service';
 
 /**
@@ -49,13 +50,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   promotionProducts: { product: any; promotion: any }[] = [];
   loadingPromo = false;
 
+  // Quick stats (boutique)
+  boutiqueQuickStats: any = null;
+
+  // Admin dashboard data
+  adminDashboard: any = null;
+
   constructor(
     private route: ActivatedRoute,
     private auth: AuthService,
     private productService: ProductService,
     private boutiqueService: BoutiqueService,
     private promotionService: PromotionService,
-    private eventService: EventService
+    private eventService: EventService,
+    private statsService: StatsService
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +79,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Charger les bannières pour tous les utilisateurs connectés (acheteur et boutique)
     if (this.isLoggedIn) {
       this.loadBanners();
+    }
+
+    if (this.isLoggedIn && this.currentUser?.role === 'admin') {
+      this.loadAdminDashboard();
+    }
+
+    if (this.isLoggedIn && this.currentUser?.role === 'boutique') {
+      this.loadBoutiqueQuickStats();
     }
 
     if (this.isLoggedIn && this.currentUser?.role === 'acheteur') {
@@ -271,5 +287,33 @@ export class HomeComponent implements OnInit, OnDestroy {
   getAvailabilityLabel(a: string): string {
     const map: Record<string, string> = { available: 'Disponible', outOfStock: 'Rupture', onOrder: 'Sur commande' };
     return map[a] || a;
+  }
+
+  // ========== ADMIN DASHBOARD ==========
+
+  loadAdminDashboard(): void {
+    this.statsService.getAdminRentalDashboard().subscribe({
+      next: (res) => { this.adminDashboard = res.data; },
+      error: () => {}
+    });
+  }
+
+  formatAdminStat(num: number): string {
+    if (num == null) return '0';
+    return num.toLocaleString('fr-FR');
+  }
+
+  // ========== BOUTIQUE QUICK STATS ==========
+
+  loadBoutiqueQuickStats(): void {
+    this.statsService.getBoutiqueDashboard().subscribe({
+      next: (res) => { this.boutiqueQuickStats = res.data; },
+      error: () => {}
+    });
+  }
+
+  formatQuickStat(num: number): string {
+    if (num == null) return '0';
+    return num.toLocaleString('fr-FR');
   }
 }

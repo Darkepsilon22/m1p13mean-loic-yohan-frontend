@@ -67,7 +67,7 @@ export class BoutiqueOrderDetailComponent implements OnInit {
       { key: 'pending', label: 'Commande reçue', icon: 'feather icon-file-text', dateField: 'createdAt' },
       { key: 'confirmed', label: 'Confirmée', icon: 'feather icon-check', dateField: 'confirmedAt' },
       { key: 'processing', label: 'En préparation', icon: 'feather icon-package', dateField: 'processedAt' },
-      { key: 'shipped', label: 'Expédiée', icon: 'feather icon-truck', dateField: 'shippedAt' },
+      { key: 'shipped', label: 'Expédiée', icon: 'feather icon-navigation', dateField: 'shippedAt' },
       { key: 'delivered', label: 'Livrée', icon: 'feather icon-map-pin', dateField: 'deliveredAt' },
       { key: 'completed', label: 'Terminée', icon: 'feather icon-check-circle', dateField: 'completedAt' }
     ];
@@ -106,7 +106,7 @@ export class BoutiqueOrderDetailComponent implements OnInit {
     const actions: Record<string, { status: string; label: string; icon: string; btnClass: string }> = {
       pending: { status: 'confirmed', label: 'Confirmer la commande', icon: 'feather icon-check', btnClass: 'btn-info' },
       confirmed: { status: 'processing', label: 'En préparation', icon: 'feather icon-package', btnClass: 'btn-primary' },
-      processing: { status: 'shipped', label: 'Marquer expédiée', icon: 'feather icon-truck', btnClass: 'btn-accent' },
+      processing: { status: 'shipped', label: 'Marquer expédiée', icon: 'feather icon-navigation', btnClass: 'btn-accent' },
       shipped: { status: 'delivered', label: 'Marquer livrée', icon: 'feather icon-map-pin', btnClass: 'btn-success' },
       delivered: { status: 'completed', label: 'Terminer la commande', icon: 'feather icon-check-circle', btnClass: 'btn-success' }
     };

@@ -43,10 +43,19 @@ export class MyProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.auth.getMe().subscribe({
-      next: () => this.loadUserData(),
-      error: () => this.loadUserData()
+      next: () => {
+        this.loadUserData();
+        if (this.currentUser?.role === 'acheteur') {
+          this.loadOrders();
+        }
+      },
+      error: () => {
+        this.loadUserData();
+        if (this.currentUser?.role === 'acheteur') {
+          this.loadOrders();
+        }
+      }
     });
-    this.loadOrders();
   }
 
   loadUserData(): void {

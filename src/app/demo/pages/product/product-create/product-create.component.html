@@ -1,102 +1,162 @@
- <div class="row">
-  <div class="col-sm-12">
-    <app-card cardTitle="Nouveau produit" [options]="false">
-      <div *ngIf="loadingBoutique" class="text-center py-3">Chargement...</div>
-      <div *ngIf="!loadingBoutique && !boutiqueId" class="alert alert-warning">
-        Aucune boutique associée à votre compte. Créez ou réservez un emplacement d'abord.
-        <a routerLink="/emplacement/available" class="alert-link">Voir les emplacements</a>
+<div class="product-create-page">
+
+  <!-- Header -->
+  <div class="pc-header">
+    <a routerLink="/products/my" class="pc-back">
+      <i class="feather icon-arrow-left"></i>
+    </a>
+    <div>
+      <h4 class="pc-title">Nouveau produit</h4>
+      <p class="pc-subtitle">Ajoutez un produit à votre catalogue boutique</p>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loadingBoutique" class="pc-loading">
+    <div class="pc-loader"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- No boutique warning -->
+  <div *ngIf="!loadingBoutique && !boutiqueId" class="pc-alert pc-alert-warn">
+    <div class="pc-alert-icon"><i class="feather icon-alert-triangle"></i></div>
+    <div class="pc-alert-body">
+      <strong>Aucune boutique associée</strong>
+      <p>Créez ou réservez un emplacement d'abord.</p>
+      <a routerLink="/emplacement/available" class="pc-alert-link">
+        <i class="feather icon-map-pin"></i> Voir les emplacements
+      </a>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form *ngIf="!loadingBoutique && boutiqueId" [formGroup]="form" (ngSubmit)="onSubmit()" class="pc-form">
+
+    <!-- Error -->
+    <div *ngIf="errorMessage" class="pc-alert pc-alert-error">
+      <i class="feather icon-alert-circle"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- Card: Informations -->
+    <div class="pc-card">
+      <div class="pc-card-label">
+        <span class="pc-card-dot"></span>
+        <span>Informations</span>
       </div>
 
-      <form *ngIf="!loadingBoutique && boutiqueId" [formGroup]="form" (ngSubmit)="onSubmit()">
-        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+      <div class="pc-field">
+        <label class="pc-label">Nom du produit <span class="req">*</span></label>
+        <input type="text" class="pc-input" formControlName="name" placeholder="Nom du produit">
+        <span class="pc-field-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">Nom requis</span>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label">Nom <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" formControlName="name" placeholder="Nom du produit">
-          <small class="text-danger" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">Nom requis</small>
+      <div class="pc-field">
+        <label class="pc-label">Description</label>
+        <textarea class="pc-textarea" formControlName="description" rows="3" placeholder="Décrivez votre produit..."></textarea>
+      </div>
+
+      <div class="pc-field">
+        <label class="pc-label">Catégorie interne</label>
+        <input type="text" class="pc-input" formControlName="categoryInternal" placeholder="Ex: Vêtements, Électronique...">
+      </div>
+    </div>
+
+    <!-- Card: Photo -->
+    <div class="pc-card">
+      <div class="pc-card-label">
+        <span class="pc-card-dot dot-purple"></span>
+        <span>Photo</span>
+      </div>
+
+      <div class="pc-field">
+        <label class="pc-label">URL de l'image</label>
+        <div class="pc-input-icon-wrap">
+          <i class="feather icon-link"></i>
+          <input type="url" class="pc-input pc-input-icon" formControlName="photoUrl" placeholder="https://exemple.com/image.jpg">
         </div>
+        <span class="pc-hint">Collez l'URL complète de l'image du produit</span>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea class="form-control" formControlName="description" rows="3" placeholder="Description"></textarea>
+      <!-- Preview -->
+      <div *ngIf="form.get('photoUrl')?.value" class="pc-img-preview">
+        <img [src]="form.get('photoUrl')?.value" alt="Aperçu" (error)="onImageError()">
+        <div *ngIf="imageError" class="pc-img-error">
+          <i class="feather icon-alert-triangle"></i>
+          <span>Impossible de charger l'image</span>
         </div>
+      </div>
+    </div>
 
-        <!-- Photo du produit -->
-        <div class="form-group">
-          <label class="form-label">Photo du produit (URL)</label>
-          <input type="url" class="form-control" formControlName="photoUrl" placeholder="https://exemple.com/image.jpg">
-          <small class="form-text text-muted">Entrez l'URL complète de l'image du produit</small>
+    <!-- Card: Tarification -->
+    <div class="pc-card">
+      <div class="pc-card-label">
+        <span class="pc-card-dot dot-green"></span>
+        <span>Tarification</span>
+      </div>
 
-          <!-- Aperçu de l'image -->
-          <div *ngIf="form.get('photoUrl')?.value" class="mt-2">
-            <img [src]="form.get('photoUrl')?.value"
-                 alt="Aperçu"
-                 class="img-thumbnail"
-                 style="max-width: 200px; max-height: 200px;"
-                 (error)="onImageError()">
-            <div *ngIf="imageError" class="text-danger mt-1">
-              <small>⚠️ Impossible de charger l'image. Vérifiez l'URL.</small>
-            </div>
+      <div class="pc-row">
+        <div class="pc-field pc-flex-1">
+          <label class="pc-label">Prix (Ar) <span class="req">*</span></label>
+          <div class="pc-input-icon-wrap">
+            <i class="feather icon-tag"></i>
+            <input type="number" step="0.01" min="0" class="pc-input pc-input-icon" formControlName="price" placeholder="0.00">
           </div>
+          <span class="pc-field-error" *ngIf="form.get('price')?.invalid && form.get('price')?.touched">Prix requis, min 0</span>
         </div>
+        <div class="pc-field pc-flex-1">
+          <label class="pc-label">Prix barré (Ar)</label>
+          <input type="number" step="0.01" min="0" class="pc-input" formControlName="originalPrice" placeholder="Optionnel">
+        </div>
+      </div>
+    </div>
 
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Prix (Ar) <span class="text-danger">*</span></label>
-              <input type="number" step="0.01" min="0" class="form-control" formControlName="price" placeholder="0.00">
-              <small class="text-danger" *ngIf="form.get('price')?.invalid && form.get('price')?.touched">Prix requis, min 0</small>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Prix barré (Ar)</label>
-              <input type="number" step="0.01" min="0" class="form-control" formControlName="originalPrice" placeholder="Optionnel">
-            </div>
-          </div>
-        </div>
+    <!-- Card: Stock & Disponibilité -->
+    <div class="pc-card">
+      <div class="pc-card-label">
+        <span class="pc-card-dot dot-orange"></span>
+        <span>Stock & Disponibilité</span>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label">Catégorie interne</label>
-          <input type="text" class="form-control" formControlName="categoryInternal" placeholder="Ex: Vêtements">
+      <div class="pc-row">
+        <div class="pc-field pc-flex-1">
+          <label class="pc-label">Stock initial</label>
+          <input type="number" min="0" class="pc-input" formControlName="stock" placeholder="0">
         </div>
+        <div class="pc-field pc-flex-1">
+          <label class="pc-label">Seuil alerte</label>
+          <input type="number" min="0" class="pc-input" formControlName="lowStockThreshold" placeholder="5">
+        </div>
+      </div>
 
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Stock initial</label>
-              <input type="number" min="0" class="form-control" formControlName="stock" placeholder="0">
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Seuil alerte stock</label>
-              <input type="number" min="0" class="form-control" formControlName="lowStockThreshold" placeholder="5">
-            </div>
-          </div>
-        </div>
+      <div class="pc-field">
+        <label class="pc-label">Disponibilité</label>
+        <select class="pc-select" formControlName="availability">
+          <option value="available">Disponible</option>
+          <option value="outOfStock">Rupture de stock</option>
+          <option value="onOrder">Sur commande</option>
+        </select>
+      </div>
 
-        <div class="form-group">
-          <label class="form-label">Disponibilité</label>
-          <select class="form-control" formControlName="availability">
-            <option value="available">Disponible</option>
-            <option value="outOfStock">Rupture</option>
-            <option value="onOrder">Sur commande</option>
-          </select>
-        </div>
+      <div class="pc-field pc-field-last">
+        <label class="pc-toggle-label">
+          <input type="checkbox" formControlName="isFeatured" class="pc-toggle-input">
+          <span class="pc-toggle-track">
+            <span class="pc-toggle-thumb"></span>
+          </span>
+          <span class="pc-toggle-text">Mettre en vedette</span>
+        </label>
+      </div>
+    </div>
 
-        <div class="form-group">
-          <label class="d-flex align-items-center">
-            <input type="checkbox" formControlName="isFeatured" class="mr-2">
-            Mettre en vedette
-          </label>
-        </div>
-
-        <div class="form-group mb-0">
-          <button type="submit" class="btn btn-primary" [disabled]="loading">{{ loading ? 'Création...' : 'Créer le produit' }}</button>
-          <a routerLink="/products/my" class="btn btn-secondary ml-2">Annuler</a>
-        </div>
-      </form>
-    </app-card>
-  </div>
+    <!-- Actions -->
+    <div class="pc-actions">
+      <a routerLink="/products/my" class="pc-btn-cancel">Annuler</a>
+      <button type="submit" class="pc-btn-submit" [disabled]="loading">
+        <i class="feather icon-check" *ngIf="!loading"></i>
+        <span class="pc-btn-spinner" *ngIf="loading"></span>
+        {{ loading ? 'Création...' : 'Créer le produit' }}
+      </button>
+    </div>
+  </form>
 </div>

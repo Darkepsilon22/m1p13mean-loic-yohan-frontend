@@ -1,67 +1,108 @@
-<div class="row">
-  <div class="col-sm-12">
-    <app-card cardTitle="Demandes d'inscription boutique (à valider)" [options]="false">
-      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
-        <input type="text" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Recherche (nom, email)..."
-               [(ngModel)]="searchQuery" (keyup.enter)="onFilterChange()">
-        <span class="text-muted small">Afficher :</span>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
-          <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
-        </select>
-        <button type="button" class="btn btn-sm btn-outline-primary" (click)="onFilterChange()">Filtrer</button>
-      </div>
-      <div *ngIf="pendingError" class="alert alert-danger">{{ pendingError }}</div>
-      <div *ngIf="pendingLoading" class="text-center py-3">Chargement...</div>
+<div class="admin-list-page">
+  <!-- Header -->
+  <div class="al-header">
+    <div>
+      <h4 class="al-title"><i class="feather icon-user-check"></i> Demandes d'inscription boutique</h4>
+      <p class="al-subtitle">Validez ou refusez les demandes d'inscription des boutiquiers</p>
+    </div>
+  </div>
 
-      <div *ngIf="!pendingLoading && pendingBoutiqueUsers.length === 0" class="text-muted py-3 text-center">
-        Aucune demande en attente.
+  <!-- Filters -->
+  <div class="al-filters">
+    <div class="al-filter-row">
+      <div class="al-search">
+        <i class="feather icon-search"></i>
+        <input type="text" placeholder="Recherche (nom, email)..." [(ngModel)]="searchQuery" (keyup.enter)="onFilterChange()">
       </div>
+      <select class="al-select al-select-sm" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
+        <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }} / page</option>
+      </select>
+      <button class="al-filter-btn" (click)="onFilterChange()">
+        <i class="feather icon-filter"></i> Filtrer
+      </button>
+    </div>
+  </div>
 
-      <div *ngIf="!pendingLoading && pendingBoutiqueUsers.length > 0 && filteredUsers.length === 0" class="text-muted py-3 text-center">
-        Aucun résultat pour cette recherche.
-      </div>
+  <!-- Error -->
+  <div *ngIf="pendingError" class="al-error">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ pendingError }}</span>
+  </div>
 
-      <div *ngIf="!pendingLoading && paginatedUsers.length > 0" class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Email</th>
-              <th>Téléphone</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let u of paginatedUsers">
-              <td><strong>{{ u.firstName }} {{ u.lastName }}</strong></td>
-              <td>{{ u.email }}</td>
-              <td>{{ u.phone || '—' }}</td>
-              <td>{{ u.createdAt | date:'short' }}</td>
-              <td class="text-right">
-                <button class="btn btn-sm btn-success mr-2" (click)="openPendingAction(u, 'approve')">Accepter</button>
-                <button class="btn btn-sm btn-danger" (click)="openPendingAction(u, 'reject')">Refuser</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  <!-- Loading -->
+  <div *ngIf="pendingLoading" class="al-loading">
+    <div class="al-loader-track"><div class="al-loader-fill"></div></div>
+    <p>Chargement des demandes...</p>
+  </div>
 
-      <div *ngIf="!pendingLoading && filteredUsers.length > 0" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Page {{ currentPage }} / {{ totalFilteredPages }} ({{ filteredUsers.length }} demande(s))</span>
-        <div>
-          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">Précédent</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="currentPage >= totalFilteredPages" (click)="goToPage(currentPage + 1)">Suivant</button>
-        </div>
-      </div>
-    </app-card>
+  <!-- Empty -->
+  <div *ngIf="!pendingLoading && pendingBoutiqueUsers.length === 0" class="al-empty">
+    <div class="al-empty-icon"><i class="feather icon-check-circle"></i></div>
+    <h5>Aucune demande en attente</h5>
+    <p>Toutes les demandes d'inscription ont été traitées.</p>
+  </div>
+
+  <!-- No search results -->
+  <div *ngIf="!pendingLoading && pendingBoutiqueUsers.length > 0 && filteredUsers.length === 0" class="al-empty">
+    <div class="al-empty-icon"><i class="feather icon-search"></i></div>
+    <h5>Aucun résultat</h5>
+    <p>Aucun résultat pour cette recherche.</p>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!pendingLoading && paginatedUsers.length > 0" class="al-table-card">
+    <div class="table-responsive">
+      <table class="al-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Date</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of paginatedUsers">
+            <td class="td-name">{{ u.firstName }} {{ u.lastName }}</td>
+            <td class="td-muted">{{ u.email }}</td>
+            <td class="td-muted">{{ u.phone || '—' }}</td>
+            <td class="td-muted">{{ u.createdAt | date:'short' }}</td>
+            <td class="text-center td-actions">
+              <div class="action-group">
+                <button class="action-btn action-approve" title="Accepter" (click)="openPendingAction(u, 'approve')">
+                  <i class="feather icon-check"></i>
+                </button>
+                <button class="action-btn action-reject" title="Refuser" (click)="openPendingAction(u, 'reject')">
+                  <i class="feather icon-x"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!pendingLoading && filteredUsers.length > 0" class="al-pagination">
+    <span class="al-page-info">Page {{ currentPage }} / {{ totalFilteredPages }} <span class="al-page-total">({{ filteredUsers.length }} demande{{ filteredUsers.length > 1 ? 's' : '' }})</span></span>
+    <div class="al-page-controls">
+      <button class="page-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+        <i class="feather icon-chevron-left"></i>
+      </button>
+      <button class="page-btn" [disabled]="currentPage >= totalFilteredPages" (click)="goToPage(currentPage + 1)">
+        <i class="feather icon-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </div>
 
-<!-- Popup de validation (accept/refuse) -->
+<!-- Modal de validation -->
 <app-ui-modal #pendingModal dialogClass="modal-dialog-centered" [containerClick]="false">
   <div class="app-modal-header">
     <h5 class="modal-title">
+      <i class="feather mr-2" [ngClass]="actionType === 'approve' ? 'icon-check-circle' : 'icon-x-circle'"></i>
       {{ actionType === 'approve' ? 'Valider la demande boutique' : 'Refuser la demande boutique' }}
     </h5>
     <button type="button" class="close basic-close" aria-label="Close" (click)="closePendingModal()">
@@ -69,21 +110,23 @@
     </button>
   </div>
   <div class="app-modal-body">
-    <p class="mb-2" *ngIf="selectedUser">
+    <div class="modal-info-banner" [ngClass]="actionType === 'approve' ? 'modal-info-blue' : 'modal-info-orange'" *ngIf="selectedUser">
+      <i class="feather" [ngClass]="actionType === 'approve' ? 'icon-info' : 'icon-alert-triangle'"></i>
       Confirmer l'action pour <strong>{{ selectedUser.firstName }} {{ selectedUser.lastName }}</strong> ({{ selectedUser.email }}) ?
-    </p>
-
-    <div class="form-group" *ngIf="actionType === 'reject'">
-      <label class="form-label">Motif (optionnel)</label>
-      <textarea class="form-control" [(ngModel)]="rejectReason" rows="3" placeholder="Raison du refus..."></textarea>
     </div>
 
-    <div *ngIf="actionError" class="alert alert-danger mt-2">{{ actionError }}</div>
+    <div class="af-field" *ngIf="actionType === 'reject'">
+      <label class="af-label">Motif (optionnel)</label>
+      <textarea class="af-textarea" [(ngModel)]="rejectReason" rows="3" placeholder="Raison du refus..."></textarea>
+    </div>
+
+    <div *ngIf="actionError" class="modal-alert modal-alert-error">{{ actionError }}</div>
   </div>
   <div class="app-modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="closePendingModal()" [disabled]="actionLoading">Annuler</button>
-    <button type="button" class="btn" [ngClass]="actionType === 'approve' ? 'btn-success' : 'btn-danger'"
+    <button type="button" class="af-btn af-btn-outline" (click)="closePendingModal()" [disabled]="actionLoading">Annuler</button>
+    <button type="button" class="af-btn" [ngClass]="actionType === 'approve' ? 'af-btn-primary' : 'af-btn-danger'"
             (click)="confirmPendingAction()" [disabled]="actionLoading">
+      <i class="feather" [ngClass]="actionType === 'approve' ? 'icon-check' : 'icon-x'"></i>
       {{ actionLoading ? 'Traitement...' : 'Confirmer' }}
     </button>
   </div>

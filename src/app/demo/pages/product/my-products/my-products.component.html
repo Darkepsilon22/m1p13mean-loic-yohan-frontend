@@ -1,75 +1,124 @@
-<div class="row">
-  <div class="col-sm-12">
-    <app-card cardTitle="Mes produits" [options]="false">
-      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
-        <a routerLink="/products/my/create" class="btn btn-sm btn-primary">Nouveau produit</a>
-        <a routerLink="/products/stock" class="btn btn-sm btn-outline-secondary">Vue stock</a>
-        <span class="text-muted small ml-2">Afficher :</span>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
-          <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
-        </select>
-        <input type="text" class="form-control form-control-sm" style="max-width: 180px;" placeholder="Recherche..."
-               [(ngModel)]="filters.search" (keyup.enter)="onFilterChange()">
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.availability" (ngModelChange)="onFilterChange()">
-          <option value="">Disponibilité</option>
-          <option value="available">Disponible</option>
-          <option value="outOfStock">Rupture</option>
-          <option value="onOrder">Sur commande</option>
-        </select>
-        <label class="mb-0 ml-2"><input type="checkbox" [(ngModel)]="filters.includeArchived" (ngModelChange)="onFilterChange()"> Archivés</label>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.sort" (ngModelChange)="onFilterChange()">
-          <option value="-createdAt">Plus récents</option>
-          <option value="createdAt">Plus anciens</option>
-          <option value="name">Nom A-Z</option>
-          <option value="-price">Prix décroissant</option>
-        </select>
-        <button type="button" class="btn btn-sm btn-outline-primary" (click)="onFilterChange()">Filtrer</button>
-      </div>
+<div class="my-products-page">
+  <!-- Header -->
+  <div class="mp-header">
+    <div>
+      <h4 class="mp-title"><i class="feather icon-package"></i> Mes produits</h4>
+      <p class="mp-subtitle">Gérez votre catalogue de produits</p>
+    </div>
+    <div class="mp-header-actions">
+      <a routerLink="/products/stock" class="mp-action-btn mp-action-outline">
+        <i class="feather icon-trending-up"></i> Vue stock
+      </a>
+      <a routerLink="/products/my/create" class="mp-action-btn mp-action-primary">
+        <i class="feather icon-plus"></i> Nouveau produit
+      </a>
+    </div>
+  </div>
 
-      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
-
-      <div *ngIf="!loading && products.length === 0" class="text-muted py-4 text-center">
-        Aucun produit. <a routerLink="/products/my/create">Créer un produit</a>
+  <!-- Filters -->
+  <div class="mp-filters">
+    <div class="mp-filter-row">
+      <div class="mp-search">
+        <i class="feather icon-search"></i>
+        <input type="text" placeholder="Rechercher un produit..." [(ngModel)]="filters.search" (keyup.enter)="onFilterChange()">
       </div>
+      <select class="mp-select" [(ngModel)]="filters.availability" (ngModelChange)="onFilterChange()">
+        <option value="">Disponibilité</option>
+        <option value="available">Disponible</option>
+        <option value="outOfStock">Rupture</option>
+        <option value="onOrder">Sur commande</option>
+      </select>
+      <select class="mp-select" [(ngModel)]="filters.sort" (ngModelChange)="onFilterChange()">
+        <option value="-createdAt">Plus récents</option>
+        <option value="createdAt">Plus anciens</option>
+        <option value="name">Nom A-Z</option>
+        <option value="-price">Prix décroissant</option>
+      </select>
+      <label class="mp-checkbox">
+        <input type="checkbox" [(ngModel)]="filters.includeArchived" (ngModelChange)="onFilterChange()">
+        <span>Archivés</span>
+      </label>
+      <select class="mp-select mp-select-small" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
+        <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }} / page</option>
+      </select>
+    </div>
+  </div>
 
-      <div *ngIf="!loading && products.length > 0" class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Catégorie</th>
-              <th>Prix</th>
-              <th>Stock</th>
-              <th>Disponibilité</th>
-              <th>Archivé</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let p of products">
-              <td><strong>{{ p.name }}</strong></td>
-              <td>{{ p.categoryInternal || '—' }}</td>
-              <td>{{ p.price != null ? (p.price | number:'1.0-0') + ' Ar' : '—' }}</td>
-              <td>{{ p.stock ?? 0 }}</td>
-              <td><span class="badge" [ngClass]="getAvailabilityClass(p.availability)">{{ getAvailabilityLabel(p.availability) }}</span></td>
-              <td>{{ p.isArchived ? 'Oui' : 'Non' }}</td>
-              <td>
-                <button type="button" class="btn btn-sm btn-outline-primary mr-1" (click)="goToEdit(p._id)">Modifier</button>
-                <a [routerLink]="['/products/view', p._id]" class="btn btn-sm btn-outline-secondary">Voir</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="mp-error">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
 
-      <div *ngIf="!loading && (pagination.pages > 1 || pagination.total > 0)" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Page {{ pagination.page }} / {{ pagination.pages || 1 }} ({{ pagination.total }} produit(s))</span>
-        <div>
-          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>
-        </div>
-      </div>
-    </app-card>
+  <!-- Loading -->
+  <div *ngIf="loading" class="mp-loading">
+    <div class="mp-loader-track"><div class="mp-loader-fill"></div></div>
+    <p>Chargement des produits...</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && products.length === 0 && !errorMessage" class="mp-empty">
+    <div class="mp-empty-icon"><i class="feather icon-package"></i></div>
+    <h5>Aucun produit</h5>
+    <p>Vous n'avez pas encore de produits dans votre catalogue.</p>
+    <a routerLink="/products/my/create" class="mp-action-btn mp-action-primary">
+      <i class="feather icon-plus"></i> Créer un produit
+    </a>
+  </div>
+
+  <!-- Products Table -->
+  <div class="mp-table-card" *ngIf="!loading && products.length > 0">
+    <div class="table-responsive">
+      <table class="mp-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Catégorie</th>
+            <th class="text-right">Prix</th>
+            <th class="text-right">Stock</th>
+            <th>Disponibilité</th>
+            <th>Archivé</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of products">
+            <td class="td-name">{{ p.name }}</td>
+            <td class="td-category">{{ p.categoryInternal || '—' }}</td>
+            <td class="text-right td-price">{{ p.price != null ? (p.price | number:'1.0-0') + ' Ar' : '—' }}</td>
+            <td class="text-right td-stock" [class.stock-low]="p.stock != null && p.stock <= (p.lowStockThreshold || 5) && p.stock > 0" [class.stock-out]="p.stock === 0">
+              {{ p.stock ?? 0 }}
+            </td>
+            <td>
+              <span class="avail-pill" [ngClass]="getAvailabilityClass(p.availability)">{{ getAvailabilityLabel(p.availability) }}</span>
+            </td>
+            <td>
+              <span class="archive-indicator" [class.archived]="p.isArchived">{{ p.isArchived ? 'Oui' : 'Non' }}</span>
+            </td>
+            <td class="text-center td-actions">
+              <button class="action-btn" (click)="goToEdit(p._id)" title="Modifier">
+                <i class="feather icon-edit-2"></i>
+              </button>
+              <a [routerLink]="['/products/view', p._id]" class="action-btn" title="Voir">
+                <i class="feather icon-eye"></i>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && (pagination.pages > 1 || pagination.total > 0)" class="mp-pagination">
+    <span class="mp-page-info">Page {{ pagination.page }} / {{ pagination.pages || 1 }} <span class="mp-page-total">({{ pagination.total }} produit{{ pagination.total > 1 ? 's' : '' }})</span></span>
+    <div class="mp-page-controls">
+      <button class="page-btn" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">
+        <i class="feather icon-chevron-left"></i>
+      </button>
+      <button class="page-btn" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">
+        <i class="feather icon-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </div>

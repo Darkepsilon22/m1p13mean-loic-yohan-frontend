@@ -67,24 +67,275 @@
   </div>
 </div>
 
-<!-- Admin / Boutique : carte de bienvenue -->
-<div class="home-page" *ngIf="isLoggedIn && currentUser?.role !== 'acheteur'">
-  <div class="home-corner">
-    <div class="card home-welcome-card">
-      <div class="card-body">
-        <h5 class="card-title mb-2">
-          <i class="feather icon-home mr-2"></i>Bienvenue
-        </h5>
-        <p class="card-text mb-1" *ngIf="getWelcomeName()">
-          <strong>{{ getWelcomeName() }}</strong>
-        </p>
-        <p class="card-text text-muted small mb-2" *ngIf="getRoleLabel()">
-          {{ getRoleLabel() }}
-        </p>
-        <div class="home-quick-links">
-          <a routerLink="/dashboard/analytics" class="btn btn-sm btn-outline-primary mr-1">Dashboard</a>
-          <a routerLink="/boutique/create" class="btn btn-sm btn-outline-secondary" *ngIf="currentUser?.role === 'admin'">Créer une boutique</a>
+<!-- Admin : dashboard d'accueil premium -->
+<div class="admin-home" *ngIf="isLoggedIn && currentUser?.role === 'admin'">
+
+  <!-- ═══ HERO BANNER ═══ -->
+  <div class="admin-hero">
+    <div class="admin-hero-grid"></div>
+    <div class="admin-hero-glow admin-hero-glow--1"></div>
+    <div class="admin-hero-glow admin-hero-glow--2"></div>
+    <div class="admin-hero-content">
+      <div class="admin-hero-greeting">
+        <div class="admin-avatar">
+          <i class="feather icon-shield"></i>
         </div>
+        <div>
+          <p class="admin-welcome-label">Centre de contrôle</p>
+          <h3 class="admin-welcome-name" *ngIf="getWelcomeName()">{{ getWelcomeName() }}</h3>
+          <span class="admin-role-badge">Administrateur</span>
+        </div>
+      </div>
+      <div class="admin-hero-actions">
+        <a routerLink="/dashboard/analytics" class="admin-action-btn admin-action-primary">
+          <i class="feather icon-bar-chart-2"></i>
+          <span>Dashboard</span>
+        </a>
+        <a routerLink="/boutique/create" class="admin-action-btn admin-action-ghost">
+          <i class="feather icon-plus-square"></i>
+          <span>Nouvel emplacement</span>
+        </a>
+        <a routerLink="/events/create" class="admin-action-btn admin-action-ghost">
+          <i class="feather icon-calendar"></i>
+          <span>Nouvel événement</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ KPI STATS STRIP ═══ -->
+  <div class="admin-kpi-strip" *ngIf="adminDashboard?.kpis">
+    <div class="admin-kpi-card">
+      <div class="admin-kpi-icon kpi-boutiques">
+        <i class="feather icon-grid"></i>
+      </div>
+      <div class="admin-kpi-info">
+        <span class="admin-kpi-value">{{ adminDashboard.kpis.totalBoutiques || 0 }}</span>
+        <span class="admin-kpi-label">Boutiques</span>
+      </div>
+    </div>
+    <div class="admin-kpi-card">
+      <div class="admin-kpi-icon kpi-occupied">
+        <i class="feather icon-check-circle"></i>
+      </div>
+      <div class="admin-kpi-info">
+        <span class="admin-kpi-value">{{ adminDashboard.kpis.occupiedBoutiques || 0 }}</span>
+        <span class="admin-kpi-label">Occupées</span>
+      </div>
+    </div>
+    <div class="admin-kpi-card">
+      <div class="admin-kpi-icon kpi-available">
+        <i class="feather icon-map-pin"></i>
+      </div>
+      <div class="admin-kpi-info">
+        <span class="admin-kpi-value">{{ adminDashboard.kpis.availableBoutiques || 0 }}</span>
+        <span class="admin-kpi-label">Disponibles</span>
+      </div>
+    </div>
+    <div class="admin-kpi-card">
+      <div class="admin-kpi-icon kpi-rate">
+        <i class="feather icon-trending-up"></i>
+      </div>
+      <div class="admin-kpi-info">
+        <span class="admin-kpi-value">{{ adminDashboard.kpis.occupancyRate || 0 }}<small>%</small></span>
+        <span class="admin-kpi-label">Taux d'occupation</span>
+      </div>
+    </div>
+    <div class="admin-kpi-card">
+      <div class="admin-kpi-icon kpi-revenue">
+        <i class="feather icon-credit-card"></i>
+      </div>
+      <div class="admin-kpi-info">
+        <span class="admin-kpi-value">{{ formatAdminStat(adminDashboard.kpis.monthlyRentRevenue || 0) }} <small>Ar</small></span>
+        <span class="admin-kpi-label">Revenus du mois</span>
+      </div>
+    </div>
+    <div class="admin-kpi-card" *ngIf="adminDashboard.kpis.pendingReservations > 0">
+      <div class="admin-kpi-icon kpi-pending">
+        <i class="feather icon-clock"></i>
+      </div>
+      <div class="admin-kpi-info">
+        <span class="admin-kpi-value">{{ adminDashboard.kpis.pendingReservations }}</span>
+        <span class="admin-kpi-label">En attente</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONTENT GRID: Quick Actions + Pending Items ═══ -->
+  <div class="admin-content-grid">
+
+    <!-- Quick Actions Panel -->
+    <div class="admin-panel admin-actions-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-icon"><i class="feather icon-zap"></i></div>
+        <h4 class="admin-panel-title">Actions rapides</h4>
+      </div>
+      <div class="admin-quick-grid">
+        <a routerLink="/boutique/list" class="admin-quick-tile">
+          <div class="admin-quick-tile-icon tile-emplacements"><i class="feather icon-list"></i></div>
+          <span>Emplacements</span>
+        </a>
+        <a routerLink="/emplacement/pending-reservations" class="admin-quick-tile">
+          <div class="admin-quick-tile-icon tile-reservations"><i class="feather icon-clock"></i></div>
+          <span>Réservations</span>
+        </a>
+        <a routerLink="/admin-contracts" class="admin-quick-tile">
+          <div class="admin-quick-tile-icon tile-contrats"><i class="feather icon-file-text"></i></div>
+          <span>Contrats</span>
+        </a>
+        <a routerLink="/category/list" class="admin-quick-tile">
+          <div class="admin-quick-tile-icon tile-categories"><i class="feather icon-tag"></i></div>
+          <span>Catégories</span>
+        </a>
+        <a routerLink="/products/list" class="admin-quick-tile">
+          <div class="admin-quick-tile-icon tile-produits"><i class="feather icon-package"></i></div>
+          <span>Produits</span>
+        </a>
+        <a routerLink="/events/list" class="admin-quick-tile">
+          <div class="admin-quick-tile-icon tile-events"><i class="feather icon-calendar"></i></div>
+          <span>Événements</span>
+        </a>
+        <a routerLink="/map/view" class="admin-quick-tile">
+          <div class="admin-quick-tile-icon tile-plan"><i class="feather icon-map"></i></div>
+          <span>Plan</span>
+        </a>
+        <a routerLink="/users/pending-boutiques" class="admin-quick-tile">
+          <div class="admin-quick-tile-icon tile-users"><i class="feather icon-users"></i></div>
+          <span>Utilisateurs</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Pending Items Panel -->
+    <div class="admin-panel admin-pending-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-icon"><i class="feather icon-bell"></i></div>
+        <h4 class="admin-panel-title">Activité récente</h4>
+      </div>
+
+      <!-- Pending Reservations -->
+      <div class="admin-pending-section" *ngIf="adminDashboard?.tables?.pendingReservations?.length > 0">
+        <h6 class="admin-pending-subtitle">
+          <i class="feather icon-clock"></i> Réservations en attente
+        </h6>
+        <div class="admin-pending-item" *ngFor="let r of adminDashboard.tables.pendingReservations | slice:0:4">
+          <div class="admin-pending-dot dot-warning"></div>
+          <div class="admin-pending-info">
+            <span class="admin-pending-name">{{ $any(r).user?.firstName }} {{ $any(r).user?.lastName }}</span>
+            <span class="admin-pending-meta">
+              Étage {{ $any(r).boutique?.location?.floor || '?' }}, Zone {{ $any(r).boutique?.location?.zone || '?' }}
+            </span>
+          </div>
+          <span class="admin-pending-badge badge-pending">En attente</span>
+        </div>
+      </div>
+
+      <!-- Late Payments -->
+      <div class="admin-pending-section" *ngIf="adminDashboard?.tables?.latePayments?.length > 0">
+        <h6 class="admin-pending-subtitle">
+          <i class="feather icon-alert-triangle"></i> Paiements en retard
+        </h6>
+        <div class="admin-pending-item" *ngFor="let inv of adminDashboard.tables.latePayments | slice:0:3">
+          <div class="admin-pending-dot dot-danger"></div>
+          <div class="admin-pending-info">
+            <span class="admin-pending-name">{{ $any(inv).tenant?.firstName }} {{ $any(inv).tenant?.lastName }}</span>
+            <span class="admin-pending-meta">{{ formatAdminStat($any(inv).amountDue) }} Ar — {{ $any(inv).daysOverdue }} jours</span>
+          </div>
+          <span class="admin-pending-badge badge-danger">Retard</span>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <div class="admin-pending-section" *ngIf="adminDashboard?.tables?.alerts?.length > 0">
+        <h6 class="admin-pending-subtitle">
+          <i class="feather icon-alert-circle"></i> Alertes
+        </h6>
+        <div class="admin-pending-item" *ngFor="let a of adminDashboard.tables.alerts | slice:0:3">
+          <div class="admin-pending-dot" [ngClass]="'dot-' + ($any(a).type || 'info')"></div>
+          <div class="admin-pending-info">
+            <span class="admin-pending-name">{{ $any(a).message }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="admin-pending-empty"
+           *ngIf="!adminDashboard?.tables?.pendingReservations?.length && !adminDashboard?.tables?.latePayments?.length && !adminDashboard?.tables?.alerts?.length">
+        <i class="feather icon-check-circle"></i>
+        <span>Aucune action en attente</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Boutique : carte de bienvenue améliorée -->
+<div class="boutique-home" *ngIf="isLoggedIn && currentUser?.role === 'boutique'">
+  <div class="boutique-hero">
+    <div class="boutique-hero-content">
+      <div class="boutique-hero-greeting">
+        <div class="boutique-avatar">
+          <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" alt="Avatar" class="boutique-avatar-img">
+          <i *ngIf="!currentUser?.avatar" class="feather icon-shopping-cart"></i>
+        </div>
+        <div>
+          <p class="boutique-welcome-label">Bienvenue</p>
+          <h3 class="boutique-welcome-name" *ngIf="getWelcomeName()">{{ getWelcomeName() }}</h3>
+          <span class="boutique-role-badge">Boutique</span>
+        </div>
+      </div>
+      <div class="boutique-hero-actions">
+        <a routerLink="/boutique-stats" class="boutique-action-btn boutique-action-primary">
+          <i class="feather icon-pie-chart"></i>
+          <span>Statistiques</span>
+        </a>
+        <a routerLink="/boutique-orders" class="boutique-action-btn boutique-action-secondary">
+          <i class="feather icon-clipboard"></i>
+          <span>Commandes</span>
+        </a>
+        <a routerLink="/products/my" class="boutique-action-btn boutique-action-secondary">
+          <i class="feather icon-package"></i>
+          <span>Produits</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Stats Preview -->
+  <div class="boutique-quick-stats" *ngIf="boutiqueQuickStats">
+    <div class="quick-stat-card">
+      <div class="quick-stat-icon qs-revenue">
+        <i class="feather icon-credit-card"></i>
+      </div>
+      <div class="quick-stat-info">
+        <span class="quick-stat-value">{{ formatQuickStat(boutiqueQuickStats.revenue?.monthly || 0) }} Ar</span>
+        <span class="quick-stat-label">CA ce mois</span>
+      </div>
+    </div>
+    <div class="quick-stat-card">
+      <div class="quick-stat-icon qs-orders">
+        <i class="feather icon-shopping-cart"></i>
+      </div>
+      <div class="quick-stat-info">
+        <span class="quick-stat-value">{{ boutiqueQuickStats.orders?.total || 0 }}</span>
+        <span class="quick-stat-label">Commandes</span>
+      </div>
+    </div>
+    <div class="quick-stat-card">
+      <div class="quick-stat-icon qs-products">
+        <i class="feather icon-package"></i>
+      </div>
+      <div class="quick-stat-info">
+        <span class="quick-stat-value">{{ boutiqueQuickStats.products?.total || 0 }}</span>
+        <span class="quick-stat-label">Produits</span>
+      </div>
+    </div>
+    <div class="quick-stat-card" *ngIf="boutiqueQuickStats.orders?.pending > 0">
+      <div class="quick-stat-icon qs-pending">
+        <i class="feather icon-clock"></i>
+      </div>
+      <div class="quick-stat-info">
+        <span class="quick-stat-value">{{ boutiqueQuickStats.orders?.pending }}</span>
+        <span class="quick-stat-label">En attente</span>
       </div>
     </div>
   </div>

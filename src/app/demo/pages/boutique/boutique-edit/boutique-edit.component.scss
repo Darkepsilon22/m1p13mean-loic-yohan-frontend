@@ -1,68 +1,574 @@
-// Styles pour le composant boutique-edit
+// Design system variables
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
 
-.form-control {
-  &.is-invalid {
-    border-color: #dc3545;
-    
-    &:focus {
-      box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+// Page entry animation
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-form-page {
+  animation: fadeInUp 0.4s ease both;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.af-header {
+  margin-bottom: 28px;
+
+  .af-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: $ink;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    i {
+      font-size: 20px;
+      color: $blue;
     }
   }
-}
 
-.invalid-feedback {
-  display: block;
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: #dc3545;
-}
-
-.custom-switch {
-  padding-left: 2.25rem;
-  
-  .custom-control-label {
-    cursor: pointer;
+  .af-subtitle {
+    font-size: 14px;
+    color: $ink-muted;
+    margin: 0;
   }
 }
 
-.img-thumbnail {
-  padding: 0.25rem;
-  background-color: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 0.25rem;
-  max-width: 100%;
-  height: auto;
+.af-card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  overflow: hidden;
 }
 
-.table {
-  td, th {
-    vertical-align: middle;
+.af-card-body {
+  padding: 32px;
+}
+
+// Messages
+.af-error {
+  background: rgba($red, 0.06);
+  color: $red;
+  border: 1px solid rgba($red, 0.12);
+  border-radius: $radius-sm;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  i {
+    font-size: 16px;
+    flex-shrink: 0;
   }
 }
 
-// Animation de chargement
-.spinning {
-  animation: spin 1s linear infinite;
+.af-error-close {
+  background: none;
+  border: none;
+  color: $red;
+  font-size: 20px;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 0 4px;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity $transition;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.af-success {
+  background: rgba($green, 0.08);
+  color: darken($green, 20%);
+  border: 1px solid rgba($green, 0.15);
+  border-radius: $radius-sm;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  i {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+}
+
+// Loading
+.af-loading {
+  text-align: center;
+  padding: 48px 20px;
+
+  p {
+    color: $ink-muted;
+    font-size: 14px;
+    margin: 16px 0 0;
+  }
+}
+
+.af-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $border-light;
+  border-top-color: $blue;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto;
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
   to {
     transform: rotate(360deg);
   }
 }
 
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+// Section layout
+.af-section-row {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 0;
+}
+
+.af-section-main {
+  flex: 2;
+  min-width: 0;
+}
+
+.af-section-side {
+  flex: 1;
+  min-width: 0;
+}
+
+.af-section {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid $border-light;
+
+  &:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+.af-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: $ink-soft;
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 15px;
+    color: $blue;
+  }
+}
+
+// Form grid
+.af-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+
+  &.af-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.af-field {
+  display: flex;
+  flex-direction: column;
+
+  &.af-field-full {
+    grid-column: 1 / -1;
+  }
+}
+
+.af-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: $ink-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.af-required {
+  color: $red;
+  font-weight: 700;
+}
+
+.af-input {
+  border: 1.5px solid $border;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: $ink;
+  background: $surface;
+  transition: border-color $transition, box-shadow $transition;
+  outline: none;
+  width: 100%;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+
+  &::placeholder {
+    color: $ink-faint;
+  }
+
+  &:focus {
+    border-color: $blue;
+    box-shadow: 0 0 0 3px rgba($blue, 0.1);
+  }
+
+  &:disabled {
+    background: $surface-dim;
+    color: $ink-faint;
+    cursor: not-allowed;
+  }
+
+  &.af-input-error {
+    border-color: $red;
+    background: rgba($red, 0.03);
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba($red, 0.1);
+    }
+  }
+}
+
+textarea.af-input,
+.af-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+select.af-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6e7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.af-hint {
+  font-size: 12px;
+  color: $ink-faint;
+  margin-top: 6px;
+
+  i {
+    font-size: 12px;
+    margin-right: 4px;
+  }
+}
+
+.af-field-error {
+  font-size: 12px;
+  color: $red;
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+// Image preview
+.af-img-preview {
+  margin-top: 12px;
+  border: 1px solid $border-light;
+  border-radius: $radius-sm;
+  overflow: hidden;
+  background: $surface-warm;
+  padding: 8px;
+}
+
+.af-preview-img {
+  max-height: 150px;
+  max-width: 100%;
+  border-radius: 6px;
+  display: block;
+}
+
+// Schedule table
+.af-schedule-table {
+  border: 1px solid $border-light;
+  border-radius: $radius-sm;
+  overflow: hidden;
+}
+
+.af-schedule-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: $surface-dim;
+  border-bottom: 1px solid $border-light;
+
+  span {
+    font-size: 12px;
+    font-weight: 600;
+    color: $ink-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+}
+
+.af-schedule-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid $border-light;
+  transition: background $transition;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: $surface-warm;
+  }
+}
+
+.af-schedule-col-day {
+  width: 20%;
+  font-size: 14px;
+  color: $ink-soft;
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+.af-schedule-col-closed {
+  width: 15%;
+  display: flex;
+  align-items: center;
+}
+
+.af-schedule-col-time {
+  width: 32.5%;
+  padding: 0 6px;
+
+  .af-input {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+// Toggle switch
+.af-toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.af-toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+
+  &:checked + .af-toggle-slider {
+    background: $blue;
+
+    &::before {
+      transform: translateX(18px);
+    }
+  }
+}
+
+.af-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: $border;
+  border-radius: 22px;
+  transition: background $transition;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: $surface;
+    border-radius: 50%;
+    transition: transform $transition;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  }
+}
+
+// Info box (emplacement read-only)
+.af-info-box {
+  background: $surface-warm;
+  border: 1px solid $border-light;
+  border-radius: $radius-sm;
+  padding: 20px;
+}
+
+.af-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+
+.af-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.af-info-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: $ink-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.af-info-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: $ink-soft;
+}
+
+.af-info-note {
+  font-size: 12px;
+  color: $ink-faint;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  i {
+    font-size: 13px;
+  }
+}
+
+// Actions
+.af-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid $border-light;
+}
+
+.af-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: all $transition;
+  text-decoration: none;
+  border: none;
+  font-family: inherit;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 15px;
+  }
+}
+
+.af-btn-primary {
+  background: $ink;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: $blue;
+  }
+}
+
+.af-btn-outline {
+  background: transparent;
+  color: $ink-soft;
+  border: 1.5px solid $border;
+
+  &:hover:not(:disabled) {
+    border-color: $ink-muted;
+    color: $ink;
+  }
+}
+
 // Responsive
 @media (max-width: 768px) {
-  .btn {
-    display: block;
-    width: 100%;
-    margin-bottom: 0.5rem;
-    
-    &:last-child {
-      margin-bottom: 0;
+  .af-card-body {
+    padding: 20px;
+  }
+
+  .af-section-row {
+    flex-direction: column;
+  }
+
+  .af-form-grid.af-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .af-schedule-table {
+    overflow-x: auto;
+  }
+
+  .af-schedule-header,
+  .af-schedule-row {
+    min-width: 500px;
+  }
+
+  .af-info-row {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .af-actions {
+    flex-direction: column;
+
+    .af-btn {
+      width: 100%;
+      justify-content: center;
     }
   }
 }

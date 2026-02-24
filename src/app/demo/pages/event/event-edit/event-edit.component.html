@@ -1,54 +1,96 @@
-<div class="row">
-  <div class="col-sm-12">
-    <app-card cardTitle="Modifier l'événement" [options]="false">
-      <div *ngIf="loadError" class="alert alert-danger">{{ loadError }}</div>
-      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
-      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+<div class="admin-form-page">
+  <div class="af-header">
+    <div>
+      <a routerLink="/events/list" class="af-back-link"><i class="feather icon-arrow-left"></i> Retour aux événements</a>
+      <h4 class="af-title"><i class="feather icon-edit-3"></i> Modifier l'événement</h4>
+      <p class="af-subtitle">Modifiez les informations de l'événement</p>
+    </div>
+  </div>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!loading && event">
-        <div class="form-group">
-          <label>Titre <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" formControlName="title">
-        </div>
-        <div class="form-group">
-          <label>Description courte</label>
-          <input type="text" class="form-control" formControlName="shortDescription">
-        </div>
-        <div class="form-group">
-          <label>Description <span class="text-danger">*</span></label>
-          <textarea class="form-control" formControlName="description" rows="4"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Image (URL) <span class="text-danger">*</span></label>
-          <input type="url" class="form-control" formControlName="image">
-        </div>
-        <div class="row">
-          <div class="col-md-6 form-group">
-            <label>Date de début <span class="text-danger">*</span></label>
-            <input type="datetime-local" class="form-control" formControlName="startDate">
+  <!-- Loading -->
+  <div *ngIf="loading" class="af-loading">
+    <div class="af-loader-track"><div class="af-loader-fill"></div></div>
+    <p>Chargement de l'événement...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="loadError" class="af-error">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ loadError }}</span>
+  </div>
+
+  <div class="af-card" *ngIf="!loading && event">
+    <div class="af-card-body">
+      <div *ngIf="errorMessage" class="af-error">
+        <i class="feather icon-alert-triangle"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <!-- Informations principales -->
+        <div class="af-section">
+          <h6 class="af-section-title">Informations principales</h6>
+          <div class="af-field">
+            <label class="af-label">Titre <span class="af-required">*</span></label>
+            <input type="text" class="af-input" formControlName="title">
           </div>
-          <div class="col-md-6 form-group">
-            <label>Date de fin <span class="text-danger">*</span></label>
-            <input type="datetime-local" class="form-control" formControlName="endDate">
+          <div class="af-field">
+            <label class="af-label">Description courte</label>
+            <input type="text" class="af-input" formControlName="shortDescription">
+          </div>
+          <div class="af-field">
+            <label class="af-label">Description <span class="af-required">*</span></label>
+            <textarea class="af-textarea" formControlName="description" rows="4"></textarea>
+          </div>
+          <div class="af-field">
+            <label class="af-label">Image (URL) <span class="af-required">*</span></label>
+            <input type="url" class="af-input" formControlName="image">
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-6 form-group">
-            <label>Visibilité</label>
-            <select class="form-control" formControlName="visibility">
-              <option value="public">Public</option>
-              <option value="boutiques">Boutiques uniquement</option>
-            </select>
+
+        <div class="af-divider"></div>
+
+        <!-- Dates & Paramètres -->
+        <div class="af-section">
+          <h6 class="af-section-title">Dates & Paramètres</h6>
+          <div class="af-form-grid af-grid-2">
+            <div class="af-field">
+              <label class="af-label">Date de début <span class="af-required">*</span></label>
+              <input type="datetime-local" class="af-input" formControlName="startDate">
+            </div>
+            <div class="af-field">
+              <label class="af-label">Date de fin <span class="af-required">*</span></label>
+              <input type="datetime-local" class="af-input" formControlName="endDate">
+            </div>
           </div>
-          <div class="col-md-6 form-group d-flex align-items-end">
-            <label class="mb-0"><input type="checkbox" formControlName="isFeatured"> Mettre en vedette</label>
+          <div class="af-form-grid af-grid-2">
+            <div class="af-field">
+              <label class="af-label">Visibilité</label>
+              <select class="af-select" formControlName="visibility">
+                <option value="public">Public</option>
+                <option value="boutiques">Boutiques uniquement</option>
+              </select>
+            </div>
+            <div class="af-field af-checkbox-wrap">
+              <label class="af-checkbox-label">
+                <input type="checkbox" class="af-checkbox" formControlName="isFeatured">
+                <span>Mettre en vedette</span>
+              </label>
+            </div>
           </div>
         </div>
-        <div class="form-group mb-0">
-          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ loading ? 'Enregistrement...' : 'Enregistrer' }}</button>
-          <button type="button" class="btn btn-secondary ml-2" (click)="cancel()">Annuler</button>
+
+        <div class="af-divider"></div>
+
+        <!-- Actions -->
+        <div class="af-actions">
+          <button type="submit" class="af-btn af-btn-primary" [disabled]="form.invalid || loading">
+            <i class="feather icon-check"></i>
+            {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+          <button type="button" class="af-btn af-btn-outline" (click)="cancel()">Annuler</button>
         </div>
       </form>
-    </app-card>
+    </div>
   </div>
 </div>

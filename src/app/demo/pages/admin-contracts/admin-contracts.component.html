@@ -1,276 +1,299 @@
-<div class="row">
+<div class="admin-list-page">
   <!-- Header -->
-  <div class="col-12">
-    <app-card [options]="false">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">Gestion des Contrats</h4>
-        <button class="btn btn-primary" (click)="toggleCreateForm()">
-          <i class="feather icon-plus"></i>
-          {{ showCreateForm ? 'Fermer' : 'Créer un contrat' }}
-        </button>
-      </div>
+  <div class="al-header">
+    <div>
+      <h4 class="al-title"><i class="feather icon-file-text"></i> Gestion des Contrats</h4>
+      <p class="al-subtitle">Créez, gérez et suivez les contrats de location</p>
+    </div>
+    <button class="al-create-btn" (click)="toggleCreateForm()">
+      <i class="feather" [ngClass]="showCreateForm ? 'icon-x' : 'icon-plus'"></i>
+      {{ showCreateForm ? 'Fermer' : 'Créer un contrat' }}
+    </button>
+  </div>
 
-      <!-- Messages -->
-      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
-        {{ successMessage }}
-        <button type="button" class="close" (click)="successMessage = ''"><span>&times;</span></button>
-      </div>
-      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show">
-        {{ errorMessage }}
-        <button type="button" class="close" (click)="errorMessage = ''"><span>&times;</span></button>
-      </div>
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="al-success">
+    <i class="feather icon-check-circle"></i>
+    <span>{{ successMessage }}</span>
+    <button class="al-alert-close" (click)="successMessage = ''">&times;</button>
+  </div>
+  <div *ngIf="errorMessage" class="al-error">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ errorMessage }}</span>
+    <button class="al-alert-close" (click)="errorMessage = ''">&times;</button>
+  </div>
 
-      <!-- Create Form -->
-      <div *ngIf="showCreateForm" class="card mb-4">
-        <div class="card-header"><h5>Nouveau contrat</h5></div>
-        <div class="card-body">
-          <div *ngIf="createError" class="alert alert-danger">{{ createError }}</div>
-          <div class="row">
-            <div class="col-md-6 form-group">
-              <label>Boutique (emplacement) *</label>
-              <select class="form-control" [(ngModel)]="newContract.boutiqueId" (ngModelChange)="onBoutiqueChange()">
-                <option value="">-- Sélectionner --</option>
-                <option *ngFor="let b of boutiques" [value]="b._id">
-                  Étage {{ b.location?.floor }}, Zone {{ b.location?.zone }}, N°{{ b.location?.number }} - {{ b.price | number:'1.0-0' }} Ar/mois
-                </option>
-              </select>
-            </div>
-            <div class="col-md-6 form-group">
-              <label>Locataire *</label>
-              <select class="form-control" [(ngModel)]="newContract.tenantId">
-                <option value="">-- Sélectionner --</option>
-                <option *ngFor="let t of tenants" [value]="t._id">
-                  {{ t.firstName }} {{ t.lastName }} ({{ t.email }})
-                </option>
-              </select>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-3 form-group">
-              <label>Loyer mensuel (Ar)</label>
-              <input type="number" class="form-control" [(ngModel)]="newContract.monthlyRent" min="0" readonly>
-            </div>
-            <div class="col-md-3 form-group">
-              <label>Dépôt de garantie (Ar) *</label>
-              <input type="number" class="form-control" [(ngModel)]="newContract.deposit" min="0">
-            </div>
-            <div class="col-md-3 form-group">
-              <label>Date de début *</label>
-              <input type="date" class="form-control" [(ngModel)]="newContract.startDate">
-            </div>
-            <div class="col-md-3 form-group">
-              <label>Date de fin *</label>
-              <input type="date" class="form-control" [(ngModel)]="newContract.endDate">
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-3 form-group">
-              <label>Jour de facturation</label>
-              <input type="number" class="form-control" [(ngModel)]="newContract.billingDay" min="1" max="28">
-            </div>
-            <div class="col-md-9 form-group">
-              <label>Notes</label>
-              <textarea class="form-control" [(ngModel)]="newContract.notes" rows="2"></textarea>
-            </div>
-          </div>
-          <button class="btn btn-success" (click)="createContract()" [disabled]="createLoading">
-            <span *ngIf="createLoading" class="spinner-border spinner-border-sm mr-1"></span>
-            Créer le contrat
-          </button>
-          <button class="btn btn-secondary ml-2" (click)="showCreateForm = false">Annuler</button>
+  <!-- Create Form -->
+  <div *ngIf="showCreateForm" class="al-create-card">
+    <div class="al-create-head">
+      <h5><i class="feather icon-plus-circle"></i> Nouveau contrat</h5>
+    </div>
+    <div class="al-create-body">
+      <div *ngIf="createError" class="af-error">
+        <i class="feather icon-alert-triangle"></i>
+        <span>{{ createError }}</span>
+      </div>
+      <div class="af-form-grid af-grid-2">
+        <div class="af-field">
+          <label class="af-label">Boutique (emplacement) <span class="af-required">*</span></label>
+          <select class="af-select" [(ngModel)]="newContract.boutiqueId" (ngModelChange)="onBoutiqueChange()">
+            <option value="">-- Sélectionner --</option>
+            <option *ngFor="let b of boutiques" [value]="b._id">
+              Étage {{ b.location?.floor }}, Zone {{ b.location?.zone }}, N°{{ b.location?.number }} - {{ b.price | number:'1.0-0' }} Ar/mois
+            </option>
+          </select>
         </div>
-      </div>
-
-      <!-- Filters -->
-      <div class="row mb-3">
-        <div class="col-md-4">
-          <select class="form-control" [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
-            <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+        <div class="af-field">
+          <label class="af-label">Locataire <span class="af-required">*</span></label>
+          <select class="af-select" [(ngModel)]="newContract.tenantId">
+            <option value="">-- Sélectionner --</option>
+            <option *ngFor="let t of tenants" [value]="t._id">
+              {{ t.firstName }} {{ t.lastName }} ({{ t.email }})
+            </option>
           </select>
         </div>
       </div>
+      <div class="af-form-grid af-grid-4">
+        <div class="af-field">
+          <label class="af-label">Loyer mensuel (Ar)</label>
+          <input type="number" class="af-input" [(ngModel)]="newContract.monthlyRent" min="0" readonly>
+        </div>
+        <div class="af-field">
+          <label class="af-label">Dépôt de garantie (Ar) <span class="af-required">*</span></label>
+          <input type="number" class="af-input" [(ngModel)]="newContract.deposit" min="0">
+        </div>
+        <div class="af-field">
+          <label class="af-label">Date de début <span class="af-required">*</span></label>
+          <input type="date" class="af-input" [(ngModel)]="newContract.startDate">
+        </div>
+        <div class="af-field">
+          <label class="af-label">Date de fin <span class="af-required">*</span></label>
+          <input type="date" class="af-input" [(ngModel)]="newContract.endDate">
+        </div>
+      </div>
+      <div class="af-form-grid af-grid-2">
+        <div class="af-field">
+          <label class="af-label">Jour de facturation</label>
+          <input type="number" class="af-input" [(ngModel)]="newContract.billingDay" min="1" max="28">
+        </div>
+        <div class="af-field">
+          <label class="af-label">Notes</label>
+          <textarea class="af-textarea" [(ngModel)]="newContract.notes" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="af-actions">
+        <button class="af-btn af-btn-primary" (click)="createContract()" [disabled]="createLoading">
+          <span *ngIf="createLoading" class="af-spinner-sm"></span>
+          <i *ngIf="!createLoading" class="feather icon-check"></i>
+          Créer le contrat
+        </button>
+        <button class="af-btn af-btn-outline" (click)="showCreateForm = false">Annuler</button>
+      </div>
+    </div>
+  </div>
 
-      <!-- Loading -->
-      <div *ngIf="loading" class="text-center py-4">
-        <div class="spinner-border text-primary"></div>
-        <p class="mt-2">Chargement des contrats...</p>
+  <!-- Filters -->
+  <div class="al-filters">
+    <div class="al-filter-row">
+      <select class="al-select" [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
+        <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="al-loading">
+    <div class="al-loader-track"><div class="al-loader-fill"></div></div>
+    <p>Chargement des contrats...</p>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading" class="al-table-card">
+    <div class="table-responsive">
+      <table class="al-table">
+        <thead>
+          <tr>
+            <th>Référence</th>
+            <th>Boutique</th>
+            <th>Locataire</th>
+            <th class="text-right">Loyer</th>
+            <th class="text-right">Dépôt</th>
+            <th>Statut</th>
+            <th>Dates</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="contracts.length === 0">
+            <td colspan="8" class="al-table-empty">
+              <div class="al-empty-inline">
+                <i class="feather icon-file-text"></i>
+                <span>Aucun contrat trouvé.</span>
+              </div>
+            </td>
+          </tr>
+          <tr *ngFor="let c of contracts">
+            <td class="td-name">{{ c.reference }}</td>
+            <td class="td-muted">{{ getBoutiqueLocation(c) }}</td>
+            <td class="td-muted">{{ getTenantName(c) }}</td>
+            <td class="text-right td-mono">{{ formatMoney(c.monthlyRent) }} Ar</td>
+            <td class="text-right td-mono">{{ formatMoney(c.deposit) }} Ar</td>
+            <td>
+              <span class="status-pill" [ngClass]="getStatusBadge(c.status)">{{ getStatusLabel(c.status) }}</span>
+            </td>
+            <td class="td-muted td-mono">{{ formatDate(c.startDate) }} → {{ formatDate(c.endDate) }}</td>
+            <td class="td-actions">
+              <!-- Draft: send for signature -->
+              <button *ngIf="c.status === 'draft'"
+                      class="action-btn action-send" title="Envoyer pour signature"
+                      (click)="sendForSignature(c)">
+                <i class="feather icon-navigation"></i>
+              </button>
+
+              <!-- Pending signature info badges -->
+              <span *ngIf="c.status === 'pending_signature' && !c.signedByTenant" class="status-pill pill-warning">En attente signature</span>
+              <span *ngIf="c.status === 'pending_signature' && c.signedByTenant" class="status-pill pill-info">Signé - Attente paiement</span>
+
+              <!-- Pending activation info -->
+              <span *ngIf="c.status === 'pending_activation' && (c.depositStatus === 'pending' || !c.depositStatus)" class="status-pill pill-info">Attente dépôt + loyer</span>
+              <span *ngIf="c.status === 'pending_activation' && c.depositStatus === 'partial'" class="status-pill pill-warning">Dépôt partiel ({{ formatMoney(c.depositPaid) }}/{{ formatMoney(c.deposit) }})</span>
+              <span *ngIf="c.status === 'pending_activation' && c.depositStatus === 'paid'" class="status-pill pill-info">Dépôt payé</span>
+
+              <!-- Validate deposit -->
+              <button *ngIf="c.status === 'pending_activation' && c.depositStatus === 'paid'"
+                      class="action-btn action-approve" title="Valider et activer"
+                      (click)="openDepositModal(c)">
+                <i class="feather icon-check-circle"></i>
+              </button>
+
+              <!-- Terminate pending contracts -->
+              <button *ngIf="c.status === 'pending_signature' || c.status === 'pending_activation'"
+                      class="action-btn action-delete" title="Résilier"
+                      (click)="openReasonModal(c, 'terminate')">
+                <i class="feather icon-x-circle"></i>
+              </button>
+
+              <!-- Active: suspend -->
+              <button *ngIf="c.status === 'active'"
+                      class="action-btn action-warn" title="Suspendre"
+                      (click)="openReasonModal(c, 'suspend')">
+                <i class="feather icon-pause-circle"></i>
+              </button>
+
+              <!-- Suspended: reactivate -->
+              <button *ngIf="c.status === 'suspended'"
+                      class="action-btn action-approve" title="Réactiver"
+                      (click)="reactivate(c)">
+                <i class="feather icon-play-circle"></i>
+              </button>
+
+              <!-- Active/Suspended: terminate -->
+              <button *ngIf="c.status === 'active' || c.status === 'suspended'"
+                      class="action-btn action-delete" title="Résilier"
+                      (click)="openReasonModal(c, 'terminate')">
+                <i class="feather icon-x-circle"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="pagination.pages > 1" class="al-pagination">
+    <span class="al-page-info">Page {{ pagination.page }} / {{ pagination.pages }}</span>
+    <div class="al-page-controls">
+      <button class="page-btn" [disabled]="pagination.page === 1" (click)="goToPage(pagination.page - 1)">
+        <i class="feather icon-chevron-left"></i>
+      </button>
+      <ng-container *ngFor="let p of getPages()">
+        <button class="page-btn" [class.page-active]="p === pagination.page" (click)="goToPage(p)">{{ p }}</button>
+      </ng-container>
+      <button class="page-btn" [disabled]="pagination.page === pagination.pages" (click)="goToPage(pagination.page + 1)">
+        <i class="feather icon-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Deposit Validation Modal -->
+<div *ngIf="showDepositModal" class="modal-overlay" (click)="showDepositModal = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h5><i class="feather icon-check-circle"></i> Valider le dépôt de garantie</h5>
+      <button class="modal-close" (click)="showDepositModal = false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">La boutique a effectué le paiement du dépôt de garantie et du premier loyer.</p>
+      <div class="modal-info-grid" *ngIf="depositContract">
+        <div class="modal-info-item">
+          <span class="modal-info-label">Montant</span>
+          <span class="modal-info-value">{{ formatMoney(depositContract.deposit) }} Ar</span>
+        </div>
+        <div class="modal-info-item">
+          <span class="modal-info-label">Payé</span>
+          <span class="modal-info-value">{{ formatMoney(depositContract.depositPaid) }} Ar</span>
+        </div>
       </div>
 
-      <!-- Table -->
-      <div *ngIf="!loading" class="table-responsive">
-        <table class="table table-hover">
+      <!-- Payment history -->
+      <div *ngIf="depositContract?.depositPayments?.length > 0" class="modal-payments">
+        <h6 class="modal-payments-title">Paiements effectués</h6>
+        <table class="modal-table">
           <thead>
-            <tr>
-              <th>Référence</th>
-              <th>Boutique</th>
-              <th>Locataire</th>
-              <th>Loyer mensuel</th>
-              <th>Dépôt</th>
-              <th>Statut</th>
-              <th>Dates</th>
-              <th>Actions</th>
-            </tr>
+            <tr><th>Montant</th><th>Méthode</th><th>Référence</th><th>Date</th></tr>
           </thead>
           <tbody>
-            <tr *ngIf="contracts.length === 0">
-              <td colspan="8" class="text-center text-muted py-4">Aucun contrat trouvé.</td>
-            </tr>
-            <tr *ngFor="let c of contracts">
-              <td><strong>{{ c.reference }}</strong></td>
-              <td>{{ getBoutiqueLocation(c) }}</td>
-              <td>{{ getTenantName(c) }}</td>
-              <td>{{ formatMoney(c.monthlyRent) }} Ar</td>
-              <td>{{ formatMoney(c.deposit) }} Ar</td>
-              <td>
-                <span class="badge {{ getStatusBadge(c.status) }}">{{ getStatusLabel(c.status) }}</span>
-              </td>
-              <td>
-                {{ formatDate(c.startDate) }} - {{ formatDate(c.endDate) }}
-              </td>
-              <td class="action-btns">
-                <button *ngIf="c.status === 'draft'"
-                        class="btn btn-sm btn-info mr-1 mb-1" title="Envoyer pour signature"
-                        (click)="sendForSignature(c)">
-                  <i class="feather icon-navigation mr-1"></i> Envoyer signature
-                </button>
-                <span *ngIf="c.status === 'pending_signature' && !c.signedByTenant"
-                      class="badge badge-warning mr-1">En attente de signature boutique</span>
-                <!-- Rétrocompatibilité: pending_signature + signedByTenant (ancien flux avant pending_activation) -->
-                <span *ngIf="c.status === 'pending_signature' && c.signedByTenant"
-                      class="badge badge-info mr-1">Signé - En attente paiement dépôt</span>
-                <!-- pending_activation: signed, waiting for deposit + first rent -->
-                <span *ngIf="c.status === 'pending_activation' && (c.depositStatus === 'pending' || !c.depositStatus)"
-                      class="badge badge-info mr-1">Signé - En attente paiement dépôt + loyer</span>
-                <span *ngIf="c.status === 'pending_activation' && c.depositStatus === 'partial'"
-                      class="badge badge-info mr-1">Dépôt partiel ({{ formatMoney(c.depositPaid) }} / {{ formatMoney(c.deposit) }} Ar)</span>
-                <span *ngIf="c.status === 'pending_activation' && c.depositStatus === 'paid'"
-                      class="badge badge-primary mr-1">Dépôt payé - En attente validation</span>
-                <button *ngIf="c.status === 'pending_activation' && c.depositStatus === 'paid'"
-                        class="btn btn-sm btn-success mr-1 mb-1" title="Valider et activer"
-                        (click)="openDepositModal(c)">
-                  <i class="feather icon-check-circle mr-1"></i> Valider et activer
-                </button>
-                <!-- Résilier les contrats en attente (pending_signature ou pending_activation) -->
-                <button *ngIf="c.status === 'pending_signature' || c.status === 'pending_activation'"
-                        class="btn btn-sm btn-danger mr-1 mb-1" title="Résilier"
-                        (click)="openReasonModal(c, 'terminate')">
-                  <i class="feather icon-x-circle mr-1"></i> Résilier
-                </button>
-                <button *ngIf="c.status === 'active'"
-                        class="btn btn-sm btn-warning mr-1 mb-1" title="Suspendre"
-                        (click)="openReasonModal(c, 'suspend')">
-                  <i class="feather icon-pause-circle mr-1"></i> Suspendre
-                </button>
-                <button *ngIf="c.status === 'suspended'"
-                        class="btn btn-sm btn-success mr-1 mb-1" title="Réactiver"
-                        (click)="reactivate(c)">
-                  <i class="feather icon-play-circle mr-1"></i> Réactiver
-                </button>
-                <button *ngIf="c.status === 'active' || c.status === 'suspended'"
-                        class="btn btn-sm btn-danger mr-1 mb-1" title="Résilier"
-                        (click)="openReasonModal(c, 'terminate')">
-                  <i class="feather icon-x-circle mr-1"></i> Résilier
-                </button>
-              </td>
+            <tr *ngFor="let p of depositContract.depositPayments">
+              <td class="td-mono">{{ formatMoney(p.amount) }} Ar</td>
+              <td>{{ getPaymentMethodLabel(p.method) }}</td>
+              <td class="td-muted">{{ p.reference || '-' }}</td>
+              <td class="td-muted">{{ formatDate(p.paidAt) }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Pagination -->
-      <nav *ngIf="pagination.pages > 1" class="mt-3">
-        <ul class="pagination justify-content-center">
-          <li class="page-item" [class.disabled]="pagination.page === 1">
-            <a class="page-link" (click)="goToPage(pagination.page - 1)">Précédent</a>
-          </li>
-          <li class="page-item" *ngFor="let p of getPages()" [class.active]="p === pagination.page">
-            <a class="page-link" (click)="goToPage(p)">{{ p }}</a>
-          </li>
-          <li class="page-item" [class.disabled]="pagination.page === pagination.pages">
-            <a class="page-link" (click)="goToPage(pagination.page + 1)">Suivant</a>
-          </li>
-        </ul>
-      </nav>
-    </app-card>
-  </div>
-</div>
-
-<!-- Deposit Validation Modal -->
-<div *ngIf="showDepositModal" class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Valider le dépôt de garantie</h5>
-        <button type="button" class="close" (click)="showDepositModal = false"><span>&times;</span></button>
+      <p class="modal-note"><i class="feather icon-info"></i> En validant, le contrat sera activé automatiquement.</p>
+      <div *ngIf="depositError" class="af-error">
+        <i class="feather icon-alert-triangle"></i>
+        <span>{{ depositError }}</span>
       </div>
-      <div class="modal-body">
-        <p>La boutique a effectué le paiement du dépôt de garantie et du premier loyer.</p>
-        <div class="mb-3" *ngIf="depositContract">
-          <strong>Montant :</strong> {{ formatMoney(depositContract.deposit) }} Ar<br>
-          <strong>Payé :</strong> {{ formatMoney(depositContract.depositPaid) }} Ar
-        </div>
-        <!-- Historique des paiements -->
-        <div *ngIf="depositContract?.depositPayments?.length > 0">
-          <h6>Paiements effectués :</h6>
-          <table class="table table-sm table-bordered">
-            <thead>
-              <tr>
-                <th>Montant</th>
-                <th>Méthode</th>
-                <th>Référence</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let p of depositContract.depositPayments">
-                <td>{{ formatMoney(p.amount) }} Ar</td>
-                <td>{{ getPaymentMethodLabel(p.method) }}</td>
-                <td>{{ p.reference || '-' }}</td>
-                <td>{{ formatDate(p.paidAt) }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p class="text-info mt-2">En validant, le contrat sera activé automatiquement.</p>
-        <div *ngIf="depositError" class="alert alert-danger mt-3 mb-0">
-          {{ depositError }}
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="showDepositModal = false" [disabled]="depositLoading">Annuler</button>
-        <button class="btn btn-success" (click)="confirmDeposit()" [disabled]="depositLoading">
-          <span *ngIf="depositLoading" class="spinner-border spinner-border-sm mr-1"></span>
-          Valider et activer le contrat
-        </button>
-      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="af-btn af-btn-outline" (click)="showDepositModal = false" [disabled]="depositLoading">Annuler</button>
+      <button class="af-btn af-btn-primary" (click)="confirmDeposit()" [disabled]="depositLoading">
+        <span *ngIf="depositLoading" class="af-spinner-sm"></span>
+        <i *ngIf="!depositLoading" class="feather icon-check"></i>
+        Valider et activer
+      </button>
     </div>
   </div>
 </div>
 
 <!-- Suspend/Terminate Reason Modal -->
-<div *ngIf="showReasonModal" class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          {{ reasonAction === 'suspend' ? 'Suspendre le contrat' : 'Résilier le contrat' }}
-        </h5>
-        <button type="button" class="close" (click)="showReasonModal = false"><span>&times;</span></button>
+<div *ngIf="showReasonModal" class="modal-overlay" (click)="showReasonModal = false">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h5>
+        <i class="feather" [ngClass]="reasonAction === 'suspend' ? 'icon-pause-circle' : 'icon-x-circle'"></i>
+        {{ reasonAction === 'suspend' ? 'Suspendre le contrat' : 'Résilier le contrat' }}
+      </h5>
+      <button class="modal-close" (click)="showReasonModal = false">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="af-field">
+        <label class="af-label">Raison <span class="af-required">*</span></label>
+        <textarea class="af-textarea" [(ngModel)]="reasonText" rows="3" placeholder="Saisissez la raison..."></textarea>
       </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Raison *</label>
-          <textarea class="form-control" [(ngModel)]="reasonText" rows="3"
-                    placeholder="Saisissez la raison..."></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="showReasonModal = false">Annuler</button>
-        <button class="btn" [ngClass]="reasonAction === 'suspend' ? 'btn-warning' : 'btn-danger'"
-                (click)="confirmReasonAction()">
-          {{ reasonAction === 'suspend' ? 'Suspendre' : 'Résilier' }}
-        </button>
-      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="af-btn af-btn-outline" (click)="showReasonModal = false">Annuler</button>
+      <button class="af-btn" [ngClass]="reasonAction === 'suspend' ? 'af-btn-warn' : 'af-btn-danger'" (click)="confirmReasonAction()">
+        <i class="feather" [ngClass]="reasonAction === 'suspend' ? 'icon-pause-circle' : 'icon-x-circle'"></i>
+        {{ reasonAction === 'suspend' ? 'Suspendre' : 'Résilier' }}
+      </button>
     </div>
   </div>
 </div>

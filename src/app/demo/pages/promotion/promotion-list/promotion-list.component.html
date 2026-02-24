@@ -1,58 +1,95 @@
-<div class="row">
-  <div class="col-sm-12">
-    <app-card cardTitle="Mes promotions" [options]="false">
-      <div class="mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
-        <p class="text-muted small mb-0">Les promotions sont visibles par les acheteurs sur la page d'accueil. Maximum 5 promotions actives ou programmées.</p>
-        <button type="button" class="btn btn-primary btn-sm" [disabled]="!canCreateMore || !boutiqueId" (click)="goToCreate()">
-          Nouvelle promotion
-        </button>
-      </div>
-      <div *ngIf="!canCreateMore" class="alert alert-warning py-2">Vous avez atteint la limite de 5 promotions actives ou programmées. Annulez ou attendez la fin d'une promotion pour en créer une nouvelle.</div>
-      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
+<div class="promo-page">
+  <!-- Header -->
+  <div class="promo-header">
+    <div>
+      <h4 class="promo-title"><i class="feather icon-percent"></i> Mes promotions</h4>
+      <p class="promo-subtitle">Maximum 5 promotions actives ou programmées</p>
+    </div>
+    <button class="promo-create-btn" [disabled]="!canCreateMore || !boutiqueId" (click)="goToCreate()">
+      <i class="feather icon-plus"></i> Nouvelle promotion
+    </button>
+  </div>
 
-      <div *ngIf="!loading && promotions.length === 0" class="text-muted py-4 text-center">
-        Aucune promotion. <button type="button" class="btn btn-link p-0" (click)="goToCreate()" [disabled]="!boutiqueId">Créer une promotion</button>
-      </div>
+  <!-- Limit Warning -->
+  <div *ngIf="!canCreateMore" class="promo-limit-alert">
+    <i class="feather icon-alert-triangle"></i>
+    <span>Limite atteinte (5/5). Annulez ou attendez la fin d'une promotion pour en créer une nouvelle.</span>
+  </div>
 
-      <div *ngIf="!loading && promotions.length > 0" class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Titre</th>
-              <th>Type</th>
-              <th>Valeur</th>
-              <th>Produits</th>
-              <th>Début / Fin</th>
-              <th>Statut</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let p of promotions">
-              <td><strong>{{ p.title }}</strong></td>
-              <td>{{ getTypeLabel(p.type) }}</td>
-              <td>{{ formatValue(p) }}</td>
-              <td>{{ (p.products && p.products.length) || 0 }} produit(s)</td>
-              <td>
-                <small>{{ p.startDate | date:'shortDate' }} → {{ p.endDate | date:'shortDate' }}</small>
-              </td>
-              <td><span class="badge" [ngClass]="getStatusClass(p.status)">{{ getStatusLabel(p.status) }}</span></td>
-              <td>
-                <button type="button" class="btn btn-sm btn-outline-primary mr-1" (click)="goToEdit(p._id)" *ngIf="p.status !== 'ended' && p.status !== 'cancelled'">Modifier</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="promo-error">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
 
-      <div *ngIf="!loading && pagination.pages > 1" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Page {{ pagination.page }} / {{ pagination.pages }} ({{ pagination.total }} promotion(s))</span>
-        <div>
-          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>
-        </div>
-      </div>
-    </app-card>
+  <!-- Loading -->
+  <div *ngIf="loading" class="promo-loading">
+    <div class="promo-loader-track"><div class="promo-loader-fill"></div></div>
+    <p>Chargement des promotions...</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && promotions.length === 0 && !errorMessage" class="promo-empty">
+    <div class="promo-empty-icon"><i class="feather icon-percent"></i></div>
+    <h5>Aucune promotion</h5>
+    <p>Créez votre première promotion pour attirer plus de clients.</p>
+    <button class="promo-create-btn" [disabled]="!boutiqueId" (click)="goToCreate()">
+      <i class="feather icon-plus"></i> Créer une promotion
+    </button>
+  </div>
+
+  <!-- Promotions Table -->
+  <div class="promo-table-card" *ngIf="!loading && promotions.length > 0">
+    <div class="table-responsive">
+      <table class="promo-table">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Type</th>
+            <th>Valeur</th>
+            <th>Produits</th>
+            <th>Période</th>
+            <th>Statut</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of promotions">
+            <td class="td-title">{{ p.title }}</td>
+            <td class="td-type">{{ getTypeLabel(p.type) }}</td>
+            <td class="td-value">{{ formatValue(p) }}</td>
+            <td class="td-products">{{ (p.products && p.products.length) || 0 }} produit{{ (p.products?.length || 0) > 1 ? 's' : '' }}</td>
+            <td class="td-dates">
+              <span class="date-range">
+                {{ p.startDate | date:'dd/MM/yy' }}
+                <i class="feather icon-arrow-right"></i>
+                {{ p.endDate | date:'dd/MM/yy' }}
+              </span>
+            </td>
+            <td>
+              <span class="status-pill" [ngClass]="getStatusClass(p.status)">{{ getStatusLabel(p.status) }}</span>
+            </td>
+            <td class="text-center">
+              <button class="action-btn" (click)="goToEdit(p._id)" *ngIf="p.status !== 'ended' && p.status !== 'cancelled'" title="Modifier">
+                <i class="feather icon-edit-2"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && pagination.pages > 1" class="promo-pagination">
+    <span class="promo-page-info">Page {{ pagination.page }} / {{ pagination.pages }} <span class="promo-page-total">({{ pagination.total }} promotion{{ pagination.total > 1 ? 's' : '' }})</span></span>
+    <div class="promo-page-controls">
+      <button class="page-btn" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">
+        <i class="feather icon-chevron-left"></i>
+      </button>
+      <button class="page-btn" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">
+        <i class="feather icon-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </div>

@@ -1,35 +1,37 @@
-<ul class="navbar-nav ml-auto">
+<ul class="navbar-nav ml-auto nr-actions">
   <li class="nav-item">
     <app-nav-search></app-nav-search>
   </li>
   <!-- Notifications Bell -->
   <li *ngIf="isLoggedIn" class="nav-item">
     <div class="dropdown drp-notification" ngbDropdown placement="auto">
-      <a href="javascript:" ngbDropdownToggle class="nav-notification-btn" title="Notifications">
-        <i class="icon feather icon-bell"></i>
-        <span class="badge bg-danger notification-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
-        <span class="socket-status" [class.connected]="isSocketConnected" [class.disconnected]="!isSocketConnected"
-              [title]="isSocketConnected ? 'Connecté en temps réel' : 'Déconnecté'"></span>
+      <a href="javascript:" ngbDropdownToggle class="nr-bell-btn" title="Notifications">
+        <span class="nr-bell-ring">
+          <i class="feather icon-bell"></i>
+        </span>
+        <span class="nr-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
       </a>
-      <div class="dropdown-menu dropdown-menu-right notification-dropdown" ngbDropdownMenu>
-        <div class="notification-head">
-          <h6 class="d-inline-block mb-0">Notifications</h6>
-          <span class="badge bg-primary float-right" *ngIf="unreadCount > 0">{{ unreadCount }} nouvelle{{ unreadCount > 1 ? 's' : '' }}</span>
+      <div class="dropdown-menu dropdown-menu-right nr-notif-dropdown" ngbDropdownMenu>
+        <div class="nr-notif-head">
+          <div class="nr-notif-head-left">
+            <span class="nr-notif-head-icon"><i class="feather icon-bell"></i></span>
+            <h6>Notifications</h6>
+          </div>
+          <span class="nr-notif-count" *ngIf="unreadCount > 0">{{ unreadCount }} nouvelle{{ unreadCount > 1 ? 's' : '' }}</span>
         </div>
-        <div class="notification-body" *ngIf="notifications.length > 0">
+        <div class="nr-notif-body" *ngIf="notifications.length > 0">
           <div *ngFor="let notif of notifications; let i = index"
-               class="notification-item"
+               class="nr-notif-item"
                [class.unread]="!notif.read"
                (click)="markAsRead(notif.id)">
-            <div class="notification-icon">
+            <div class="nr-notif-icon">
               <i class="feather" [ngClass]="{
                 'icon-user': notif.event.startsWith('user:'),
-                'icon-shopping-bag': notif.event.startsWith('boutique:') || notif.event.startsWith('reservation:'),
+                'icon-shopping-cart': notif.event.startsWith('boutique:') || notif.event.startsWith('reservation:') || notif.event.startsWith('order:') || notif.event.startsWith('cart:'),
                 'icon-grid': notif.event.startsWith('category:'),
                 'icon-calendar': notif.event.startsWith('event:'),
                 'icon-layers': notif.event.startsWith('floor:') || notif.event.startsWith('zone:'),
                 'icon-map': notif.event.startsWith('navigation:') || notif.event.startsWith('specialSpace:'),
-                'icon-shopping-cart': notif.event.startsWith('order:') || notif.event.startsWith('cart:'),
                 'icon-credit-card': notif.event.startsWith('payment:') || notif.event.startsWith('stripe:'),
                 'icon-package': notif.event.startsWith('product:') || notif.event.startsWith('stock:'),
                 'icon-tag': notif.event.startsWith('promotion:'),
@@ -37,51 +39,72 @@
                 'icon-bell': !notif.event.includes(':')
               }"></i>
             </div>
-            <div class="notification-content">
-              <p class="notification-text mb-0">{{ notif.message }}</p>
-              <span class="notification-time">{{ getTimeAgo(notif.timestamp) }}</span>
+            <div class="nr-notif-content">
+              <p class="nr-notif-text">{{ notif.message }}</p>
+              <span class="nr-notif-time">{{ getTimeAgo(notif.timestamp) }}</span>
             </div>
           </div>
         </div>
-        <div class="notification-body notification-empty" *ngIf="notifications.length === 0">
-          <p class="text-muted text-center mb-0 py-3">Aucune notification</p>
+        <div class="nr-notif-body nr-notif-empty" *ngIf="notifications.length === 0">
+          <div class="nr-empty-state">
+            <i class="feather icon-inbox"></i>
+            <p>Aucune notification</p>
+          </div>
         </div>
-        <div class="notification-footer" *ngIf="notifications.length > 0">
-          <a href="javascript:" (click)="markAllAsRead()" class="notification-action">Tout marquer comme lu</a>
-          <a href="javascript:" (click)="clearAllNotifications()" class="notification-action text-danger">Effacer tout</a>
+        <div class="nr-notif-footer" *ngIf="notifications.length > 0">
+          <a href="javascript:" (click)="markAllAsRead()" class="nr-notif-action"><i class="feather icon-check"></i> Tout marquer lu</a>
+          <a href="javascript:" (click)="clearAllNotifications()" class="nr-notif-action nr-action-danger"><i class="feather icon-trash-2"></i> Effacer</a>
         </div>
       </div>
     </div>
   </li>
   <li *ngIf="!isLoggedIn">
-    <a routerLink="/auth/signin" class="btn btn-primary btn-sm nav-login-btn">Se connecter</a>
+    <a routerLink="/auth/signin" class="nr-login-btn">Se connecter</a>
   </li>
   <li *ngIf="isLoggedIn">
     <div class="dropdown drp-user" ngbDropdown placement="auto">
-      <a href="javascript:" ngbDropdownToggle data-toggle="dropdown" class="nav-user-dropdown">
-        <ng-container *ngIf="isAdmin()">
-          <i class="icon feather icon-settings" title="Administrateur"></i>
-        </ng-container>
-        <ng-container *ngIf="!isAdmin()">
-          <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="img-radius nav-avatar" alt="Profil">
-          <i *ngIf="!currentUser?.avatar" class="icon feather icon-user"></i>
-        </ng-container>
-        <span class="ml-1 d-none d-md-inline">{{ getDisplayName() }}</span>
-      </a>
-      <div class="dropdown-menu dropdown-menu-right profile-notification" ngbDropdownMenu>
-        <div class="pro-head">
+      <a href="javascript:" ngbDropdownToggle data-toggle="dropdown" class="nr-user-btn">
+        <div class="nr-user-avatar-wrap">
           <ng-container *ngIf="isAdmin()">
-            <i class="feather icon-settings img-radius pro-icon"></i>
+            <div class="nr-user-avatar nr-avatar-admin">
+              <i class="feather icon-settings"></i>
+            </div>
           </ng-container>
-          <img *ngIf="!isAdmin() && currentUser?.avatar" [src]="currentUser.avatar" class="img-radius" alt="Profil">
-          <i *ngIf="!isAdmin() && !currentUser?.avatar" class="feather icon-user img-radius pro-icon"></i>
-          <span>{{ getDisplayName() }}</span>
-          <span class="pro-head-role" *ngIf="getRoleLabel()">— {{ getRoleLabel() }}</span>
+          <ng-container *ngIf="!isAdmin()">
+            <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="nr-user-avatar nr-avatar-img" alt="Profil">
+            <div *ngIf="!currentUser?.avatar" class="nr-user-avatar nr-avatar-initial">
+              <span>{{ getUserInitial() }}</span>
+            </div>
+          </ng-container>
+          <span class="nr-status-dot"
+                [class.online]="isSocketConnected"
+                [class.offline]="!isSocketConnected"
+                [title]="isSocketConnected ? 'Connecté en temps réel' : 'Déconnecté'"></span>
         </div>
-        <ul class="pro-body">
+        <span class="nr-user-name d-none d-md-inline">{{ getDisplayName() }}</span>
+        <i class="feather icon-chevron-down nr-chevron d-none d-md-inline"></i>
+      </a>
+      <div class="dropdown-menu dropdown-menu-right nr-profile-dropdown" ngbDropdownMenu>
+        <div class="nr-profile-head">
+          <div class="nr-profile-avatar-wrap">
+            <ng-container *ngIf="isAdmin()">
+              <div class="nr-profile-avatar nr-avatar-admin"><i class="feather icon-settings"></i></div>
+            </ng-container>
+            <ng-container *ngIf="!isAdmin()">
+              <img *ngIf="currentUser?.avatar" [src]="currentUser.avatar" class="nr-profile-avatar nr-avatar-img" alt="Profil">
+              <div *ngIf="!currentUser?.avatar" class="nr-profile-avatar nr-avatar-initial"><span>{{ getUserInitial() }}</span></div>
+            </ng-container>
+          </div>
+          <div class="nr-profile-info">
+            <span class="nr-profile-name">{{ getDisplayName() }}</span>
+            <span class="nr-profile-role" *ngIf="getRoleLabel()">{{ getRoleLabel() }}</span>
+          </div>
+        </div>
+        <ul class="nr-profile-menu">
           <li><a routerLink="/my-profile" class="dropdown-item" ngbDropdownItem><i class="feather icon-user"></i> Modifier profil</a></li>
           <li><a routerLink="/auth/change-password" class="dropdown-item" ngbDropdownItem><i class="feather icon-lock"></i> Changer le mot de passe</a></li>
-          <li><a href="javascript:" class="dropdown-item" (click)="logout()" ngbDropdownItem><i class="feather icon-log-out"></i> Déconnexion</a></li>
+          <li class="nr-menu-divider"></li>
+          <li><a href="javascript:" class="dropdown-item nr-logout-item" (click)="logout()" ngbDropdownItem><i class="feather icon-log-out"></i> Déconnexion</a></li>
         </ul>
       </div>
     </div>

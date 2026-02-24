@@ -1,44 +1,115 @@
-<div class="row">
-  <div class="col-sm-12">
-    <a routerLink="/boutique/list" class="btn btn-link mb-2">← Retour à la liste</a>
+<div class="admin-form-page">
+  <div class="af-header">
+    <a routerLink="/boutique/list" class="af-back-link">
+      <i class="feather icon-arrow-left"></i> Retour à la liste
+    </a>
+    <h4 class="af-title">
+      <i class="feather icon-shopping-bag"></i>
+      Détails de la boutique
+    </h4>
+    <p class="af-subtitle">Consultez les informations complètes de la boutique</p>
+  </div>
 
-    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-    <div *ngIf="loading" class="text-center py-5">Chargement...</div>
+  <div *ngIf="errorMessage" class="af-error">
+    <i class="feather icon-alert-triangle"></i>
+    {{ errorMessage }}
+  </div>
 
-    <app-card *ngIf="!loading && boutique" [cardTitle]="boutique.name" [options]="false">
-      <div class="row">
-        <div class="col-md-4 text-center mb-3">
-          <img *ngIf="boutique.logo" [src]="boutique.logo" alt="Logo" class="boutique-detail-logo img-fluid rounded">
-          <div *ngIf="!boutique.logo" class="bg-light rounded p-4 text-muted">Pas de logo</div>
+  <div *ngIf="loading" class="af-loading-card">
+    <div class="af-spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <div *ngIf="!loading && boutique" class="af-card">
+    <div class="af-card-body">
+      <div class="af-detail-layout">
+        <!-- Logo column -->
+        <div class="af-detail-logo-col">
+          <div class="af-logo-wrapper" *ngIf="boutique.logo">
+            <img [src]="boutique.logo" alt="Logo" class="af-logo-img">
+          </div>
+          <div class="af-logo-placeholder" *ngIf="!boutique.logo">
+            <i class="feather icon-image"></i>
+            <span>Pas de logo</span>
+          </div>
         </div>
-        <div class="col-md-8">
-          <p class="mb-1"><strong>Statut :</strong> <span class="badge" [ngClass]="getStatusClass(boutique.status)">{{ getStatusLabel(boutique.status) }}</span></p>
-          <p *ngIf="boutique.rejectionReason" class="mb-1 text-danger"><strong>Motif de refus :</strong> {{ boutique.rejectionReason }}</p>
-          <p class="mb-1"><strong>Propriétaire :</strong> <span *ngIf="boutique.userId">{{ boutique.userId.firstName }} {{ boutique.userId.lastName }} ({{ boutique.userId.email }})</span></p>
-          <p class="mb-1"><strong>Catégorie :</strong> <span *ngIf="boutique.categoryId">{{ boutique.categoryId.name }}</span></p>
-          <p class="mb-1"><strong>Description courte :</strong> {{ boutique.shortDescription || '—' }}</p>
-          <p class="mb-2"><strong>Description :</strong> {{ boutique.description || '—' }}</p>
 
-          <h6 class="mt-3">Contact</h6>
-          <p *ngIf="boutique.contact" class="mb-1">Tél : {{ boutique.contact.phone }} · Email : {{ boutique.contact.email }}</p>
-          <p *ngIf="boutique.contact?.website" class="mb-1">Site : {{ boutique.contact.website }}</p>
+        <!-- Info column -->
+        <div class="af-detail-info-col">
+          <div class="af-detail-name-row">
+            <h5 class="af-detail-name">{{ boutique.name }}</h5>
+            <span class="af-status-badge" [ngClass]="getStatusClass(boutique.status)">{{ getStatusLabel(boutique.status) }}</span>
+          </div>
 
-          <h6 class="mt-3">Emplacement</h6>
-          <p *ngIf="boutique.location" class="mb-1">Étage {{ boutique.location.floor }} · Zone {{ boutique.location.zone }} · N° {{ boutique.location.number }}</p>
+          <p *ngIf="boutique.rejectionReason" class="af-rejection-reason">
+            <i class="feather icon-alert-circle"></i>
+            <strong>Motif de refus :</strong> {{ boutique.rejectionReason }}
+          </p>
 
-          <h6 class="mt-3">Horaires</h6>
-          <div *ngIf="boutique.openingHours && boutique.openingHours.length" class="small">
-            <div *ngFor="let h of boutique.openingHours" class="mb-1">
-              {{ getDayLabel(h.day) }} : <span *ngIf="h.isClosed">Fermé</span><span *ngIf="!h.isClosed">{{ h.open }} – {{ h.close }}</span>
+          <div class="af-detail-grid">
+            <div class="af-detail-item">
+              <span class="af-detail-label">Propriétaire</span>
+              <span class="af-detail-value" *ngIf="boutique.userId">{{ boutique.userId.firstName }} {{ boutique.userId.lastName }} ({{ boutique.userId.email }})</span>
+            </div>
+            <div class="af-detail-item">
+              <span class="af-detail-label">Catégorie</span>
+              <span class="af-detail-value" *ngIf="boutique.categoryId">{{ boutique.categoryId.name }}</span>
+            </div>
+            <div class="af-detail-item af-detail-item-full">
+              <span class="af-detail-label">Description courte</span>
+              <span class="af-detail-value">{{ boutique.shortDescription || '—' }}</span>
+            </div>
+            <div class="af-detail-item af-detail-item-full">
+              <span class="af-detail-label">Description</span>
+              <span class="af-detail-value">{{ boutique.description || '—' }}</span>
             </div>
           </div>
 
-          <div *ngIf="isAdmin" class="mt-4">
-            <button type="button" class="btn btn-primary" (click)="openStatusModal()">Changer le statut</button>
+          <!-- Contact section -->
+          <div class="af-section">
+            <h6 class="af-section-title"><i class="feather icon-phone"></i> Contact</h6>
+            <div class="af-detail-grid">
+              <div class="af-detail-item af-detail-item-full" *ngIf="boutique.contact">
+                <span class="af-detail-value">Tél : {{ boutique.contact.phone }} · Email : {{ boutique.contact.email }}</span>
+              </div>
+              <div class="af-detail-item af-detail-item-full" *ngIf="boutique.contact?.website">
+                <span class="af-detail-value">Site : {{ boutique.contact.website }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Emplacement section -->
+          <div class="af-section">
+            <h6 class="af-section-title"><i class="feather icon-map-pin"></i> Emplacement</h6>
+            <div class="af-detail-grid">
+              <div class="af-detail-item af-detail-item-full" *ngIf="boutique.location">
+                <span class="af-detail-value">Étage {{ boutique.location.floor }} · Zone {{ boutique.location.zone }} · N° {{ boutique.location.number }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Horaires section -->
+          <div class="af-section">
+            <h6 class="af-section-title"><i class="feather icon-clock"></i> Horaires</h6>
+            <div class="af-hours-list" *ngIf="boutique.openingHours && boutique.openingHours.length">
+              <div *ngFor="let h of boutique.openingHours" class="af-hour-row">
+                <span class="af-hour-day">{{ getDayLabel(h.day) }}</span>
+                <span class="af-hour-time" *ngIf="h.isClosed">Fermé</span>
+                <span class="af-hour-time" *ngIf="!h.isClosed">{{ h.open }} – {{ h.close }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin action -->
+          <div *ngIf="isAdmin" class="af-actions">
+            <button type="button" class="af-btn af-btn-primary" (click)="openStatusModal()">
+              <i class="feather icon-edit-2"></i>
+              Changer le statut
+            </button>
           </div>
         </div>
       </div>
-    </app-card>
+    </div>
   </div>
 </div>
 
@@ -49,22 +120,22 @@
     <button type="button" class="close basic-close" aria-label="Close" (click)="closeModal()"><span aria-hidden="true">&times;</span></button>
   </div>
   <div class="app-modal-body">
-    <p class="text-muted small">Choisissez le nouveau statut et validez.</p>
-    <div class="form-group">
-      <label class="form-label">Nouveau statut</label>
-      <select class="form-control" [(ngModel)]="newStatus">
+    <p class="af-modal-hint">Choisissez le nouveau statut et validez.</p>
+    <div class="af-field">
+      <label class="af-label">Nouveau statut</label>
+      <select class="af-input" [(ngModel)]="newStatus">
         <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
       </select>
     </div>
-    <div class="form-group" *ngIf="newStatus === 'rejected'">
-      <label class="form-label">Motif de refus (optionnel)</label>
-      <textarea class="form-control" [(ngModel)]="rejectionReason" rows="3" placeholder="Raison du refus..."></textarea>
+    <div class="af-field" *ngIf="newStatus === 'rejected'" style="margin-top: 16px;">
+      <label class="af-label">Motif de refus (optionnel)</label>
+      <textarea class="af-input af-textarea" [(ngModel)]="rejectionReason" rows="3" placeholder="Raison du refus..."></textarea>
     </div>
-    <div *ngIf="statusError" class="alert alert-danger mt-2">{{ statusError }}</div>
+    <div *ngIf="statusError" class="af-error" style="margin-top: 12px;">{{ statusError }}</div>
   </div>
   <div class="app-modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="statusLoading">Annuler</button>
-    <button type="button" class="btn btn-primary" (click)="confirmStatusChange()" [disabled]="statusLoading || !newStatus">
+    <button type="button" class="af-btn af-btn-outline" (click)="closeModal()" [disabled]="statusLoading">Annuler</button>
+    <button type="button" class="af-btn af-btn-primary" (click)="confirmStatusChange()" [disabled]="statusLoading || !newStatus">
       {{ statusLoading ? 'Modification...' : 'Confirmer' }}
     </button>
   </div>

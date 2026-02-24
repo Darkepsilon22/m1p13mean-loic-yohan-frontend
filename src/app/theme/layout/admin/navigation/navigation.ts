@@ -197,13 +197,6 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         exactMatch: true
       },
       {
-        id: 'dashboard',
-        title: 'Dashboard',
-        type: 'item',
-        url: '/dashboard/analytics',
-        icon: 'feather icon-bar-chart-2'
-      },
-      {
         id: 'boutique-stats',
         title: 'Statistiques',
         type: 'item',

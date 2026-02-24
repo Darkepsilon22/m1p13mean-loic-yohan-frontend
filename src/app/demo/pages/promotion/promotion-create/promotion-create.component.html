@@ -1,70 +1,102 @@
-<div class="row">
-  <div class="col-sm-12">
-    <app-card cardTitle="Nouvelle promotion" [options]="false">
-      <div *ngIf="!boutiqueId && !loadingProducts" class="alert alert-warning">
-        Aucune boutique trouvée. Créez d'abord des produits pour créer une promotion.
-      </div>
-      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+<div class="promo-create-page">
+  <!-- Header -->
+  <div class="pc-header">
+    <div>
+      <h4 class="pc-title"><i class="feather icon-plus-circle"></i> Nouvelle promotion</h4>
+      <p class="pc-subtitle">Créez une offre pour attirer plus de clients</p>
+    </div>
+  </div>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="boutiqueId">
-        <div class="form-group">
-          <label>Titre <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" formControlName="title" placeholder="Ex: Soldes d'été">
-          <small class="text-danger" *ngIf="form.get('title')?.invalid && form.get('title')?.touched">Requis, max 200 caractères</small>
+  <!-- No boutique warning -->
+  <div *ngIf="!boutiqueId && !loadingProducts" class="pc-warning">
+    <i class="feather icon-alert-triangle"></i>
+    <span>Aucune boutique trouvée. Créez d'abord des produits pour créer une promotion.</span>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="pc-error">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Form -->
+  <div class="pc-form-card" *ngIf="boutiqueId">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <!-- Title -->
+      <div class="pc-field">
+        <label>Titre <span class="required">*</span></label>
+        <input type="text" formControlName="title" placeholder="Ex: Soldes d'été">
+        <span class="field-error" *ngIf="form.get('title')?.invalid && form.get('title')?.touched">Requis, max 200 caractères</span>
+      </div>
+
+      <!-- Description -->
+      <div class="pc-field">
+        <label>Description</label>
+        <textarea formControlName="description" rows="2" placeholder="Description optionnelle"></textarea>
+      </div>
+
+      <!-- Type & Value -->
+      <div class="pc-field-row">
+        <div class="pc-field">
+          <label>Type <span class="required">*</span></label>
+          <select formControlName="type">
+            <option value="percentage">Pourcentage</option>
+            <option value="fixed">Montant fixe</option>
+            <option value="special">Spécial</option>
+          </select>
         </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea class="form-control" formControlName="description" rows="2" placeholder="Description optionnelle"></textarea>
+        <div class="pc-field" *ngIf="form.get('type')?.value === 'percentage'">
+          <label>Réduction (%) <span class="required">*</span></label>
+          <input type="number" formControlName="value" min="1" max="99" placeholder="1-99">
+          <span class="field-error" *ngIf="form.get('value')?.invalid && form.get('value')?.touched">Entre 1 et 99</span>
         </div>
-        <div class="row">
-          <div class="col-md-4 form-group">
-            <label>Type <span class="text-danger">*</span></label>
-            <select class="form-control" formControlName="type">
-              <option value="percentage">Pourcentage</option>
-              <option value="fixed">Montant fixe</option>
-              <option value="special">Spécial</option>
-            </select>
-          </div>
-          <div class="col-md-4 form-group" *ngIf="form.get('type')?.value === 'percentage'">
-            <label>Réduction (%) <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" formControlName="value" min="1" max="99" placeholder="1-99">
-            <small class="text-danger" *ngIf="form.get('value')?.invalid && form.get('value')?.touched">Entre 1 et 99</small>
-          </div>
-          <div class="col-md-4 form-group" *ngIf="form.get('type')?.value === 'fixed'">
-            <label>Réduction (Ar) <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" formControlName="value" min="0" placeholder="Montant">
-          </div>
+        <div class="pc-field" *ngIf="form.get('type')?.value === 'fixed'">
+          <label>Réduction (Ar) <span class="required">*</span></label>
+          <input type="number" formControlName="value" min="0" placeholder="Montant">
         </div>
-        <div class="form-group">
-          <label>Produits concernés (optionnel)</label>
-          <p class="small text-muted">Ne rien sélectionner = toute la boutique</p>
-          <div class="border rounded p-2" style="max-height: 200px; overflow-y: auto;">
-            <label *ngFor="let prod of myProducts" class="d-block mb-1">
-              <input type="checkbox" [checked]="isProductSelected(prod._id)" (change)="toggleProduct(prod._id)"> {{ prod.name }} — {{ prod.price | number:'1.0-0' }} Ar
-            </label>
-            <span *ngIf="myProducts.length === 0" class="text-muted">Aucun produit. Créez des produits d'abord.</span>
-          </div>
+      </div>
+
+      <!-- Products -->
+      <div class="pc-field">
+        <label>Produits concernés</label>
+        <p class="field-hint">Ne rien sélectionner = toute la boutique</p>
+        <div class="pc-product-list">
+          <label *ngFor="let prod of myProducts" class="pc-product-item">
+            <input type="checkbox" [checked]="isProductSelected(prod._id)" (change)="toggleProduct(prod._id)">
+            <span class="pc-product-name">{{ prod.name }}</span>
+            <span class="pc-product-price">{{ prod.price | number:'1.0-0' }} Ar</span>
+          </label>
+          <span *ngIf="myProducts.length === 0" class="pc-product-empty">Aucun produit. Créez des produits d'abord.</span>
         </div>
-        <div class="form-group">
-          <label>Image (URL optionnelle)</label>
-          <input type="url" class="form-control" formControlName="image" placeholder="https://...">
+      </div>
+
+      <!-- Image -->
+      <div class="pc-field">
+        <label>Image (URL optionnelle)</label>
+        <input type="url" formControlName="image" placeholder="https://...">
+      </div>
+
+      <!-- Dates -->
+      <div class="pc-field-row">
+        <div class="pc-field">
+          <label>Date de début <span class="required">*</span></label>
+          <input type="datetime-local" formControlName="startDate">
         </div>
-        <div class="row">
-          <div class="col-md-6 form-group">
-            <label>Date de début <span class="text-danger">*</span></label>
-            <input type="datetime-local" class="form-control" formControlName="startDate">
-          </div>
-          <div class="col-md-6 form-group">
-            <label>Date de fin <span class="text-danger">*</span></label>
-            <input type="datetime-local" class="form-control" formControlName="endDate">
-            <small class="text-danger" *ngIf="form.get('endDate')?.invalid && form.get('endDate')?.touched">La date de fin doit être après la date de début</small>
-          </div>
+        <div class="pc-field">
+          <label>Date de fin <span class="required">*</span></label>
+          <input type="datetime-local" formControlName="endDate">
+          <span class="field-error" *ngIf="form.get('endDate')?.invalid && form.get('endDate')?.touched">La date de fin doit être après la date de début</span>
         </div>
-        <div class="form-group mb-0">
-          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || loading">{{ loading ? 'Création...' : 'Créer la promotion' }}</button>
-          <button type="button" class="btn btn-secondary ml-2" (click)="cancel()">Annuler</button>
-        </div>
-      </form>
-    </app-card>
+      </div>
+
+      <!-- Actions -->
+      <div class="pc-actions">
+        <button type="button" class="pc-btn-cancel" (click)="cancel()">Annuler</button>
+        <button type="submit" class="pc-btn-submit" [disabled]="form.invalid || loading">
+          <i class="feather icon-check" *ngIf="!loading"></i>
+          {{ loading ? 'Création...' : 'Créer la promotion' }}
+        </button>
+      </div>
+    </form>
   </div>
 </div>

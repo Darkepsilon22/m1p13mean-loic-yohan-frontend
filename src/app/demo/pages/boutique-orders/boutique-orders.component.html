@@ -1,211 +1,193 @@
 <div class="boutique-orders-page">
-  <h5 class="mb-4"><i class="feather icon-shopping-bag mr-2"></i>Commandes de ma boutique</h5>
+  <!-- Page Header -->
+  <div class="orders-header">
+    <div>
+      <h4 class="orders-title"><i class="feather icon-clipboard"></i> Commandes</h4>
+      <p class="orders-subtitle">Gérez les commandes de votre boutique</p>
+    </div>
+  </div>
 
   <!-- Stats Cards -->
-  <div class="row mb-4" *ngIf="stats">
-    <div class="col-6 col-md-3 mb-3">
-      <div class="card stat-card border-left-warning">
-        <div class="card-body py-3 px-3">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-light-warning mr-3"><i class="feather icon-clock text-warning"></i></div>
-            <div>
-              <p class="mb-0 small text-muted">En attente</p>
-              <h5 class="mb-0">{{ getStatCount('pending') + getStatCount('confirmed') }}</h5>
-            </div>
-          </div>
+  <div class="order-stats" *ngIf="stats">
+    <div class="o-stat-card o-stat-warning">
+      <div class="o-stat-accent"></div>
+      <div class="o-stat-body">
+        <div class="o-stat-icon"><i class="feather icon-clock"></i></div>
+        <div class="o-stat-info">
+          <span class="o-stat-label">En attente</span>
+          <h4 class="o-stat-value">{{ getStatCount('pending') + getStatCount('confirmed') }}</h4>
         </div>
       </div>
     </div>
-    <div class="col-6 col-md-3 mb-3">
-      <div class="card stat-card border-left-primary">
-        <div class="card-body py-3 px-3">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-light-primary mr-3"><i class="feather icon-package text-primary"></i></div>
-            <div>
-              <p class="mb-0 small text-muted">En cours</p>
-              <h5 class="mb-0">{{ getStatCount('processing') + getStatCount('shipped') }}</h5>
-            </div>
-          </div>
+    <div class="o-stat-card o-stat-blue">
+      <div class="o-stat-accent"></div>
+      <div class="o-stat-body">
+        <div class="o-stat-icon"><i class="feather icon-package"></i></div>
+        <div class="o-stat-info">
+          <span class="o-stat-label">En cours</span>
+          <h4 class="o-stat-value">{{ getStatCount('processing') + getStatCount('shipped') }}</h4>
         </div>
       </div>
     </div>
-    <div class="col-6 col-md-3 mb-3">
-      <div class="card stat-card border-left-success">
-        <div class="card-body py-3 px-3">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-light-success mr-3"><i class="feather icon-check-circle text-success"></i></div>
-            <div>
-              <p class="mb-0 small text-muted">Livrées</p>
-              <h5 class="mb-0">{{ getStatCount('delivered') + getStatCount('completed') }}</h5>
-            </div>
-          </div>
+    <div class="o-stat-card o-stat-green">
+      <div class="o-stat-accent"></div>
+      <div class="o-stat-body">
+        <div class="o-stat-icon"><i class="feather icon-check-circle"></i></div>
+        <div class="o-stat-info">
+          <span class="o-stat-label">Livrées</span>
+          <h4 class="o-stat-value">{{ getStatCount('delivered') + getStatCount('completed') }}</h4>
         </div>
       </div>
     </div>
-    <div class="col-6 col-md-3 mb-3">
-      <div class="card stat-card border-left-info">
-        <div class="card-body py-3 px-3">
-          <div class="d-flex align-items-center">
-            <div class="stat-icon bg-light-info mr-3"><i class="feather icon-credit-card text-info"></i></div>
-            <div>
-              <p class="mb-0 small text-muted">Revenus</p>
-              <h5 class="mb-0 small">{{ formatMGA(getStatRevenue()) }}</h5>
-            </div>
-          </div>
+    <div class="o-stat-card o-stat-purple">
+      <div class="o-stat-accent"></div>
+      <div class="o-stat-body">
+        <div class="o-stat-icon"><i class="feather icon-credit-card"></i></div>
+        <div class="o-stat-info">
+          <span class="o-stat-label">Revenus</span>
+          <h4 class="o-stat-value o-stat-value-sm">{{ formatMGA(getStatRevenue()) }}</h4>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Rapport mensuel -->
-  <div class="card mb-3">
-    <div class="card-body py-3">
-      <div class="row align-items-center">
-        <div class="col-md-5">
-          <h6 class="mb-0"><i class="feather icon-file-text mr-2"></i>Rapport mensuel</h6>
-        </div>
-        <div class="col-md-3">
-          <select class="form-control form-control-sm" [(ngModel)]="reportMonth">
-            <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <select class="form-control form-control-sm" [(ngModel)]="reportYear">
-            <option *ngFor="let y of years" [value]="y">{{ y }}</option>
-          </select>
-        </div>
-        <div class="col-md-2 text-right">
-          <button class="btn btn-sm btn-danger mr-1" (click)="exportReportPDF()" [disabled]="exportingReport" title="Exporter PDF">
-            <i class="feather icon-file mr-1"></i>PDF
-          </button>
-          <button class="btn btn-sm btn-success" (click)="exportReportExcel()" [disabled]="exportingReport" title="Exporter Excel">
-            <i class="feather icon-download mr-1"></i>Excel
-          </button>
-        </div>
+  <!-- Report & Filters Section -->
+  <div class="orders-toolbar">
+    <!-- Monthly Report -->
+    <div class="toolbar-section report-section">
+      <div class="toolbar-label">
+        <i class="feather icon-file-text"></i>
+        <span>Rapport mensuel</span>
+      </div>
+      <div class="toolbar-controls">
+        <select class="toolbar-select" [(ngModel)]="reportMonth">
+          <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+        </select>
+        <select class="toolbar-select" [(ngModel)]="reportYear">
+          <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+        </select>
+        <button class="export-btn export-pdf" (click)="exportReportPDF()" [disabled]="exportingReport" title="PDF">
+          <i class="feather icon-file"></i> PDF
+        </button>
+        <button class="export-btn export-excel" (click)="exportReportExcel()" [disabled]="exportingReport" title="Excel">
+          <i class="feather icon-download"></i> Excel
+        </button>
       </div>
     </div>
-  </div>
 
-  <!-- Filtres -->
-  <div class="card mb-3">
-    <div class="card-body py-3">
-      <div class="row align-items-end g-2">
-        <div class="col-md-3">
-          <label class="form-label small mb-1">Statut</label>
-          <select class="form-control form-control-sm" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+    <!-- Filters -->
+    <div class="toolbar-section filter-section">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label class="filter-label">Statut</label>
+          <select class="toolbar-select" [(ngModel)]="statusFilter" (change)="onFilterChange()">
             <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
           </select>
         </div>
-        <div class="col-md-3">
-          <label class="form-label small mb-1">Paiement</label>
-          <select class="form-control form-control-sm" [(ngModel)]="paymentFilter" (change)="onFilterChange()">
+        <div class="filter-group">
+          <label class="filter-label">Paiement</label>
+          <select class="toolbar-select" [(ngModel)]="paymentFilter" (change)="onFilterChange()">
             <option *ngFor="let s of paymentStatuses" [value]="s.value">{{ s.label }}</option>
           </select>
         </div>
-        <div class="col-md-4">
-          <label class="form-label small mb-1">Recherche</label>
-          <div class="input-group input-group-sm">
-            <input type="text" class="form-control" placeholder="Référence, client..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" />
-            <div class="input-group-append">
-              <button class="btn btn-outline-secondary" type="button" (click)="onSearch()"><i class="feather icon-search"></i></button>
-            </div>
+        <div class="filter-group filter-search-group">
+          <label class="filter-label">Recherche</label>
+          <div class="filter-search-wrap">
+            <i class="feather icon-search"></i>
+            <input type="text" placeholder="Référence, client..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
           </div>
         </div>
-        <div class="col-md-2 text-right">
-          <span class="badge badge-light-primary">{{ total }} commande{{ total > 1 ? 's' : '' }}</span>
+        <div class="filter-count">
+          <span class="count-badge">{{ total }} commande{{ total > 1 ? 's' : '' }}</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2 text-muted">Chargement...</p>
+  <div *ngIf="loading" class="orders-loading">
+    <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+    <p>Chargement des commandes...</p>
   </div>
 
   <!-- Error -->
-  <div *ngIf="errorMessage && !loading" class="alert alert-danger">{{ errorMessage }}</div>
+  <div *ngIf="errorMessage && !loading" class="orders-error">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
 
-  <!-- Table -->
-  <div class="card" *ngIf="!loading && orders.length > 0">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="thead-light">
-            <tr>
-              <th>Référence</th>
-              <th>Client</th>
-              <th>Date</th>
-              <th>Montant</th>
-              <th>Statut</th>
-              <th>Paiement</th>
-              <th>Suivi</th>
-              <th class="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let order of orders" class="cursor-pointer" (click)="viewOrder(order)">
-              <td>
-                <strong class="text-primary">{{ order.orderReference }}</strong>
-              </td>
-              <td>
-                <div>{{ order.customerName }}</div>
-                <small class="text-muted">{{ order.customerEmail }}</small>
-              </td>
-              <td>
-                <small>{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
-              </td>
-              <td>
-                <strong>{{ formatMGA(order.totalAmount) }}</strong>
-              </td>
-              <td>
-                <span class="badge" [ngClass]="getStatusClass(order.status)">{{ getStatusLabel(order.status) }}</span>
-              </td>
-              <td>
-                <span class="badge" [ngClass]="getPaymentClass(order.paymentStatus)">{{ getPaymentLabel(order.paymentStatus) }}</span>
-              </td>
-              <td>
-                <div class="tracking-indicator">
-                  <div class="tracking-dots">
-                    <span class="dot" [class.active]="true" title="Créée"></span>
-                    <span class="dot" [class.active]="order.status !== 'pending' && order.status !== 'cancelled'" title="Confirmée"></span>
-                    <span class="dot" [class.active]="order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' || order.status === 'completed'" title="Préparation"></span>
-                    <span class="dot" [class.active]="order.status === 'shipped' || order.status === 'delivered' || order.status === 'completed'" title="Expédiée"></span>
-                    <span class="dot" [class.active]="order.status === 'delivered' || order.status === 'completed'" title="Livrée"></span>
-                  </div>
-                </div>
-              </td>
-              <td class="text-center">
-                <button class="btn btn-sm btn-outline-primary" (click)="viewOrder(order); $event.stopPropagation()">
-                  <i class="feather icon-eye"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  <!-- Orders Table -->
+  <div class="orders-table-card" *ngIf="!loading && orders.length > 0">
+    <div class="table-responsive">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Référence</th>
+            <th>Client</th>
+            <th>Date</th>
+            <th>Montant</th>
+            <th>Statut</th>
+            <th>Paiement</th>
+            <th>Suivi</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders" (click)="viewOrder(order)">
+            <td>
+              <code class="ref-code">{{ order.orderReference }}</code>
+            </td>
+            <td>
+              <div class="customer-cell">
+                <span class="customer-name">{{ order.customerName }}</span>
+                <span class="customer-email">{{ order.customerEmail }}</span>
+              </div>
+            </td>
+            <td class="td-date">{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td class="td-amount">{{ formatMGA(order.totalAmount) }}</td>
+            <td>
+              <span class="status-pill" [ngClass]="getStatusClass(order.status)">{{ getStatusLabel(order.status) }}</span>
+            </td>
+            <td>
+              <span class="status-pill" [ngClass]="getPaymentClass(order.paymentStatus)">{{ getPaymentLabel(order.paymentStatus) }}</span>
+            </td>
+            <td>
+              <div class="tracking-bar">
+                <span class="track-dot" [class.active]="true"></span>
+                <span class="track-dot" [class.active]="order.status !== 'pending' && order.status !== 'cancelled'"></span>
+                <span class="track-dot" [class.active]="order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' || order.status === 'completed'"></span>
+                <span class="track-dot" [class.active]="order.status === 'shipped' || order.status === 'delivered' || order.status === 'completed'"></span>
+                <span class="track-dot" [class.active]="order.status === 'delivered' || order.status === 'completed'"></span>
+              </div>
+            </td>
+            <td class="text-center">
+              <button class="view-btn" (click)="viewOrder(order); $event.stopPropagation()" title="Voir détails">
+                <i class="feather icon-eye"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
-  <!-- Empty -->
-  <div *ngIf="!loading && orders.length === 0 && !errorMessage" class="text-center py-5">
-    <i class="feather icon-inbox" style="font-size: 48px; color: #ccc;"></i>
-    <p class="mt-3 text-muted">Aucune commande trouvée.</p>
+  <!-- Empty State -->
+  <div *ngIf="!loading && orders.length === 0 && !errorMessage" class="orders-empty">
+    <div class="empty-icon-wrap"><i class="feather icon-inbox"></i></div>
+    <h5>Aucune commande</h5>
+    <p>Aucune commande ne correspond à vos critères de recherche.</p>
   </div>
 
   <!-- Pagination -->
-  <nav *ngIf="totalPages > 1" class="mt-3">
-    <ul class="pagination pagination-sm justify-content-center">
-      <li class="page-item" [class.disabled]="page === 1">
-        <a class="page-link" (click)="goToPage(page - 1)">Préc.</a>
-      </li>
-      <li *ngFor="let p of pages" class="page-item" [class.active]="p === page">
-        <a class="page-link" (click)="goToPage(p)">{{ p }}</a>
-      </li>
-      <li class="page-item" [class.disabled]="page === totalPages">
-        <a class="page-link" (click)="goToPage(page + 1)">Suiv.</a>
-      </li>
-    </ul>
-  </nav>
+  <div *ngIf="totalPages > 1" class="orders-pagination">
+    <button class="page-btn" [disabled]="page === 1" (click)="goToPage(page - 1)">
+      <i class="feather icon-chevron-left"></i>
+    </button>
+    <ng-container *ngFor="let p of pages">
+      <button class="page-num" [class.active]="p === page" (click)="goToPage(p)">{{ p }}</button>
+    </ng-container>
+    <button class="page-btn" [disabled]="page === totalPages" (click)="goToPage(page + 1)">
+      <i class="feather icon-chevron-right"></i>
+    </button>
+  </div>
 </div>

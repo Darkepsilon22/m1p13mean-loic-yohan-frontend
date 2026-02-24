@@ -1,1 +1,489 @@
-// Styles spécifiques si besoin
+// === Design System Variables ===
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
+
+// === Animation ===
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+// === Page Wrapper ===
+.admin-list-page {
+  animation: fadeInUp 0.45s ease both;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// === Header ===
+.al-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.al-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: $ink;
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.02em;
+
+  i {
+    color: $blue;
+    font-size: 1.3rem;
+  }
+}
+
+.al-subtitle {
+  color: $ink-muted;
+  font-size: 0.92rem;
+  margin: 0;
+}
+
+// === Filters ===
+.al-filters {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.al-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.al-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: $surface-dim;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  padding: 0 12px;
+  transition: border-color $transition;
+
+  &:focus-within {
+    border-color: $blue;
+  }
+
+  i {
+    color: $ink-faint;
+    font-size: 0.9rem;
+  }
+}
+
+.al-select {
+  border: none;
+  background: transparent;
+  padding: 9px 4px;
+  font-size: 0.875rem;
+  color: $ink-soft;
+  outline: none;
+  cursor: pointer;
+  min-width: 140px;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.al-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  background: $surface;
+  color: $ink-soft;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition;
+
+  &:hover {
+    background: $surface-dim;
+    border-color: $blue;
+    color: $blue;
+  }
+}
+
+// === Error ===
+.al-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: rgba($red, 0.07);
+  border: 1px solid rgba($red, 0.18);
+  border-radius: $radius-sm;
+  color: $red;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+// === Loading ===
+.al-loading {
+  text-align: center;
+  padding: 48px 20px;
+
+  p {
+    color: $ink-muted;
+    font-size: 0.9rem;
+    margin-top: 16px;
+  }
+}
+
+.al-loader-track {
+  width: 200px;
+  height: 4px;
+  background: $surface-dim;
+  border-radius: 4px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.al-loader-fill {
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, $blue, $purple);
+  border-radius: 4px;
+  animation: shimmer 1.2s ease infinite;
+}
+
+// === Empty ===
+.al-empty {
+  text-align: center;
+  padding: 64px 20px;
+  background: $surface;
+  border: 1px dashed $border;
+  border-radius: $radius;
+
+  h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $ink;
+    margin: 0 0 6px;
+  }
+
+  p {
+    color: $ink-muted;
+    font-size: 0.9rem;
+    margin: 0 0 20px;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.al-empty-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba($blue, 0.1), rgba($purple, 0.1));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+
+  i {
+    font-size: 1.4rem;
+    color: $blue;
+  }
+}
+
+// === Table ===
+.al-table-card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  overflow: hidden;
+}
+
+.al-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: $surface-warm;
+
+    th {
+      padding: 13px 18px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: $ink-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid $border;
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    tr {
+      transition: background $transition;
+
+      &:hover {
+        background: $surface-warm;
+      }
+
+      &:not(:last-child) td {
+        border-bottom: 1px solid $border-light;
+      }
+    }
+
+    td {
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      color: $ink-soft;
+      vertical-align: middle;
+    }
+  }
+}
+
+.td-name {
+  font-weight: 600;
+  color: $ink !important;
+}
+
+.td-muted {
+  color: $ink-muted !important;
+}
+
+.td-mono {
+  font-family: 'SFMono-Regular', 'Consolas', monospace;
+  font-size: 0.82rem !important;
+  color: $ink-muted !important;
+}
+
+.td-actions {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// === Status Pills ===
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.pill-success {
+  background: rgba($green, 0.12);
+  color: darken($green, 15%);
+}
+
+.pill-muted {
+  background: $surface-dim;
+  color: $ink-faint;
+}
+
+// Badge overrides for ngClass status
+.badge-success {
+  background: rgba($green, 0.12) !important;
+  color: darken($green, 15%) !important;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.badge-secondary {
+  background: $surface-dim !important;
+  color: $ink-faint !important;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.badge-info {
+  background: rgba($blue, 0.1) !important;
+  color: $blue !important;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.badge-warning {
+  background: rgba($orange, 0.15) !important;
+  color: darken($orange, 20%) !important;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.badge-danger {
+  background: rgba($red, 0.1) !important;
+  color: $red !important;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+// === Action Buttons ===
+.action-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid $border;
+  background: $surface;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all $transition;
+  color: $ink-muted;
+
+  i {
+    font-size: 0.9rem;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.action-edit:hover {
+  border-color: $blue;
+  color: $blue;
+  background: rgba($blue, 0.05);
+}
+
+.action-delete:hover {
+  border-color: $red;
+  color: $red;
+  background: rgba($red, 0.05);
+}
+
+.action-view:hover {
+  border-color: $green;
+  color: $green;
+  background: rgba($green, 0.05);
+}
+
+// === Pagination ===
+.al-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding: 0 4px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.al-page-info {
+  font-size: 0.875rem;
+  color: $ink-muted;
+}
+
+.al-page-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.page-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  background: $surface;
+  color: $ink-soft;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all $transition;
+
+  &:hover:not(:disabled) {
+    border-color: $blue;
+    color: $blue;
+    background: rgba($blue, 0.03);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// === Shared Button (used in header + empty) ===
+.af-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: $radius-sm;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition;
+  border: none;
+  white-space: nowrap;
+}
+
+.af-btn-primary {
+  background: linear-gradient(135deg, $blue, darken($blue, 8%));
+  color: #fff;
+  box-shadow: 0 2px 8px rgba($blue, 0.25);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba($blue, 0.3);
+  }
+}

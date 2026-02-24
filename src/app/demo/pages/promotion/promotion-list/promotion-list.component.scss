@@ -1,1 +1,228 @@
-// Styles spécifiques si besoin
+// ============================================
+// Promotions List — Refined Design
+// ============================================
+
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+$promo-accent: #e84c3d;
+
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideLoader {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.promo-page {
+  padding-bottom: 2rem;
+  animation: fadeInUp 0.3s ease;
+}
+
+.promo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.promo-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $ink;
+  margin: 0;
+
+  i { margin-right: 10px; color: $promo-accent; }
+}
+
+.promo-subtitle {
+  font-size: 13px;
+  color: $ink-faint;
+  margin: 4px 0 0;
+}
+
+.promo-create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  background: $ink;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all $transition;
+
+  i { font-size: 14px; }
+
+  &:hover:not(:disabled) { background: $promo-accent; box-shadow: 0 4px 14px rgba($promo-accent, 0.3); transform: translateY(-1px); }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.promo-limit-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba($orange, 0.06);
+  color: darken($orange, 20%);
+  border-radius: $radius-sm;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  border: 1px solid rgba($orange, 0.15);
+
+  i { flex-shrink: 0; font-size: 16px; color: $orange; }
+}
+
+.promo-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba($red, 0.06);
+  color: $red;
+  border-radius: $radius-sm;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  border: 1px solid rgba($red, 0.12);
+}
+
+.promo-loading {
+  text-align: center;
+  padding: 80px 20px;
+  p { color: $ink-faint; font-size: 14px; margin-top: 20px; }
+}
+
+.promo-loader-track {
+  width: 200px; height: 4px; border-radius: 4px; background: $surface-dim; overflow: hidden; margin: 0 auto;
+}
+
+.promo-loader-fill {
+  width: 60%; height: 100%; border-radius: 4px; background: linear-gradient(90deg, $promo-accent, $orange); animation: slideLoader 1.2s ease-in-out infinite;
+}
+
+.promo-empty {
+  text-align: center;
+  padding: 80px 20px;
+
+  .promo-empty-icon {
+    width: 72px; height: 72px; border-radius: 50%; background: $surface-dim;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+    i { font-size: 2rem; color: $ink-faint; }
+  }
+  h5 { font-weight: 700; color: $ink; margin-bottom: 6px; }
+  p { color: $ink-muted; font-size: 14px; margin-bottom: 20px; }
+}
+
+// Table
+.promo-table-card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.promo-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    tr { background: $surface-warm; }
+    th {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: $ink-faint;
+      font-weight: 600; padding: 12px 18px; border-bottom: 1px solid $border-light; white-space: nowrap;
+    }
+  }
+
+  tbody tr {
+    transition: background $transition;
+    &:hover { background: rgba($promo-accent, 0.02); }
+    &:not(:last-child) td { border-bottom: 1px solid $border-light; }
+  }
+
+  td { padding: 14px 18px; font-size: 14px; color: $ink-soft; vertical-align: middle; }
+}
+
+.td-title { font-weight: 700; color: $ink; }
+.td-type { color: $ink-muted; font-size: 13px; }
+.td-value { font-weight: 600; color: $promo-accent; font-variant-numeric: tabular-nums; }
+.td-products { color: $ink-muted; font-size: 13px; }
+
+.td-dates { white-space: nowrap; }
+
+.date-range {
+  font-size: 13px;
+  color: $ink-muted;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  i { font-size: 11px; color: $ink-faint; }
+}
+
+.status-pill {
+  display: inline-block;
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; padding: 4px 10px; border-radius: 50px; white-space: nowrap;
+
+  &.badge-success { background: rgba($green, 0.1); color: darken($green, 10%); }
+  &.badge-warning { background: rgba($orange, 0.12); color: darken($orange, 20%); }
+  &.badge-info { background: rgba($blue, 0.1); color: $blue; }
+  &.badge-secondary { background: rgba($ink-faint, 0.15); color: $ink-muted; }
+  &.badge-danger { background: rgba($red, 0.1); color: $red; }
+}
+
+.action-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border: 1.5px solid $border; background: $surface;
+  border-radius: 8px; color: $ink-muted; cursor: pointer; transition: all $transition;
+  i { font-size: 14px; }
+  &:hover { border-color: $blue; color: $blue; background: rgba($blue, 0.04); }
+}
+
+// Pagination
+.promo-pagination {
+  display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px;
+}
+.promo-page-info { font-size: 13px; font-weight: 600; color: $ink; }
+.promo-page-total { color: $ink-faint; font-weight: 400; }
+.promo-page-controls { display: flex; gap: 6px; }
+
+.page-btn {
+  display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+  border: 1.5px solid $border; background: $surface; border-radius: 8px;
+  cursor: pointer; color: $ink-soft; transition: all $transition;
+  i { font-size: 15px; }
+  &:hover:not(:disabled) { border-color: $ink; background: $ink; color: #fff; }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+}
+
+@media (max-width: 768px) {
+  .promo-header { flex-direction: column; align-items: flex-start; }
+}

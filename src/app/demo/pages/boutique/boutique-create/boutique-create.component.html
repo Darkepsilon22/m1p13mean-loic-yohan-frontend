@@ -1,105 +1,125 @@
-<div class="row">
-  <div class="col-sm-12">
-    <div class="card">
-      <div class="card-header">
-        <h5>{{ isAdmin ? 'Créer un emplacement' : 'Créer une boutique' }}</h5>
+<div class="admin-form-page">
+  <div class="af-header">
+    <h4 class="af-title">
+      <i class="feather icon-plus-circle"></i>
+      {{ isAdmin ? 'Créer un emplacement' : 'Créer une boutique' }}
+    </h4>
+    <p class="af-subtitle">Remplissez les informations pour créer {{ isAdmin ? 'un nouvel emplacement' : 'votre boutique' }}</p>
+  </div>
+
+  <div class="af-card">
+    <div class="af-card-body">
+      <div *ngIf="errorMessage" class="af-error">
+        <i class="feather icon-alert-triangle"></i>
+        {{ errorMessage }}
       </div>
-      <div class="card-body">
-        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-          {{ errorMessage }}
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <input type="hidden" formControlName="name">
+        <input type="hidden" formControlName="description">
+        <input type="hidden" formControlName="shortDescription">
+        <input type="hidden" formControlName="logo">
+        <input type="hidden" formControlName="coverImage">
+
+        <!-- Section: Informations de l'emplacement -->
+        <div class="af-section">
+          <h6 class="af-section-title">Informations de l'emplacement</h6>
+          <div class="af-form-grid">
+            <div class="af-field af-field-full">
+              <label class="af-label">Catégorie <span class="af-required">*</span></label>
+              <select class="af-input" formControlName="categoryId"
+                      [class.af-input-error]="form.get('categoryId')?.invalid && form.get('categoryId')?.touched">
+                <option value="">-- Choisir --</option>
+                <option *ngFor="let c of categories" [value]="c._id">{{ c.name }}</option>
+              </select>
+              <small class="af-hint" *ngIf="loadingCategories">Chargement des catégories...</small>
+              <small class="af-field-error" *ngIf="form.get('categoryId')?.invalid && form.get('categoryId')?.touched">
+                Veuillez sélectionner une catégorie
+              </small>
+              <small class="af-field-error" *ngIf="getError('categoryId')">{{ getError('categoryId') }}</small>
+            </div>
+          </div>
         </div>
 
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
-          <input type="hidden" formControlName="name">
-          <input type="hidden" formControlName="description">
-          <input type="hidden" formControlName="shortDescription">
-          <input type="hidden" formControlName="logo">
-          <input type="hidden" formControlName="coverImage">
+        <input type="hidden" formControlName="contactPhone">
+        <input type="hidden" formControlName="contactEmail">
+        <input type="hidden" formControlName="contactWebsite">
 
-          <h6>Informations de l'emplacement</h6>
-
-          <div class="form-group">
-            <label>Catégorie <span class="text-danger">*</span></label>
-            <select class="form-control" formControlName="categoryId"
-                    [class.is-invalid]="form.get('categoryId')?.invalid && form.get('categoryId')?.touched">
-              <option value="">-- Choisir --</option>
-              <option *ngFor="let c of categories" [value]="c._id">{{ c.name }}</option>
-            </select>
-            <small class="text-muted" *ngIf="loadingCategories">Chargement des catégories...</small>
-            <small class="text-danger" *ngIf="form.get('categoryId')?.invalid && form.get('categoryId')?.touched">
-              Veuillez sélectionner une catégorie
-            </small>
-            <small class="text-danger" *ngIf="getError('categoryId')">{{ getError('categoryId') }}</small>
-          </div>
-
-          <input type="hidden" formControlName="contactPhone">
-          <input type="hidden" formControlName="contactEmail">
-          <input type="hidden" formControlName="contactWebsite">
-
-          <hr>
-          <h6>Localisation</h6>
-          <div class="row">
-            <div class="col-md-4 form-group">
-              <label>Étage</label>
-              <input type="number" class="form-control" formControlName="locationFloor" min="0" placeholder="0">
+        <!-- Section: Localisation -->
+        <div class="af-section">
+          <h6 class="af-section-title">Localisation</h6>
+          <div class="af-form-grid af-grid-3">
+            <div class="af-field">
+              <label class="af-label">Étage</label>
+              <input type="number" class="af-input" formControlName="locationFloor" min="0" placeholder="0">
             </div>
-            <div class="col-md-4 form-group">
-              <label>Zone <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="locationZone" placeholder="Zone">
-              <small class="text-danger" *ngIf="getError('location.zone')">{{ getError('location.zone') }}</small>
+            <div class="af-field">
+              <label class="af-label">Zone <span class="af-required">*</span></label>
+              <input type="text" class="af-input" formControlName="locationZone" placeholder="Zone">
+              <small class="af-field-error" *ngIf="getError('location.zone')">{{ getError('location.zone') }}</small>
             </div>
-            <div class="col-md-4 form-group">
-              <label>Numéro <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="locationNumber" placeholder="N°">
-              <small class="text-danger" *ngIf="getError('location.number')">{{ getError('location.number') }}</small>
+            <div class="af-field">
+              <label class="af-label">Numéro <span class="af-required">*</span></label>
+              <input type="text" class="af-input" formControlName="locationNumber" placeholder="N°">
+              <small class="af-field-error" *ngIf="getError('location.number')">{{ getError('location.number') }}</small>
             </div>
           </div>
+        </div>
 
-          <ng-container *ngIf="isAdmin">
-            <hr>
-            <h6>Détails de l'emplacement</h6>
-            <div class="row">
-              <div class="col-md-4 form-group">
-                <label>Prix mensuel (MGA)</label>
-                <input type="number" class="form-control" formControlName="price" min="0" placeholder="Ex: 500000">
-                <small class="text-danger" *ngIf="getError('price')">{{ getError('price') }}</small>
+        <!-- Section: Détails (admin only) -->
+        <ng-container *ngIf="isAdmin">
+          <div class="af-section">
+            <h6 class="af-section-title">Détails de l'emplacement</h6>
+            <div class="af-form-grid af-grid-3">
+              <div class="af-field">
+                <label class="af-label">Prix mensuel (MGA)</label>
+                <input type="number" class="af-input" formControlName="price" min="0" placeholder="Ex: 500000">
+                <small class="af-field-error" *ngIf="getError('price')">{{ getError('price') }}</small>
               </div>
-              <div class="col-md-4 form-group">
-                <label>Surface (m²)</label>
-                <input type="number" class="form-control" formControlName="surface" min="1" placeholder="Ex: 25">
-                <small class="text-danger" *ngIf="getError('surface')">{{ getError('surface') }}</small>
+              <div class="af-field">
+                <label class="af-label">Surface (m²)</label>
+                <input type="number" class="af-input" formControlName="surface" min="1" placeholder="Ex: 25">
+                <small class="af-field-error" *ngIf="getError('surface')">{{ getError('surface') }}</small>
               </div>
-              <div class="col-md-4 form-group">
-                <label>Statut de l'emplacement</label>
-                <select class="form-control" formControlName="emplacementStatus">
+              <div class="af-field">
+                <label class="af-label">Statut de l'emplacement</label>
+                <select class="af-input" formControlName="emplacementStatus">
                   <option value="libre">Libre</option>
                   <option value="temporaire">Temporaire (réservé)</option>
                   <option value="occupee">Occupé</option>
                 </select>
               </div>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label>Équipements disponibles</label>
-              <div class="row">
-                <div class="col-md-4" *ngFor="let amenity of availableAmenities">
-                  <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" [id]="'amenity-' + amenity"
-                           [checked]="isAmenitySelected(amenity)"
-                           (change)="toggleAmenity(amenity)">
-                    <label class="custom-control-label" [for]="'amenity-' + amenity">{{ amenity }}</label>
-                  </div>
-                </div>
+          <div class="af-section">
+            <h6 class="af-section-title">Équipements disponibles</h6>
+            <div class="af-amenities-grid">
+              <div class="af-amenity-item" *ngFor="let amenity of availableAmenities">
+                <label class="af-checkbox-label" [for]="'amenity-' + amenity">
+                  <input type="checkbox" class="af-checkbox" [id]="'amenity-' + amenity"
+                         [checked]="isAmenitySelected(amenity)"
+                         (change)="toggleAmenity(amenity)">
+                  <span class="af-checkbox-mark"></span>
+                  {{ amenity }}
+                </label>
               </div>
             </div>
-          </ng-container>
+          </div>
+        </ng-container>
 
-          <button type="submit" class="btn btn-primary" [disabled]="loading || loadingCategories">
+        <!-- Actions -->
+        <div class="af-actions">
+          <button type="submit" class="af-btn af-btn-primary" [disabled]="loading || loadingCategories">
+            <i class="feather icon-check"></i>
             {{ loading ? 'Création...' : (isAdmin ? 'Créer l\'emplacement' : 'Créer la boutique') }}
           </button>
-          <a routerLink="/boutique/list" class="btn btn-secondary ml-2">Annuler</a>
-        </form>
-      </div>
+          <a routerLink="/boutique/list" class="af-btn af-btn-outline">
+            <i class="feather icon-x"></i>
+            Annuler
+          </a>
+        </div>
+      </form>
     </div>
   </div>
 </div>

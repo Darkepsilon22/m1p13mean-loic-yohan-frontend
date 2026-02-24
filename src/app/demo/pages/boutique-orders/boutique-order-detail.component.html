@@ -35,7 +35,7 @@
     <!-- Timeline de suivi -->
     <div class="card mb-3">
       <div class="card-header py-3">
-        <h6 class="mb-0"><i class="feather icon-truck mr-2"></i>Suivi de la commande</h6>
+        <h6 class="mb-0"><i class="feather icon-navigation mr-2"></i>Suivi de la commande</h6>
       </div>
       <div class="card-body">
         <div class="order-timeline">
@@ -195,7 +195,7 @@
   <!-- Modal tracking info -->
   <div *ngIf="showTrackingModal" class="modal-backdrop-custom" (click)="cancelTracking()">
     <div class="modal-content-custom" (click)="$event.stopPropagation()">
-      <h6 class="mb-3"><i class="feather icon-truck mr-2"></i>Informations d'expédition</h6>
+      <h6 class="mb-3"><i class="feather icon-navigation mr-2"></i>Informations d'expédition</h6>
       <div class="form-group">
         <label class="form-label small">Transporteur</label>
         <input type="text" class="form-control form-control-sm" [(ngModel)]="carrier" placeholder="Ex: DHL, Colissimo, ...">
@@ -207,7 +207,7 @@
       <div class="d-flex justify-content-end gap-2 mt-3">
         <button class="btn btn-sm btn-outline-secondary" (click)="cancelTracking()" style="margin-right: 6px;">Annuler</button>
         <button class="btn btn-sm btn-primary" (click)="confirmTracking()">
-          <i class="feather icon-truck mr-1"></i>Confirmer l'expédition
+          <i class="feather icon-navigation mr-1"></i>Confirmer l'expédition
         </button>
       </div>
     </div>

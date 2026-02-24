@@ -1,1 +1,390 @@
-// Stock list (boutique)
+// ============================================
+// Stock List — Refined Design
+// ============================================
+
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideLoader {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.stock-page {
+  padding-bottom: 2rem;
+  animation: fadeInUp 0.3s ease;
+}
+
+.stock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.stock-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $ink;
+  margin: 0;
+
+  i { margin-right: 10px; color: $green; }
+}
+
+.stock-subtitle {
+  font-size: 13px;
+  color: $ink-faint;
+  margin: 4px 0 0;
+}
+
+.stock-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.stk-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all $transition;
+  cursor: pointer;
+  border: none;
+
+  i { font-size: 14px; }
+  &:hover { text-decoration: none; transform: translateY(-1px); }
+}
+
+.stk-action-outline {
+  background: $surface;
+  color: $ink-soft;
+  border: 1.5px solid $border;
+  &:hover { color: $ink; border-color: $ink-soft; }
+}
+
+.stk-action-danger {
+  background: $ink;
+  color: #fff;
+  &:hover { background: $red; color: #fff; box-shadow: 0 4px 14px rgba($red, 0.3); }
+}
+
+// Filters
+.stock-filters {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  padding: 14px 20px;
+  margin-bottom: 20px;
+}
+
+.stock-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stk-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: $ink-soft;
+  cursor: pointer;
+  margin: 0;
+  padding: 8px 14px;
+  border: 1.5px solid $border;
+  border-radius: 8px;
+  transition: all $transition;
+
+  input { accent-color: $blue; cursor: pointer; }
+  i { font-size: 13px; color: $ink-faint; }
+
+  &:hover { border-color: $ink-faint; }
+  &.active { border-color: $orange; background: rgba($orange, 0.04); }
+}
+
+.stk-select {
+  padding: 8px 14px;
+  border: 1.5px solid $border;
+  border-radius: 8px;
+  font-size: 13px;
+  color: $ink;
+  background: $surface;
+  font-family: inherit;
+  cursor: pointer;
+  &:focus { outline: none; border-color: $blue; }
+}
+
+// States
+.stk-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba($red, 0.06);
+  color: $red;
+  border-radius: $radius-sm;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  border: 1px solid rgba($red, 0.12);
+}
+
+.stk-loading {
+  text-align: center;
+  padding: 80px 20px;
+  p { color: $ink-faint; font-size: 14px; margin-top: 20px; }
+}
+
+.stk-loader-track {
+  width: 200px; height: 4px; border-radius: 4px; background: $surface-dim; overflow: hidden; margin: 0 auto;
+}
+
+.stk-loader-fill {
+  width: 60%; height: 100%; border-radius: 4px; background: linear-gradient(90deg, $green, $blue); animation: slideLoader 1.2s ease-in-out infinite;
+}
+
+.stk-empty {
+  text-align: center;
+  padding: 80px 20px;
+
+  .stk-empty-icon {
+    width: 72px; height: 72px; border-radius: 50%; background: $surface-dim;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+    i { font-size: 2rem; color: $ink-faint; }
+  }
+  h5 { font-weight: 700; color: $ink; margin-bottom: 6px; }
+  p { color: $ink-muted; font-size: 14px; }
+}
+
+// Table
+.stk-table-card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.stk-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    tr { background: $surface-warm; }
+    th {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: $ink-faint;
+      font-weight: 600; padding: 12px 18px; border-bottom: 1px solid $border-light; white-space: nowrap;
+    }
+  }
+
+  tbody tr {
+    transition: background $transition;
+    &:hover { background: rgba($blue, 0.02); }
+    &:not(:last-child) td { border-bottom: 1px solid $border-light; }
+
+    &.row-warning { background: rgba($orange, 0.04); }
+    &.row-danger { background: rgba($red, 0.04); }
+  }
+
+  td {
+    padding: 14px 18px; font-size: 14px; color: $ink-soft; vertical-align: middle;
+  }
+}
+
+.td-name { font-weight: 700; color: $ink; }
+.td-threshold { color: $ink-faint; font-variant-numeric: tabular-nums; }
+
+.td-stock {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.stock-value {
+  &.stock-low { color: $orange; }
+  &.stock-out { color: $red; }
+}
+
+.stock-indicator {
+  margin-left: 6px;
+  font-size: 13px;
+  color: $orange;
+
+  &.stock-indicator-out { color: $red; }
+}
+
+.avail-pill {
+  display: inline-block;
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; padding: 4px 10px; border-radius: 50px; white-space: nowrap;
+
+  &.avail-ok { background: rgba($green, 0.1); color: darken($green, 10%); }
+  &.avail-out { background: rgba($red, 0.1); color: $red; }
+  &.avail-order { background: rgba($orange, 0.12); color: darken($orange, 20%); }
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center; justify-content: center; width: 34px; height: 34px;
+  border: 1.5px solid $border; background: $surface; border-radius: 8px;
+  color: $ink-muted; cursor: pointer; transition: all $transition;
+
+  i { font-size: 14px; }
+  &:hover { border-color: $blue; color: $blue; background: rgba($blue, 0.04); }
+}
+
+// Pagination
+.stk-pagination {
+  display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px;
+}
+.stk-page-info { font-size: 13px; font-weight: 600; color: $ink; }
+.stk-page-total { color: $ink-faint; font-weight: 400; }
+.stk-page-controls { display: flex; gap: 6px; }
+
+.page-btn {
+  display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+  border: 1.5px solid $border; background: $surface; border-radius: 8px;
+  cursor: pointer; color: $ink-soft; transition: all $transition;
+  i { font-size: 15px; }
+  &:hover:not(:disabled) { border-color: $ink; background: $ink; color: #fff; }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+}
+
+// ── Export Modal ──
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba($ink, 0.5); backdrop-filter: blur(4px);
+  z-index: 1050; display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-card {
+  background: $surface; border-radius: $radius; width: 100%; max-width: 520px;
+  box-shadow: 0 16px 64px rgba(0, 0, 0, 0.2); animation: fadeInUp 0.3s ease;
+  max-height: 90vh; overflow-y: auto;
+}
+
+.modal-card-header {
+  display: flex; justify-content: space-between; align-items: center; padding: 22px 24px; border-bottom: 1px solid $border-light;
+  h5 { font-size: 16px; font-weight: 700; color: $ink; margin: 0; i { color: $ink-muted; margin-right: 8px; } }
+}
+
+.modal-close {
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid $border; background: $surface;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; color: $ink-muted;
+  transition: all $transition;
+  &:hover { background: $surface-dim; color: $ink; }
+}
+
+.modal-card-body { padding: 22px 24px; }
+
+.form-field {
+  margin-bottom: 18px;
+
+  label {
+    display: block; font-size: 12px; font-weight: 600; color: $ink-muted;
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+  }
+
+  .required { color: $red; }
+
+  .field-hint { font-size: 12px; color: $ink-faint; margin: 0 0 8px; }
+
+  input[type="date"], select {
+    width: 100%; padding: 10px 14px; border: 1.5px solid $border; border-radius: 8px;
+    font-size: 14px; color: $ink; background: $surface; font-family: inherit;
+    transition: border-color $transition;
+    &:focus { outline: none; border-color: $blue; box-shadow: 0 0 0 3px rgba($blue, 0.1); }
+  }
+}
+
+.selection-actions {
+  display: flex; gap: 8px; margin-bottom: 10px;
+}
+
+.mini-btn {
+  padding: 5px 12px; border: 1px solid $border; border-radius: 6px; background: $surface;
+  font-size: 12px; color: $ink-muted; cursor: pointer; transition: all $transition;
+  &:hover { border-color: $blue; color: $blue; }
+}
+
+.product-checklist {
+  border: 1px solid $border-light; border-radius: 8px; padding: 10px 14px;
+  max-height: 160px; overflow-y: auto;
+
+  label {
+    display: flex; align-items: center; gap: 8px; margin: 0; padding: 4px 0;
+    font-size: 13px; color: $ink-soft; cursor: pointer; text-transform: none;
+    letter-spacing: 0; font-weight: 400;
+    input { accent-color: $blue; }
+  }
+
+  .checklist-loading { color: $ink-faint; font-size: 13px; }
+}
+
+.export-error {
+  padding: 10px 14px; background: rgba($red, 0.06); color: $red; border-radius: 8px;
+  font-size: 13px; border: 1px solid rgba($red, 0.12); margin-top: 10px;
+}
+
+.modal-card-footer {
+  display: flex; justify-content: flex-end; gap: 10px; padding: 18px 24px; border-top: 1px solid $border-light;
+}
+
+.export-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border: none;
+  border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all $transition;
+  i { font-size: 13px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.export-pdf {
+  background: rgba($red, 0.1); color: $red;
+  &:hover:not(:disabled) { background: $red; color: #fff; }
+}
+
+.export-excel {
+  background: rgba($green, 0.1); color: darken($green, 10%);
+  &:hover:not(:disabled) { background: $green; color: #fff; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .stock-header { flex-direction: column; align-items: flex-start; }
+  .stock-header-actions { width: 100%; }
+  .stk-action-btn { flex: 1; justify-content: center; }
+  .stock-filter-row { flex-direction: column; align-items: stretch; }
+}

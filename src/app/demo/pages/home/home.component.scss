@@ -51,7 +51,7 @@ $shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 // ============================================
-// NON-CONNECTED / ADMIN SECTIONS (kept minimal)
+// NON-CONNECTED SECTION (kept minimal)
 // ============================================
 
 .home-page {
@@ -83,21 +83,824 @@ $shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
   &:hover { text-decoration: underline; }
 }
 
-.home-welcome-card {
+// ============================================
+// ADMIN HOME — Command Center Dashboard
+// ============================================
+
+@keyframes adminSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.06; }
+}
+
+@keyframes glowDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.1); }
+  66% { transform: translate(-20px, 15px) scale(0.95); }
+}
+
+.admin-home {
+  animation: adminSlideUp 0.5s ease both;
+}
+
+// ── Hero Banner ──
+.admin-hero {
+  background: linear-gradient(145deg, #0c0c1d 0%, #131336 35%, #1a1050 65%, #0d1a3a 100%);
+  border-radius: $radius-lg;
+  padding: 40px 44px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(10, 10, 40, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.admin-hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridPulse 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.admin-hero-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  animation: glowDrift 12s ease-in-out infinite;
+
+  &--1 {
+    top: -40%;
+    right: -10%;
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, rgba(100, 80, 255, 0.18) 0%, transparent 70%);
+  }
+
+  &--2 {
+    bottom: -50%;
+    left: 5%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(46, 216, 200, 0.1) 0%, transparent 70%);
+    animation-delay: -4s;
+  }
+}
+
+.admin-hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.admin-hero-greeting {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.admin-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(100, 80, 255, 0.25), rgba(46, 216, 200, 0.15));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(100, 80, 255, 0.15);
+
+  i {
+    font-size: 26px;
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.admin-welcome-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0 0 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.admin-welcome-name {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.admin-role-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 4px 14px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, rgba(100, 80, 255, 0.3), rgba(100, 80, 255, 0.15));
+  color: #a78bfa;
+  border: 1px solid rgba(100, 80, 255, 0.2);
+}
+
+.admin-hero-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+
+  i { font-size: 15px; }
+
+  &:hover { text-decoration: none; transform: translateY(-2px); }
+}
+
+.admin-action-primary {
+  background: #fff;
+  color: #0c0c1d;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    color: #0c0c1d;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.admin-action-ghost {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+}
+
+// ── KPI Stats Strip ──
+.admin-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.admin-kpi-card {
+  background: $surface;
+  border: 1px solid $border-light;
   border-radius: $radius;
-  box-shadow: $shadow-sm;
-  border: 1px solid $border;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.25s ease;
+  animation: adminSlideUp 0.45s ease both;
+
+  @for $i from 1 through 6 {
+    &:nth-child(#{$i}) { animation-delay: #{$i * 0.06}s; }
+  }
+
+  &:hover {
+    border-color: $border;
+    box-shadow: $shadow-md;
+    transform: translateY(-3px);
+  }
 }
 
-.home-welcome-card .card-title {
-  font-size: 1.1rem;
+.admin-kpi-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i { font-size: 19px; }
+
+  &.kpi-boutiques {
+    background: rgba(100, 80, 255, 0.1);
+    color: #6450ff;
+  }
+
+  &.kpi-occupied {
+    background: rgba(46, 216, 163, 0.1);
+    color: #2ed8a3;
+  }
+
+  &.kpi-available {
+    background: rgba(70, 128, 255, 0.1);
+    color: #4680ff;
+  }
+
+  &.kpi-rate {
+    background: rgba(255, 186, 87, 0.1);
+    color: #f0a030;
+  }
+
+  &.kpi-revenue {
+    background: rgba(108, 92, 231, 0.08);
+    color: #6c5ce7;
+  }
+
+  &.kpi-pending {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+  }
+}
+
+.admin-kpi-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-kpi-value {
+  font-size: 22px;
+  font-weight: 700;
   color: $ink;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+
+  small {
+    font-size: 13px;
+    font-weight: 500;
+    color: $ink-muted;
+  }
 }
 
-.home-quick-links {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid $border-light;
+.admin-kpi-label {
+  font-size: 12px;
+  color: $ink-faint;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+// ── Content Grid (Actions + Pending) ──
+.admin-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.admin-panel {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  padding: 24px;
+  animation: adminSlideUp 0.5s ease both;
+  animation-delay: 0.15s;
+}
+
+.admin-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-panel-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: $accent-glow;
+  color: $accent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i { font-size: 16px; }
+}
+
+.admin-panel-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: $ink;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+// ── Quick Actions Grid ──
+.admin-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.admin-quick-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 8px;
+  border-radius: $radius-sm;
+  background: $surface-warm;
+  border: 1px solid transparent;
+  text-decoration: none;
+  color: $ink-soft;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.25s ease;
+
+  &:hover {
+    text-decoration: none;
+    color: $ink;
+    border-color: $border;
+    background: $surface;
+    box-shadow: $shadow-sm;
+    transform: translateY(-3px);
+
+    .admin-quick-tile-icon {
+      transform: scale(1.08);
+    }
+  }
+}
+
+.admin-quick-tile-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+
+  i { font-size: 18px; }
+
+  &.tile-emplacements { background: rgba(70, 128, 255, 0.1); color: #4680ff; }
+  &.tile-reservations { background: rgba(255, 186, 87, 0.1); color: #f0a030; }
+  &.tile-contrats { background: rgba(108, 92, 231, 0.1); color: #6c5ce7; }
+  &.tile-categories { background: rgba(46, 216, 163, 0.1); color: #2ed8a3; }
+  &.tile-produits { background: rgba(100, 80, 255, 0.1); color: #6450ff; }
+  &.tile-events { background: rgba(232, 76, 61, 0.1); color: #e84c3d; }
+  &.tile-plan { background: rgba(0, 188, 212, 0.1); color: #00bcd4; }
+  &.tile-users { background: rgba(255, 107, 107, 0.1); color: #ff6b6b; }
+}
+
+// ── Pending Items Panel ──
+.admin-pending-section {
+  margin-bottom: 18px;
+
+  &:last-child { margin-bottom: 0; }
+}
+
+.admin-pending-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $ink-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid $border-light;
+
+  i { font-size: 13px; }
+}
+
+.admin-pending-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba($border-light, 0.6);
+
+  &:last-child { border-bottom: none; }
+}
+
+.admin-pending-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.dot-warning { background: $warning; box-shadow: 0 0 6px rgba($warning, 0.3); }
+  &.dot-danger { background: $danger; box-shadow: 0 0 6px rgba($danger, 0.3); }
+  &.dot-info { background: $accent; box-shadow: 0 0 6px rgba($accent, 0.3); }
+}
+
+.admin-pending-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-pending-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: $ink;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-pending-meta {
+  font-size: 11px;
+  color: $ink-faint;
+}
+
+.admin-pending-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 50px;
+  flex-shrink: 0;
+
+  &.badge-pending {
+    background: $warning-bg;
+    color: $warning;
+  }
+
+  &.badge-danger {
+    background: $danger-bg;
+    color: $danger;
+  }
+}
+
+.admin-pending-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px 20px;
+  color: $ink-faint;
+  font-size: 14px;
+
+  i {
+    font-size: 20px;
+    color: $success;
+  }
+}
+
+// ── Admin Responsive ──
+@media (max-width: 991px) {
+  .admin-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-kpi-strip {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-hero {
+    padding: 28px 22px;
+  }
+
+  .admin-hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-welcome-name {
+    font-size: 1.3rem;
+  }
+
+  .admin-hero-actions {
+    width: 100%;
+  }
+
+  .admin-action-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+
+  .admin-kpi-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-quick-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-kpi-strip {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .admin-kpi-card {
+    padding: 16px;
+  }
+
+  .admin-kpi-value {
+    font-size: 18px;
+  }
+
+  .admin-quick-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// ============================================
+// BOUTIQUE HOME — Modern Dashboard Welcome
+// ============================================
+
+.boutique-home {
+  animation: fadeInUp 0.4s ease;
+}
+
+.boutique-hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: $radius-lg;
+  padding: 36px 40px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(15, 52, 96, 0.25);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(70, 128, 255, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(46, 216, 163, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+}
+
+.boutique-hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.boutique-hero-greeting {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.boutique-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+
+  i {
+    font-size: 24px;
+    color: #fff;
+  }
+}
+
+.boutique-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.boutique-welcome-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 2px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.boutique-welcome-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+}
+
+.boutique-role-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 12px;
+  border-radius: 50px;
+  background: rgba(46, 216, 163, 0.2);
+  color: #2ed8a3;
+  border: 1px solid rgba(46, 216, 163, 0.25);
+}
+
+.boutique-hero-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.boutique-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+
+  i { font-size: 15px; }
+
+  &:hover { text-decoration: none; transform: translateY(-2px); }
+}
+
+.boutique-action-primary {
+  background: #fff;
+  color: #1a1a2e;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+
+  &:hover {
+    color: #1a1a2e;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+}
+
+.boutique-action-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+// Quick Stats Cards
+.boutique-quick-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.quick-stat-card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.25s ease;
+  animation: fadeInUp 0.4s ease both;
+
+  &:nth-child(1) { animation-delay: 0.05s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.15s; }
+  &:nth-child(4) { animation-delay: 0.2s; }
+
+  &:hover {
+    border-color: $border;
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+  }
+}
+
+.quick-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i { font-size: 20px; }
+
+  &.qs-revenue {
+    background: rgba(70, 128, 255, 0.1);
+    color: #4680ff;
+  }
+
+  &.qs-orders {
+    background: rgba(46, 216, 163, 0.1);
+    color: #2ed8a3;
+  }
+
+  &.qs-products {
+    background: rgba(108, 92, 231, 0.1);
+    color: #6c5ce7;
+  }
+
+  &.qs-pending {
+    background: rgba(255, 186, 87, 0.1);
+    color: #ffba57;
+  }
+}
+
+.quick-stat-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.quick-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: $ink;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.quick-stat-label {
+  font-size: 12px;
+  color: $ink-faint;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .boutique-hero {
+    padding: 24px 20px;
+  }
+
+  .boutique-hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .boutique-welcome-name {
+    font-size: 1.2rem;
+  }
+
+  .boutique-hero-actions {
+    width: 100%;
+  }
+
+  .boutique-action-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 14px;
+  }
+
+  .boutique-quick-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 // ============================================
