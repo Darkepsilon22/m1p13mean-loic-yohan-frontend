@@ -1,0 +1,165 @@
+<div class="ch-page">
+
+  <!-- Header -->
+  <div class="ch-header">
+    <a routerLink="/emplacement/my-contract" class="ch-back">
+      <i class="feather icon-arrow-left"></i>
+    </a>
+    <div class="ch-header-icon">
+      <i class="feather icon-layers"></i>
+    </div>
+    <div class="ch-header-text">
+      <h4 class="ch-title">Historique des contrats</h4>
+      <p class="ch-subtitle">Consultez l'ensemble de vos contrats passés et actuels</p>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage && !loading" class="ch-alert ch-alert-error">
+    <i class="feather icon-alert-circle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="ch-filters-card">
+    <div class="ch-filters-top">
+      <div class="ch-filters-title">
+        <i class="feather icon-filter"></i>
+        Filtres
+      </div>
+      <button *ngIf="hasActiveFilters" class="ch-clear-btn" (click)="clearFilters()">
+        <i class="feather icon-x"></i> Réinitialiser
+      </button>
+    </div>
+    <div class="ch-filters-grid">
+      <div class="ch-filter-field">
+        <label class="ch-filter-label">Référence</label>
+        <div class="ch-input-icon-wrap">
+          <i class="feather icon-search"></i>
+          <input type="text" class="ch-filter-input ch-input-icon" placeholder="Rechercher par référence..."
+                 [(ngModel)]="searchRef">
+        </div>
+      </div>
+      <div class="ch-filter-field">
+        <label class="ch-filter-label">Statut</label>
+        <select class="ch-filter-input ch-filter-select" [(ngModel)]="filterStatus">
+          <option value="">Tous les statuts</option>
+          <option value="draft">Brouillon</option>
+          <option value="pending_signature">En attente de signature</option>
+          <option value="pending_activation">En attente d'activation</option>
+          <option value="active">Actif</option>
+          <option value="suspended">Suspendu</option>
+          <option value="terminated">Résilié</option>
+          <option value="expired">Expiré</option>
+        </select>
+      </div>
+      <div class="ch-filter-field">
+        <label class="ch-filter-label">Date fin (à partir de)</label>
+        <input type="date" class="ch-filter-input" [(ngModel)]="dateFrom">
+      </div>
+      <div class="ch-filter-field">
+        <label class="ch-filter-label">Date fin (jusqu'à)</label>
+        <input type="date" class="ch-filter-input" [(ngModel)]="dateTo">
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="ch-toolbar">
+    <div class="ch-toolbar-left">
+      <span class="ch-result-count">
+        <strong>{{ filteredContracts.length }}</strong> contrat(s)
+      </span>
+    </div>
+    <div class="ch-toolbar-right">
+      <button class="ch-export-btn" (click)="exportExcel()" title="Exporter en Excel (CSV)">
+        <i class="feather icon-download"></i> Excel
+      </button>
+      <button class="ch-export-btn ch-export-pdf" (click)="exportPdf()" title="Exporter en PDF">
+        <i class="feather icon-printer"></i> PDF
+      </button>
+      <div class="ch-page-size-wrap">
+        <span class="ch-page-size-label">Afficher :</span>
+        <select class="ch-page-size-select" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+          <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="ch-loading">
+    <div class="ch-spinner"></div>
+    <p>Chargement de l'historique...</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && filteredContracts.length === 0" class="ch-empty">
+    <div class="ch-empty-icon">
+      <i class="feather icon-inbox"></i>
+    </div>
+    <p class="ch-empty-title" *ngIf="!hasActiveFilters">Aucun contrat dans l'historique</p>
+    <p class="ch-empty-title" *ngIf="hasActiveFilters">Aucun contrat ne correspond aux filtres</p>
+    <button *ngIf="hasActiveFilters" class="ch-btn ch-btn-outline" (click)="clearFilters()">
+      <i class="feather icon-x"></i> Réinitialiser les filtres
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && paginatedContracts.length > 0" class="ch-table-card">
+    <div class="ch-table-wrap">
+      <table class="ch-table">
+        <thead>
+          <tr>
+            <th>Référence</th>
+            <th>Statut</th>
+            <th>Loyer mensuel</th>
+            <th>Caution</th>
+            <th>Date de début</th>
+            <th>Date de fin</th>
+            <th>Facturation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of paginatedContracts">
+            <td class="ch-mono">{{ c.reference }}</td>
+            <td>
+              <span class="ch-status" [ngClass]="'ch-status-' + c.status">
+                {{ getStatusLabel(c.status) }}
+              </span>
+            </td>
+            <td class="ch-money">{{ formatMoney(c.monthlyRent) }}</td>
+            <td>{{ formatMoney(c.deposit) }}</td>
+            <td>{{ formatDateTime(c.startDate) }}</td>
+            <td>{{ formatDateTime(c.endDate) }}</td>
+            <td>Jour {{ c.billingDay || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="ch-pagination" *ngIf="totalPages > 1">
+      <span class="ch-page-info">
+        Page {{ currentPage }} / {{ totalPages }}
+      </span>
+      <div class="ch-page-btns">
+        <button class="ch-page-btn" [disabled]="currentPage === 1" (click)="goToPage(1)" title="Première">
+          <i class="feather icon-chevrons-left"></i>
+        </button>
+        <button class="ch-page-btn" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+          <i class="feather icon-chevron-left"></i>
+        </button>
+        <button *ngFor="let p of getPages()" class="ch-page-btn"
+                [class.active]="p === currentPage"
+                (click)="goToPage(p)">{{ p }}</button>
+        <button class="ch-page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+          <i class="feather icon-chevron-right"></i>
+        </button>
+        <button class="ch-page-btn" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)" title="Dernière">
+          <i class="feather icon-chevrons-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

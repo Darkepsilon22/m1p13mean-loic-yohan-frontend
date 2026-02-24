@@ -14,6 +14,10 @@ const routes: Routes = [
     loadChildren: () => import('./my-contract/my-contract.module').then(m => m.MyContractModule)
   },
   {
+    path: 'contract-history',
+    loadChildren: () => import('./contract-history/contract-history.module').then(m => m.ContractHistoryModule)
+  },
+  {
     path: 'my-invoices',
     loadChildren: () => import('./my-invoices/my-invoices.module').then(m => m.MyInvoicesModule)
   }

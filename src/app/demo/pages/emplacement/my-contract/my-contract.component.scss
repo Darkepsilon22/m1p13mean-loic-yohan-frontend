@@ -407,6 +407,34 @@ $transition: 0.25s ease;
   margin-top: 32px;
 }
 
+.mc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.mc-see-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $blue;
+  text-decoration: none;
+  transition: all $transition;
+  white-space: nowrap;
+
+  i { font-size: 14px; transition: transform $transition; }
+
+  &:hover {
+    color: darken($blue, 10%);
+    text-decoration: none;
+    i { transform: translateX(3px); }
+  }
+}
+
 .mc-section-title {
   display: flex;
   align-items: center;
@@ -414,7 +442,7 @@ $transition: 0.25s ease;
   font-size: 16px;
   font-weight: 700;
   color: $ink-soft;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   letter-spacing: -0.01em;
 
   i { font-size: 17px; color: $ink-muted; }

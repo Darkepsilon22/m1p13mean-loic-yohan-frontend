@@ -190,11 +190,17 @@
     </div>
   </div>
 
-  <!-- History -->
+  <!-- History (last 5) -->
   <div class="mc-history-section" *ngIf="!loading">
-    <div class="mc-section-title">
-      <i class="feather icon-clock"></i>
-      <span>Historique des contrats</span>
+    <div class="mc-section-header">
+      <div class="mc-section-title">
+        <i class="feather icon-clock"></i>
+        <span>Historique des contrats</span>
+      </div>
+      <a *ngIf="history.length > 0" routerLink="/emplacement/contract-history" class="mc-see-all">
+        Voir tout ({{ history.length }})
+        <i class="feather icon-arrow-right"></i>
+      </a>
     </div>
 
     <div *ngIf="history.length === 0" class="mc-empty-small">
@@ -214,7 +220,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let c of history">
+            <tr *ngFor="let c of history.slice(0, 5)">
               <td class="mc-mono">{{ c.reference }}</td>
               <td>
                 <span class="mc-status" [ngClass]="'mc-status-' + c.status">
