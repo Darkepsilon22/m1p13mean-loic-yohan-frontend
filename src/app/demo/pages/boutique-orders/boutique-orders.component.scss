@@ -294,6 +294,26 @@ $transition: 0.25s ease;
   white-space: nowrap;
 }
 
+.toolbar-date {
+  font-family: inherit;
+  min-width: 140px;
+}
+
+.filter-row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid $border-light;
+}
+
+.filter-exports {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 // ── Loading ──
 .orders-loading {
   text-align: center;

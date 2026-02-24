@@ -90,6 +90,14 @@
             <option *ngFor="let s of paymentStatuses" [value]="s.value">{{ s.label }}</option>
           </select>
         </div>
+        <div class="filter-group">
+          <label class="filter-label">Date début</label>
+          <input type="date" class="toolbar-select toolbar-date" [(ngModel)]="dateFrom" (change)="onFilterChange()">
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Date fin</label>
+          <input type="date" class="toolbar-select toolbar-date" [(ngModel)]="dateTo" (change)="onFilterChange()">
+        </div>
         <div class="filter-group filter-search-group">
           <label class="filter-label">Recherche</label>
           <div class="filter-search-wrap">
@@ -97,8 +105,18 @@
             <input type="text" placeholder="Référence, client..." [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
           </div>
         </div>
+      </div>
+      <div class="filter-row filter-row-bottom">
         <div class="filter-count">
           <span class="count-badge">{{ total }} commande{{ total > 1 ? 's' : '' }}</span>
+        </div>
+        <div class="filter-exports">
+          <button class="export-btn export-excel" (click)="exportOrdersExcel()" [disabled]="exportingOrders" title="Export Excel">
+            <i class="feather icon-download"></i> Excel
+          </button>
+          <button class="export-btn export-pdf" (click)="exportOrdersPDF()" [disabled]="exportingOrders" title="Export PDF">
+            <i class="feather icon-file"></i> PDF
+          </button>
         </div>
       </div>
     </div>
