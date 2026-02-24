@@ -87,4 +87,24 @@ export class ContractService {
   payDeposit(id: string, data: { amount: number; method: string; reference?: string; notes?: string }): Observable<any> {
     return this.http.post<any>(`${API}/contracts/my/${id}/pay-deposit`, data).pipe(catchError(handleError));
   }
+
+  exportHistoryExcel(params?: { status?: string; reference?: string; dateFrom?: string; dateTo?: string }): Observable<Blob> {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    if (params?.reference) q.set('reference', params.reference);
+    if (params?.dateFrom) q.set('dateFrom', params.dateFrom);
+    if (params?.dateTo) q.set('dateTo', params.dateTo);
+    const query = q.toString() ? '?' + q.toString() : '';
+    return this.http.get(`${API}/contracts/my/history/export/excel${query}`, { responseType: 'blob' });
+  }
+
+  exportHistoryPdf(params?: { status?: string; reference?: string; dateFrom?: string; dateTo?: string }): Observable<Blob> {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    if (params?.reference) q.set('reference', params.reference);
+    if (params?.dateFrom) q.set('dateFrom', params.dateFrom);
+    if (params?.dateTo) q.set('dateTo', params.dateTo);
+    const query = q.toString() ? '?' + q.toString() : '';
+    return this.http.get(`${API}/contracts/my/history/export/pdf${query}`, { responseType: 'blob' });
+  }
 }
