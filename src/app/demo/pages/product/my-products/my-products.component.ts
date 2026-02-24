@@ -16,6 +16,12 @@ export class MyProductsComponent implements OnInit {
   selectedPageSize = 20;
   pagination: { page: number; limit: number; total: number; pages: number } = { page: 1, limit: 20, total: 0, pages: 0 };
 
+  // Import Excel
+  showImportModal = false;
+  importFile: File | null = null;
+  importing = false;
+  importResult: { created: number; errors: any[] } | null = null;
+
   filters: MyProductsParams = {
     search: '',
     availability: '',
@@ -91,5 +97,43 @@ export class MyProductsComponent implements OnInit {
   getAvailabilityClass(a: string): string {
     const map: Record<string, string> = { available: 'badge-success', outOfStock: 'badge-danger', onOrder: 'badge-warning' };
     return map[a] || 'badge-secondary';
+  }
+
+  downloadTemplate(): void {
+    this.productService.importTemplate().subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'template-produits.xlsx';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.importFile = input.files[0];
+      this.importResult = null;
+    }
+  }
+
+  doImport(): void {
+    if (!this.importFile) return;
+    this.importing = true;
+    this.importResult = null;
+    this.productService.importExcel(this.importFile).subscribe({
+      next: (res) => {
+        this.importing = false;
+        this.importResult = res.data;
+        if (res.data.created > 0) {
+          this.loadProducts();
+        }
+      },
+      error: (err) => {
+        this.importing = false;
+        this.importResult = { created: 0, errors: [{ row: 0, message: err.message || 'Erreur import' }] };
+      }
+    });
   }
 }
