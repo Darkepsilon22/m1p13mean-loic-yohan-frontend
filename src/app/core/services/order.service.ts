@@ -182,6 +182,28 @@ export class OrderService {
     return this.http.get(`${API}/orders/boutique/report/excel?month=${month}&year=${year}`, { responseType: 'blob' });
   }
 
+  /** Export commandes boutique PDF (avec filtres) */
+  exportBoutiqueOrdersPDF(params?: { status?: string; paymentStatus?: string; startDate?: string; endDate?: string }): Observable<Blob> {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    if (params?.paymentStatus) q.set('paymentStatus', params.paymentStatus);
+    if (params?.startDate) q.set('startDate', params.startDate);
+    if (params?.endDate) q.set('endDate', params.endDate);
+    const query = q.toString() ? '?' + q.toString() : '';
+    return this.http.get(`${API}/orders/boutique/export/pdf${query}`, { responseType: 'blob' });
+  }
+
+  /** Export commandes boutique Excel (avec filtres) */
+  exportBoutiqueOrdersExcel(params?: { status?: string; paymentStatus?: string; startDate?: string; endDate?: string }): Observable<Blob> {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    if (params?.paymentStatus) q.set('paymentStatus', params.paymentStatus);
+    if (params?.startDate) q.set('startDate', params.startDate);
+    if (params?.endDate) q.set('endDate', params.endDate);
+    const query = q.toString() ? '?' + q.toString() : '';
+    return this.http.get(`${API}/orders/boutique/export/excel${query}`, { responseType: 'blob' });
+  }
+
   /** Export PDF des commandes de l'utilisateur */
   exportMyOrdersPDF(params?: { status?: string; startDate?: string; endDate?: string }): Observable<Blob> {
     const q = new URLSearchParams();

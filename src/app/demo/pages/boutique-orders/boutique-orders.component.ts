@@ -16,6 +16,8 @@ export class BoutiqueOrdersComponent implements OnInit {
   statusFilter = '';
   paymentFilter = '';
   searchQuery = '';
+  dateFrom = '';
+  dateTo = '';
 
   // Pagination
   page = 1;
@@ -31,6 +33,7 @@ export class BoutiqueOrdersComponent implements OnInit {
   reportMonth = new Date().getMonth() + 1;
   reportYear = new Date().getFullYear();
   exportingReport = false;
+  exportingOrders = false;
   months = [
     { value: 1, label: 'Janvier' }, { value: 2, label: 'Février' }, { value: 3, label: 'Mars' },
     { value: 4, label: 'Avril' }, { value: 5, label: 'Mai' }, { value: 6, label: 'Juin' },
@@ -78,6 +81,8 @@ export class BoutiqueOrdersComponent implements OnInit {
     const params: any = { page: this.page, limit: this.limit };
     if (this.statusFilter) params.status = this.statusFilter;
     if (this.paymentFilter) params.paymentStatus = this.paymentFilter;
+    if (this.dateFrom) params.startDate = this.dateFrom;
+    if (this.dateTo) params.endDate = this.dateTo;
 
     this.orderService.getBoutiqueOrders(params).subscribe({
       next: (res) => {
@@ -207,6 +212,37 @@ export class BoutiqueOrdersComponent implements OnInit {
         this.downloadBlob(blob, `rapport-${this.reportMonth}-${this.reportYear}.xlsx`);
       },
       error: () => { this.exportingReport = false; }
+    });
+  }
+
+  private getExportParams(): { status?: string; paymentStatus?: string; startDate?: string; endDate?: string } {
+    const params: any = {};
+    if (this.statusFilter) params.status = this.statusFilter;
+    if (this.paymentFilter) params.paymentStatus = this.paymentFilter;
+    if (this.dateFrom) params.startDate = this.dateFrom;
+    if (this.dateTo) params.endDate = this.dateTo;
+    return params;
+  }
+
+  exportOrdersExcel(): void {
+    this.exportingOrders = true;
+    this.orderService.exportBoutiqueOrdersExcel(this.getExportParams()).subscribe({
+      next: (blob) => {
+        this.exportingOrders = false;
+        this.downloadBlob(blob, `commandes-${new Date().toISOString().slice(0, 10)}.xlsx`);
+      },
+      error: () => { this.exportingOrders = false; }
+    });
+  }
+
+  exportOrdersPDF(): void {
+    this.exportingOrders = true;
+    this.orderService.exportBoutiqueOrdersPDF(this.getExportParams()).subscribe({
+      next: (blob) => {
+        this.exportingOrders = false;
+        this.downloadBlob(blob, `commandes-${new Date().toISOString().slice(0, 10)}.pdf`);
+      },
+      error: () => { this.exportingOrders = false; }
     });
   }
 
