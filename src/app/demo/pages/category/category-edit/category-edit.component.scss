@@ -1,1 +1,57 @@
-// Category edit styles
+$ink: #0f0f12; $ink-soft: #2d2d35; $ink-muted: #6b6e7a; $ink-faint: #9ca0ab;
+$surface: #ffffff; $surface-warm: #faf9f7; $surface-dim: #f3f2ef;
+$border: #e6e4df; $border-light: #f0eee9;
+$blue: #4680ff; $green: #2ed8a3; $orange: #ffba57; $red: #ff5370; $purple: #6c5ce7;
+$radius: 14px; $radius-sm: 10px; $transition: 0.25s ease;
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+.admin-form-page { padding-bottom: 2rem; animation: fadeInUp 0.3s ease; max-width: 800px; margin: 0 auto; }
+.af-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.af-back {
+  display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+  border: 1.5px solid $border; border-radius: 10px; color: $ink-muted; text-decoration: none;
+  transition: all $transition;
+  &:hover { border-color: $ink; color: $ink; text-decoration: none; }
+}
+.af-title { font-size: 1.5rem; font-weight: 700; color: $ink; margin: 0; letter-spacing: -0.02em; i { margin-right: 10px; color: $purple; } }
+.af-subtitle { font-size: 13px; color: $ink-faint; margin: 4px 0 0; }
+.af-card { background: $surface; border: 1px solid $border-light; border-radius: $radius; overflow: hidden; animation: fadeInUp 0.4s ease both; animation-delay: 0.1s; }
+.af-card-body { padding: 28px 32px; }
+.af-error { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: rgba($red, 0.06); color: $red; border-radius: $radius-sm; font-size: 14px; font-weight: 500; margin-bottom: 24px; border: 1px solid rgba($red, 0.12); i { flex-shrink: 0; font-size: 18px; } }
+.af-success { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: rgba($green, 0.06); color: darken($green, 10%); border-radius: $radius-sm; font-size: 14px; font-weight: 500; margin-bottom: 24px; border: 1px solid rgba($green, 0.12); }
+.af-loading { text-align: center; padding: 32px 0; color: $ink-faint; font-size: 14px; }
+.af-section { margin-bottom: 28px; }
+.af-section-title { font-size: 14px; font-weight: 700; color: $ink; margin: 0 0 18px; display: flex; align-items: center; gap: 8px; i { font-size: 15px; color: $ink-muted; } }
+.af-divider { height: 1px; background: $border-light; margin: 28px 0; }
+.af-form-grid { display: flex; flex-direction: column; gap: 18px; }
+.af-form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.af-field { display: flex; flex-direction: column; }
+.af-label { font-size: 12px; font-weight: 600; color: $ink-muted; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+.af-required { color: $red; }
+.af-input, .af-select, .af-textarea {
+  width: 100%; padding: 10px 14px; border: 1.5px solid $border; border-radius: 8px;
+  font-size: 14px; color: $ink; background: $surface; font-family: inherit; transition: border-color $transition;
+  &:focus { outline: none; border-color: $blue; box-shadow: 0 0 0 3px rgba($blue, 0.1); }
+  &::placeholder { color: $ink-faint; }
+  &.is-invalid, &.ng-invalid.ng-touched { border-color: $red; }
+}
+.af-textarea { min-height: 100px; resize: vertical; }
+.af-hint { font-size: 12px; color: $ink-faint; margin-top: 4px; }
+.af-field-error { font-size: 12px; color: $red; margin-top: 4px; }
+.af-checkbox { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: $ink-soft; cursor: pointer; margin: 0; input { accent-color: $blue; width: 16px; height: 16px; cursor: pointer; } }
+.af-actions { display: flex; gap: 12px; margin-top: 28px; }
+.af-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 11px 24px;
+  border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none;
+  transition: all $transition; cursor: pointer; border: none;
+  &:hover { text-decoration: none; transform: translateY(-1px); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+}
+.af-btn-primary { background: $ink; color: #fff; &:hover { color: #fff; background: $blue; box-shadow: 0 4px 14px rgba($blue, 0.3); } }
+.af-btn-outline { background: $surface; color: $ink-soft; border: 1.5px solid $border; &:hover { color: $ink; border-color: $ink-soft; } }
+
+@media (max-width: 768px) {
+  .af-card-body { padding: 20px; }
+  .af-form-row { grid-template-columns: 1fr; }
+}

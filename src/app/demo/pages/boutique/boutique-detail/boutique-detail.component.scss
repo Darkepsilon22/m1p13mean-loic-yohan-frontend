@@ -1,29 +1,477 @@
-.boutique-detail-logo {
-  max-height: 180px;
-  object-fit: contain;
+// Design system variables
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
+
+// Page entry animation
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.badge-warning {
-  background-color: #f0ad4e;
-  color: #fff;
+.admin-form-page {
+  animation: fadeInUp 0.4s ease both;
+  max-width: 860px;
+  margin: 0 auto;
 }
 
-.badge-success {
-  background-color: #5cb85c;
-  color: #fff;
+.af-header {
+  margin-bottom: 28px;
+
+  .af-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: $ink;
+    margin: 0 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    i {
+      font-size: 20px;
+      color: $blue;
+    }
+  }
+
+  .af-subtitle {
+    font-size: 14px;
+    color: $ink-muted;
+    margin: 0;
+  }
 }
 
-.badge-danger {
-  background-color: #d9534f;
-  color: #fff;
-}
-
-.badge-secondary {
-  background-color: #6c757d;
-  color: #fff;
-}
-
-.form-label {
+.af-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
   font-weight: 500;
-  margin-bottom: 0.35rem;
+  color: $ink-muted;
+  text-decoration: none;
+  margin-bottom: 16px;
+  transition: color $transition;
+
+  &:hover {
+    color: $blue;
+    text-decoration: none;
+  }
+
+  i {
+    font-size: 14px;
+  }
+}
+
+.af-card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  overflow: hidden;
+}
+
+.af-card-body {
+  padding: 32px;
+}
+
+.af-error {
+  background: rgba($red, 0.06);
+  color: $red;
+  border: 1px solid rgba($red, 0.12);
+  border-radius: $radius-sm;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  i {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+}
+
+.af-loading-card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  padding: 60px 32px;
+  text-align: center;
+
+  p {
+    color: $ink-muted;
+    font-size: 14px;
+    margin: 16px 0 0;
+  }
+}
+
+.af-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $border-light;
+  border-top-color: $blue;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Detail layout
+.af-detail-layout {
+  display: flex;
+  gap: 32px;
+}
+
+.af-detail-logo-col {
+  flex-shrink: 0;
+  width: 200px;
+}
+
+.af-logo-wrapper {
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  overflow: hidden;
+  background: $surface-warm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.af-logo-img {
+  max-height: 180px;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.af-logo-placeholder {
+  background: $surface-dim;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  padding: 40px 20px;
+  text-align: center;
+  color: $ink-faint;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 28px;
+  }
+
+  span {
+    font-size: 13px;
+  }
+}
+
+.af-detail-info-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.af-detail-name-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.af-detail-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: $ink;
+  margin: 0;
+}
+
+.af-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  &.badge-warning {
+    background: rgba($orange, 0.12);
+    color: darken($orange, 20%);
+  }
+
+  &.badge-success {
+    background: rgba($green, 0.12);
+    color: darken($green, 15%);
+  }
+
+  &.badge-danger {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+
+  &.badge-secondary {
+    background: $surface-dim;
+    color: $ink-muted;
+  }
+}
+
+.af-rejection-reason {
+  background: rgba($red, 0.06);
+  color: $red;
+  border: 1px solid rgba($red, 0.12);
+  border-radius: $radius-sm;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  i {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+}
+
+// Detail grid
+.af-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.af-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &.af-detail-item-full {
+    grid-column: 1 / -1;
+  }
+}
+
+.af-detail-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: $ink-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.af-detail-value {
+  font-size: 14px;
+  color: $ink-soft;
+  line-height: 1.5;
+}
+
+// Sections
+.af-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid $border-light;
+}
+
+.af-section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: $ink-soft;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 15px;
+    color: $blue;
+  }
+}
+
+// Hours
+.af-hours-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.af-hour-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: $surface-warm;
+  gap: 16px;
+
+  &:nth-child(even) {
+    background: $surface-dim;
+  }
+}
+
+.af-hour-day {
+  font-size: 13px;
+  font-weight: 600;
+  color: $ink-soft;
+  min-width: 100px;
+}
+
+.af-hour-time {
+  font-size: 13px;
+  color: $ink-muted;
+}
+
+// Actions
+.af-actions {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid $border-light;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.af-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: all $transition;
+  text-decoration: none;
+  border: none;
+  font-family: inherit;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: 15px;
+  }
+}
+
+.af-btn-primary {
+  background: $ink;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: $blue;
+  }
+}
+
+.af-btn-outline {
+  background: transparent;
+  color: $ink-soft;
+  border: 1.5px solid $border;
+
+  &:hover:not(:disabled) {
+    border-color: $ink-muted;
+    color: $ink;
+  }
+}
+
+// Modal styles
+.af-modal-hint {
+  font-size: 13px;
+  color: $ink-muted;
+  margin-bottom: 16px;
+}
+
+.af-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.af-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: $ink-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.af-input {
+  border: 1.5px solid $border;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: $ink;
+  background: $surface;
+  transition: border-color $transition, box-shadow $transition;
+  outline: none;
+  width: 100%;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+
+  &::placeholder {
+    color: $ink-faint;
+  }
+
+  &:focus {
+    border-color: $blue;
+    box-shadow: 0 0 0 3px rgba($blue, 0.1);
+  }
+}
+
+select.af-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6e7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.af-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .af-detail-layout {
+    flex-direction: column;
+  }
+
+  .af-detail-logo-col {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .af-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .af-card-body {
+    padding: 20px;
+  }
 }

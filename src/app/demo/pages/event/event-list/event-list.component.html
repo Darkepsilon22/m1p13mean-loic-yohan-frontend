@@ -1,77 +1,124 @@
-<div class="row">
-  <div class="col-sm-12">
-    <app-card cardTitle="Événements" [options]="false">
-      <div class="mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
-        <div class="d-flex flex-wrap align-items-center gap-2">
-          <label class="mb-0">Statut :</label>
-          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
-            <option value="">Tous</option>
-            <option value="draft">Brouillon</option>
-            <option value="published">Publié</option>
-            <option value="ended">Terminé</option>
-            <option value="cancelled">Annulé</option>
-          </select>
-          <span class="text-muted small">Afficher :</span>
-          <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
-            <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
-          </select>
-          <button type="button" class="btn btn-sm btn-outline-primary" (click)="onFilterChange()">Filtrer</button>
-        </div>
-        <button type="button" class="btn btn-primary btn-sm" (click)="goToCreate()">Nouvel événement</button>
-      </div>
+<div class="admin-list-page">
+  <!-- Header -->
+  <div class="al-header">
+    <div>
+      <h1 class="al-title">
+        <i class="feather icon-calendar"></i>
+        Evenements
+      </h1>
+      <p class="al-subtitle">Gerez vos evenements, publiez et suivez leur statut</p>
+    </div>
+    <button type="button" class="af-btn af-btn-primary" (click)="goToCreate()">
+      <i class="feather icon-plus"></i> Nouvel evenement
+    </button>
+  </div>
 
-      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
-
-      <div *ngIf="!loading && events.length === 0" class="text-muted py-4 text-center">
-        Aucun événement. <button type="button" class="btn btn-link p-0" (click)="goToCreate()">Créer un événement</button>
+  <!-- Filters -->
+  <div class="al-filters">
+    <div class="al-filter-row">
+      <div class="al-search">
+        <i class="feather icon-filter"></i>
+        <select class="al-select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+          <option value="">Tous les statuts</option>
+          <option value="draft">Brouillon</option>
+          <option value="published">Publie</option>
+          <option value="ended">Termine</option>
+          <option value="cancelled">Annule</option>
+        </select>
       </div>
-
-      <div *ngIf="!loading && events.length > 0" class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Titre</th>
-              <th>Début / Fin</th>
-              <th>Visibilité</th>
-              <th>Vedette</th>
-              <th>Statut</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let e of events">
-              <td><strong>{{ e.title }}</strong></td>
-              <td><small>{{ e.startDate | date:'shortDate' }} → {{ e.endDate | date:'shortDate' }}</small></td>
-              <td>{{ e.visibility === 'public' ? 'Public' : 'Boutiques' }}</td>
-              <td>{{ e.isFeatured ? 'Oui' : 'Non' }}</td>
-              <td><span class="badge" [ngClass]="getStatusClass(e.status)">{{ getStatusLabel(e.status) }}</span></td>
-              <td class="text-nowrap">
-                <button type="button" class="btn btn-sm btn-outline-primary" style="margin-right: 4px;" (click)="goToEdit(e._id)" title="Modifier">
-                  <i class="feather icon-edit"></i> Modifier
-                </button>
-                <button *ngIf="e.status === 'draft'" type="button" class="btn btn-sm btn-outline-success" style="margin-right: 4px;" (click)="publishEvent(e._id)" title="Publier">
-                  <i class="feather icon-send"></i> Publier
-                </button>
-                <button *ngIf="e.status === 'draft' || e.status === 'published'" type="button" class="btn btn-sm btn-outline-warning" style="margin-right: 4px;" (click)="cancelEvent(e._id)" title="Annuler">
-                  <i class="feather icon-x-circle"></i> Annuler
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteEvent(e._id)" title="Supprimer">
-                  <i class="feather icon-trash-2"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="al-search">
+        <i class="feather icon-list"></i>
+        <select class="al-select" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
+          <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }} par page</option>
+        </select>
       </div>
+      <button type="button" class="al-filter-btn" (click)="onFilterChange()">
+        <i class="feather icon-refresh-cw"></i> Filtrer
+      </button>
+    </div>
+  </div>
 
-      <div *ngIf="!loading && pagination.pages > 1" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Page {{ pagination.page }} / {{ pagination.pages }} ({{ pagination.total }} événement(s))</span>
-        <div>
-          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>
-        </div>
-      </div>
-    </app-card>
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="al-error">
+    <i class="feather icon-alert-triangle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="al-loading">
+    <div class="al-loader-track">
+      <div class="al-loader-fill"></div>
+    </div>
+    <p>Chargement des evenements...</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && events.length === 0" class="al-empty">
+    <div class="al-empty-icon">
+      <i class="feather icon-calendar"></i>
+    </div>
+    <h5>Aucun evenement</h5>
+    <p>Commencez par creer votre premier evenement pour engager votre communaute.</p>
+    <button type="button" class="af-btn af-btn-primary" (click)="goToCreate()">
+      <i class="feather icon-plus"></i> Creer un evenement
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div *ngIf="!loading && events.length > 0" class="al-table-card">
+    <table class="al-table">
+      <thead>
+        <tr>
+          <th>Titre</th>
+          <th>Debut / Fin</th>
+          <th>Visibilite</th>
+          <th>Vedette</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of events">
+          <td class="td-name">{{ e.title }}</td>
+          <td class="td-mono">{{ e.startDate | date:'shortDate' }} &rarr; {{ e.endDate | date:'shortDate' }}</td>
+          <td class="td-muted">{{ e.visibility === 'public' ? 'Public' : 'Boutiques' }}</td>
+          <td>
+            <span class="status-pill" [class.pill-success]="e.isFeatured" [class.pill-muted]="!e.isFeatured">
+              {{ e.isFeatured ? 'Oui' : 'Non' }}
+            </span>
+          </td>
+          <td>
+            <span class="status-pill" [ngClass]="getStatusClass(e.status)">{{ getStatusLabel(e.status) }}</span>
+          </td>
+          <td class="td-actions">
+            <button type="button" class="action-btn action-edit" (click)="goToEdit(e._id)" title="Modifier">
+              <i class="feather icon-edit"></i>
+            </button>
+            <button *ngIf="e.status === 'draft'" type="button" class="action-btn action-view" (click)="publishEvent(e._id)" title="Publier">
+              <i class="feather icon-send"></i>
+            </button>
+            <button *ngIf="e.status === 'draft' || e.status === 'published'" type="button" class="action-btn action-edit" (click)="cancelEvent(e._id)" title="Annuler">
+              <i class="feather icon-x-circle"></i>
+            </button>
+            <button type="button" class="action-btn action-delete" (click)="deleteEvent(e._id)" title="Supprimer">
+              <i class="feather icon-trash-2"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && pagination.pages > 1" class="al-pagination">
+    <span class="al-page-info">Page {{ pagination.page }} / {{ pagination.pages }} ({{ pagination.total }} evenement(s))</span>
+    <div class="al-page-controls">
+      <button type="button" class="page-btn" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">
+        <i class="feather icon-chevron-left"></i> Precedent
+      </button>
+      <button type="button" class="page-btn" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">
+        Suivant <i class="feather icon-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </div>

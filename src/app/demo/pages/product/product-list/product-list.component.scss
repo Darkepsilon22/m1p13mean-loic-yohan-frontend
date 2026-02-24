@@ -1,1 +1,163 @@
-// Product list (admin)
+// ============================================
+// Product List (Admin) — Refined Design
+// ============================================
+
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideLoader {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.admin-list-page { padding-bottom: 2rem; animation: fadeInUp 0.3s ease; }
+
+.al-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+}
+.al-title {
+  font-size: 1.5rem; font-weight: 700; color: $ink; margin: 0; letter-spacing: -0.02em;
+  i { margin-right: 10px; color: $blue; }
+}
+.al-subtitle { font-size: 13px; color: $ink-faint; margin: 4px 0 0; }
+
+.al-filters {
+  background: $surface; border: 1px solid $border-light; border-radius: $radius;
+  padding: 16px 20px; margin-bottom: 20px;
+}
+.al-filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.al-search {
+  position: relative; flex: 1; min-width: 180px;
+  i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: $ink-faint; pointer-events: none; }
+  input {
+    width: 100%; padding: 9px 14px 9px 36px; border: 1.5px solid $border;
+    border-radius: 8px; font-size: 13px; color: $ink; background: $surface; font-family: inherit;
+    transition: border-color $transition;
+    &:focus { outline: none; border-color: $blue; }
+    &::placeholder { color: $ink-faint; }
+  }
+}
+.al-select {
+  padding: 9px 14px; border: 1.5px solid $border; border-radius: 8px;
+  font-size: 13px; color: $ink; background: $surface; font-family: inherit;
+  cursor: pointer; transition: border-color $transition;
+  &:focus { outline: none; border-color: $blue; }
+}
+.al-select-sm { width: 110px; }
+.al-filter-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px;
+  border: none; background: $ink; color: #fff; border-radius: 8px;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all $transition;
+  i { font-size: 13px; }
+  &:hover { background: $blue; box-shadow: 0 3px 12px rgba($blue, 0.3); }
+}
+
+.al-error {
+  display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+  background: rgba($red, 0.06); color: $red; border-radius: $radius-sm;
+  font-size: 14px; font-weight: 500; margin-bottom: 20px; border: 1px solid rgba($red, 0.12);
+  i { flex-shrink: 0; font-size: 18px; }
+}
+.al-loading {
+  text-align: center; padding: 80px 20px;
+  p { color: $ink-faint; font-size: 14px; margin-top: 20px; }
+}
+.al-loader-track { width: 200px; height: 4px; border-radius: 4px; background: $surface-dim; overflow: hidden; margin: 0 auto; }
+.al-loader-fill { width: 60%; height: 100%; border-radius: 4px; background: linear-gradient(90deg, $blue, $purple); animation: slideLoader 1.2s ease-in-out infinite; }
+.al-empty {
+  text-align: center; padding: 80px 20px; animation: fadeInUp 0.4s ease;
+  .al-empty-icon {
+    width: 72px; height: 72px; border-radius: 50%; background: $surface-dim;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+    i { font-size: 2rem; color: $ink-faint; }
+  }
+  h5 { font-weight: 700; color: $ink; margin-bottom: 6px; }
+  p { color: $ink-muted; font-size: 14px; max-width: 300px; margin: 0 auto; }
+}
+
+.al-table-card {
+  background: $surface; border: 1px solid $border-light; border-radius: $radius;
+  overflow: hidden; animation: fadeInUp 0.4s ease both; animation-delay: 0.1s;
+}
+.al-table {
+  width: 100%; border-collapse: collapse;
+  thead {
+    tr { background: $surface-warm; }
+    th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: $ink-faint; font-weight: 600; padding: 12px 18px; border-bottom: 1px solid $border-light; white-space: nowrap; }
+  }
+  tbody tr {
+    transition: background $transition;
+    &:hover { background: rgba($blue, 0.02); }
+    &:not(:last-child) td { border-bottom: 1px solid $border-light; }
+  }
+  td { padding: 14px 18px; font-size: 14px; color: $ink-soft; vertical-align: middle; }
+}
+
+.td-name { font-weight: 700; color: $ink; }
+.td-muted { color: $ink-muted; font-size: 13px; }
+.td-mono { font-variant-numeric: tabular-nums; font-weight: 500; }
+.td-actions { white-space: nowrap; }
+
+.stock-low { color: $orange; font-weight: 600; }
+.stock-out { color: $red; font-weight: 600; }
+
+.status-pill {
+  display: inline-block; font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; padding: 4px 10px; border-radius: 50px; white-space: nowrap;
+  &.pill-success, &.badge-success { background: rgba($green, 0.1); color: darken($green, 10%); }
+  &.pill-muted, &.badge-secondary { background: rgba($ink-faint, 0.15); color: $ink-muted; }
+  &.pill-featured { background: rgba($purple, 0.1); color: $purple; }
+  &.badge-warning { background: rgba($orange, 0.12); color: darken($orange, 20%); }
+  &.badge-danger { background: rgba($red, 0.1); color: $red; }
+  &.badge-info { background: rgba($blue, 0.1); color: $blue; }
+}
+
+.action-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border: 1.5px solid $border; background: $surface;
+  border-radius: 8px; color: $ink-muted; cursor: pointer; transition: all $transition;
+  text-decoration: none; margin: 0 2px;
+  i { font-size: 14px; }
+  &.action-view:hover { border-color: $blue; color: $blue; background: rgba($blue, 0.04); }
+}
+
+.al-pagination {
+  display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px;
+}
+.al-page-info { font-size: 13px; font-weight: 600; color: $ink; }
+.al-page-total { color: $ink-faint; font-weight: 400; }
+.al-page-controls { display: flex; gap: 6px; }
+.page-btn {
+  display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+  border: 1.5px solid $border; background: $surface; border-radius: 8px;
+  cursor: pointer; color: $ink-soft; transition: all $transition;
+  i { font-size: 15px; }
+  &:hover:not(:disabled) { border-color: $ink; background: $ink; color: #fff; }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+}
+
+@media (max-width: 768px) {
+  .al-header { flex-direction: column; align-items: flex-start; }
+  .al-filter-row { flex-direction: column; align-items: stretch; }
+  .al-search { min-width: auto; }
+}

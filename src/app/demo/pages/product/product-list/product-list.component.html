@@ -1,94 +1,132 @@
-<div class="row">
-  <div class="col-sm-12">
-    <app-card cardTitle="Liste des produits" [options]="false">
-      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
-        <input type="text" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Recherche..."
-               [(ngModel)]="filters.search" (keyup.enter)="onFilterChange()">
-        <span class="text-muted small">Afficher :</span>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
-          <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
-        </select>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.boutiqueId" (ngModelChange)="onFilterChange()">
-          <option value="">Toutes les boutiques</option>
-          <option *ngFor="let b of boutiques" [value]="b._id">{{ b.name }}</option>
-        </select>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.availability" (ngModelChange)="onFilterChange()">
-          <option value="">Disponibilité</option>
-          <option value="available">Disponible</option>
-          <option value="outOfStock">Rupture</option>
-          <option value="onOrder">Sur commande</option>
-        </select>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.isArchived" (ngModelChange)="onFilterChange()">
-          <option [ngValue]="undefined">Tous (non archivés)</option>
-          <option [ngValue]="false">Non archivés</option>
-          <option [ngValue]="true">Archivés</option>
-        </select>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.isFeatured" (ngModelChange)="onFilterChange()">
-          <option [ngValue]="undefined">Vedette</option>
-          <option [ngValue]="true">En vedette</option>
-          <option [ngValue]="false">Pas vedette</option>
-        </select>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="filters.sort" (ngModelChange)="onFilterChange()">
-          <option value="-createdAt">Plus récents</option>
-          <option value="createdAt">Plus anciens</option>
-          <option value="name">Nom A-Z</option>
-          <option value="-name">Nom Z-A</option>
-          <option value="price">Prix croissant</option>
-          <option value="-price">Prix décroissant</option>
-        </select>
-        <button type="button" class="btn btn-sm btn-primary" (click)="onFilterChange()">Filtrer</button>
-      </div>
+<div class="admin-list-page">
+  <!-- Header -->
+  <div class="al-header">
+    <div>
+      <h4 class="al-title"><i class="feather icon-package"></i> Liste des produits</h4>
+      <p class="al-subtitle">Tous les produits du centre commercial</p>
+    </div>
+  </div>
 
-      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-      <div *ngIf="loading" class="text-center py-4">Chargement...</div>
-
-      <div *ngIf="!loading && products.length === 0" class="text-muted py-4 text-center">
-        Aucun produit trouvé.
+  <!-- Filters -->
+  <div class="al-filters">
+    <div class="al-filter-row">
+      <div class="al-search">
+        <i class="feather icon-search"></i>
+        <input type="text" placeholder="Rechercher un produit..." [(ngModel)]="filters.search" (keyup.enter)="onFilterChange()">
       </div>
+      <select class="al-select" [(ngModel)]="filters.boutiqueId" (ngModelChange)="onFilterChange()">
+        <option value="">Toutes les boutiques</option>
+        <option *ngFor="let b of boutiques" [value]="b._id">{{ b.name }}</option>
+      </select>
+      <select class="al-select" [(ngModel)]="filters.availability" (ngModelChange)="onFilterChange()">
+        <option value="">Disponibilité</option>
+        <option value="available">Disponible</option>
+        <option value="outOfStock">Rupture</option>
+        <option value="onOrder">Sur commande</option>
+      </select>
+      <select class="al-select" [(ngModel)]="filters.isArchived" (ngModelChange)="onFilterChange()">
+        <option [ngValue]="undefined">Tous (non archivés)</option>
+        <option [ngValue]="false">Non archivés</option>
+        <option [ngValue]="true">Archivés</option>
+      </select>
+      <select class="al-select" [(ngModel)]="filters.isFeatured" (ngModelChange)="onFilterChange()">
+        <option [ngValue]="undefined">Vedette</option>
+        <option [ngValue]="true">En vedette</option>
+        <option [ngValue]="false">Pas vedette</option>
+      </select>
+      <select class="al-select" [(ngModel)]="filters.sort" (ngModelChange)="onFilterChange()">
+        <option value="-createdAt">Plus récents</option>
+        <option value="createdAt">Plus anciens</option>
+        <option value="name">Nom A-Z</option>
+        <option value="-name">Nom Z-A</option>
+        <option value="price">Prix croissant</option>
+        <option value="-price">Prix décroissant</option>
+      </select>
+      <select class="al-select al-select-sm" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
+        <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }} / page</option>
+      </select>
+      <button class="al-filter-btn" (click)="onFilterChange()">
+        <i class="feather icon-filter"></i> Filtrer
+      </button>
+    </div>
+  </div>
 
-      <div *ngIf="!loading && products.length > 0" class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Boutique</th>
-              <th>Catégorie</th>
-              <th>Prix</th>
-              <th>Stock</th>
-              <th>Disponibilité</th>
-              <th>Archivé</th>
-              <th>Vedette</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let p of products">
-              <td><strong>{{ p.name }}</strong></td>
-              <td>
-                <span *ngIf="p.boutiqueId">{{ p.boutiqueId.name }}</span>
-                <span *ngIf="!p.boutiqueId">—</span>
-              </td>
-              <td>{{ p.categoryInternal || '—' }}</td>
-              <td>{{ p.price != null ? (p.price | number:'1.0-0') + ' Ar' : '—' }}</td>
-              <td>{{ p.stock ?? 0 }}</td>
-              <td><span class="badge" [ngClass]="getAvailabilityClass(p.availability)">{{ getAvailabilityLabel(p.availability) }}</span></td>
-              <td><span class="badge" [ngClass]="p.isArchived ? 'badge-secondary' : 'badge-light'">{{ p.isArchived ? 'Oui' : 'Non' }}</span></td>
-              <td><span class="badge" [ngClass]="p.isFeatured ? 'badge-info' : 'badge-light'">{{ p.isFeatured ? 'Oui' : 'Non' }}</span></td>
-              <td>
-                <a [routerLink]="['/products/view', p._id]" class="btn btn-sm btn-outline-primary">Voir</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="al-error">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
 
-      <div *ngIf="!loading && (pagination.pages > 1 || pagination.total > 0)" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Page {{ pagination.page }} / {{ pagination.pages || 1 }} ({{ pagination.total }} produit(s))</span>
-        <div>
-          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">Précédent</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">Suivant</button>
-        </div>
-      </div>
-    </app-card>
+  <!-- Loading -->
+  <div *ngIf="loading" class="al-loading">
+    <div class="al-loader-track"><div class="al-loader-fill"></div></div>
+    <p>Chargement des produits...</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && products.length === 0 && !errorMessage" class="al-empty">
+    <div class="al-empty-icon"><i class="feather icon-package"></i></div>
+    <h5>Aucun produit trouvé</h5>
+    <p>Essayez de modifier vos filtres de recherche.</p>
+  </div>
+
+  <!-- Table -->
+  <div class="al-table-card" *ngIf="!loading && products.length > 0">
+    <div class="table-responsive">
+      <table class="al-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Boutique</th>
+            <th>Catégorie</th>
+            <th class="text-right">Prix</th>
+            <th class="text-right">Stock</th>
+            <th>Disponibilité</th>
+            <th>Archivé</th>
+            <th>Vedette</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of products">
+            <td class="td-name">{{ p.name }}</td>
+            <td class="td-muted">
+              <span *ngIf="p.boutiqueId">{{ p.boutiqueId.name }}</span>
+              <span *ngIf="!p.boutiqueId">—</span>
+            </td>
+            <td class="td-muted">{{ p.categoryInternal || '—' }}</td>
+            <td class="text-right td-mono">{{ p.price != null ? (p.price | number:'1.0-0') + ' Ar' : '—' }}</td>
+            <td class="text-right td-mono" [class.stock-low]="p.stock != null && p.stock <= 5 && p.stock > 0" [class.stock-out]="p.stock === 0">{{ p.stock ?? 0 }}</td>
+            <td>
+              <span class="status-pill" [ngClass]="getAvailabilityClass(p.availability)">{{ getAvailabilityLabel(p.availability) }}</span>
+            </td>
+            <td>
+              <span class="status-pill" [ngClass]="p.isArchived ? 'pill-muted' : 'pill-success'">{{ p.isArchived ? 'Oui' : 'Non' }}</span>
+            </td>
+            <td>
+              <span class="status-pill" [ngClass]="p.isFeatured ? 'pill-featured' : 'pill-muted'">{{ p.isFeatured ? 'Oui' : 'Non' }}</span>
+            </td>
+            <td class="text-center td-actions">
+              <a [routerLink]="['/products/view', p._id]" class="action-btn action-view" title="Voir">
+                <i class="feather icon-eye"></i>
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && (pagination.pages > 1 || pagination.total > 0)" class="al-pagination">
+    <span class="al-page-info">Page {{ pagination.page }} / {{ pagination.pages || 1 }} <span class="al-page-total">({{ pagination.total }} produit{{ pagination.total > 1 ? 's' : '' }})</span></span>
+    <div class="al-page-controls">
+      <button class="page-btn" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">
+        <i class="feather icon-chevron-left"></i>
+      </button>
+      <button class="page-btn" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">
+        <i class="feather icon-chevron-right"></i>
+      </button>
+    </div>
   </div>
 </div>

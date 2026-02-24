@@ -1,249 +1,258 @@
 <div class="admin-dashboard">
-  <h5 class="mb-4"><i class="feather icon-grid mr-2"></i>Dashboard - Centre Commercial</h5>
+  <!-- Page Header -->
+  <div class="dash-header">
+    <div>
+      <h4 class="dash-title"><i class="feather icon-bar-chart-2"></i> Dashboard</h4>
+      <p class="dash-subtitle">Centre de contrôle — Vue d'ensemble</p>
+    </div>
+  </div>
 
   <!-- Loading -->
-  <div *ngIf="loading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-2 text-muted">Chargement des statistiques...</p>
+  <div *ngIf="loading" class="dash-loading">
+    <div class="dash-loader-track"><div class="dash-loader-fill"></div></div>
+    <p>Chargement des statistiques...</p>
   </div>
 
   <!-- Error -->
-  <div *ngIf="errorMessage && !loading" class="alert alert-danger">{{ errorMessage }}</div>
+  <div *ngIf="errorMessage && !loading" class="dash-error">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
 
-  <!-- ===== KPI Cards Row 1 ===== -->
-  <div class="row" *ngIf="rental?.kpis && !loading">
-    <div class="col-md-6 col-xl-4 col-xxl-2 mb-4">
-      <div class="card stat-card stat-card-primary">
-        <div class="card-body">
-          <div class="stat-icon"><i class="feather icon-grid"></i></div>
-          <div class="stat-content">
-            <p class="stat-label">Total Boutiques</p>
-            <h4 class="stat-value">{{ rental.kpis.totalBoutiques }}</h4>
-          </div>
+  <!-- ===== KPI Cards ===== -->
+  <div class="dash-kpi-grid" *ngIf="rental?.kpis && !loading">
+    <div class="dash-kpi-card kpi-blue">
+      <div class="dash-kpi-accent"></div>
+      <div class="dash-kpi-body">
+        <div class="dash-kpi-icon"><i class="feather icon-grid"></i></div>
+        <div class="dash-kpi-info">
+          <span class="dash-kpi-label">Total Boutiques</span>
+          <h4 class="dash-kpi-value">{{ rental.kpis.totalBoutiques }}</h4>
         </div>
       </div>
     </div>
-    <div class="col-md-6 col-xl-4 col-xxl-2 mb-4">
-      <div class="card stat-card stat-card-success">
-        <div class="card-body">
-          <div class="stat-icon"><i class="feather icon-check-circle"></i></div>
-          <div class="stat-content">
-            <p class="stat-label">Boutiques Occupées</p>
-            <h4 class="stat-value">{{ rental.kpis.occupiedBoutiques }}</h4>
-          </div>
+    <div class="dash-kpi-card kpi-green">
+      <div class="dash-kpi-accent"></div>
+      <div class="dash-kpi-body">
+        <div class="dash-kpi-icon"><i class="feather icon-check-circle"></i></div>
+        <div class="dash-kpi-info">
+          <span class="dash-kpi-label">Occupées</span>
+          <h4 class="dash-kpi-value">{{ rental.kpis.occupiedBoutiques }}</h4>
         </div>
       </div>
     </div>
-    <div class="col-md-6 col-xl-4 col-xxl-2 mb-4">
-      <div class="card stat-card stat-card-danger">
-        <div class="card-body">
-          <div class="stat-icon"><i class="feather icon-map-pin"></i></div>
-          <div class="stat-content">
-            <p class="stat-label">Boutiques Disponibles</p>
-            <h4 class="stat-value">{{ rental.kpis.availableBoutiques }}</h4>
-          </div>
+    <div class="dash-kpi-card kpi-red">
+      <div class="dash-kpi-accent"></div>
+      <div class="dash-kpi-body">
+        <div class="dash-kpi-icon"><i class="feather icon-map-pin"></i></div>
+        <div class="dash-kpi-info">
+          <span class="dash-kpi-label">Disponibles</span>
+          <h4 class="dash-kpi-value">{{ rental.kpis.availableBoutiques }}</h4>
         </div>
       </div>
     </div>
-    <div class="col-md-6 col-xl-4 col-xxl-2 mb-4">
-      <div class="card stat-card stat-card-info">
-        <div class="card-body">
-          <div class="stat-icon"><i class="feather icon-bar-chart-2"></i></div>
-          <div class="stat-content">
-            <p class="stat-label">Taux d'Occupation</p>
-            <h4 class="stat-value">{{ rental.kpis.occupancyRate }}%</h4>
-          </div>
+    <div class="dash-kpi-card kpi-cyan">
+      <div class="dash-kpi-accent"></div>
+      <div class="dash-kpi-body">
+        <div class="dash-kpi-icon"><i class="feather icon-bar-chart-2"></i></div>
+        <div class="dash-kpi-info">
+          <span class="dash-kpi-label">Taux d'occupation</span>
+          <h4 class="dash-kpi-value">{{ rental.kpis.occupancyRate }}<small>%</small></h4>
         </div>
       </div>
     </div>
-    <div class="col-md-6 col-xl-4 col-xxl-2 mb-4">
-      <div class="card stat-card stat-card-warning">
-        <div class="card-body">
-          <div class="stat-icon"><i class="feather icon-credit-card"></i></div>
-          <div class="stat-content">
-            <p class="stat-label">Revenus du Mois</p>
-            <h4 class="stat-value">{{ fmt(rental.kpis.monthlyRentRevenue) }} Ar</h4>
-          </div>
+    <div class="dash-kpi-card kpi-orange">
+      <div class="dash-kpi-accent"></div>
+      <div class="dash-kpi-body">
+        <div class="dash-kpi-icon"><i class="feather icon-credit-card"></i></div>
+        <div class="dash-kpi-info">
+          <span class="dash-kpi-label">Revenus du mois</span>
+          <h4 class="dash-kpi-value">{{ fmt(rental.kpis.monthlyRentRevenue) }} <small>Ar</small></h4>
         </div>
       </div>
     </div>
-    <div class="col-md-6 col-xl-4 col-xxl-2 mb-4">
-      <div class="card stat-card stat-card-orange">
-        <div class="card-body">
-          <div class="stat-icon"><i class="feather icon-clock"></i></div>
-          <div class="stat-content">
-            <p class="stat-label">Réservations en Attente</p>
-            <h4 class="stat-value">{{ rental.kpis.pendingReservations }}</h4>
-          </div>
+    <div class="dash-kpi-card kpi-purple">
+      <div class="dash-kpi-accent"></div>
+      <div class="dash-kpi-body">
+        <div class="dash-kpi-icon"><i class="feather icon-clock"></i></div>
+        <div class="dash-kpi-info">
+          <span class="dash-kpi-label">En attente</span>
+          <h4 class="dash-kpi-value">{{ rental.kpis.pendingReservations }}</h4>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== Charts: Revenus Mensuels + Revenus par Zone ===== -->
-  <div class="row" *ngIf="!loading && rental">
-    <div class="col-xl-7 mb-4">
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0"><i class="feather icon-trending-up mr-2"></i>Revenus Mensuels</h6>
+  <!-- ===== Charts Row ===== -->
+  <div class="dash-charts-row" *ngIf="!loading && rental">
+    <div class="dash-chart-card dash-chart-wide">
+      <div class="dash-chart-header">
+        <div class="dash-chart-title-group">
+          <div class="dash-chart-icon icon-blue"><i class="feather icon-trending-up"></i></div>
+          <div>
+            <h6 class="dash-chart-title">Revenus Mensuels</h6>
+            <p class="dash-chart-subtitle">Évolution des loyers perçus</p>
+          </div>
         </div>
-        <div class="card-body">
-          <div id="monthly-revenue-chart"></div>
-          <div *ngIf="!rental?.charts?.monthlyRentRevenue?.data?.length" class="text-center text-muted py-4">Aucune donnée de loyer.</div>
+      </div>
+      <div class="dash-chart-body">
+        <div id="monthly-revenue-chart"></div>
+        <div *ngIf="!rental?.charts?.monthlyRentRevenue?.data?.length" class="dash-chart-empty">
+          <i class="feather icon-bar-chart"></i>
+          <p>Aucune donnée de loyer</p>
         </div>
       </div>
     </div>
-    <div class="col-xl-5 mb-4">
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0"><i class="feather icon-pie-chart mr-2"></i>Revenus par Zone</h6>
+    <div class="dash-chart-card dash-chart-narrow">
+      <div class="dash-chart-header">
+        <div class="dash-chart-title-group">
+          <div class="dash-chart-icon icon-purple"><i class="feather icon-pie-chart"></i></div>
+          <div>
+            <h6 class="dash-chart-title">Revenus par Zone</h6>
+            <p class="dash-chart-subtitle">Répartition géographique</p>
+          </div>
         </div>
-        <div class="card-body">
-          <div id="revenue-zone-bar-chart"></div>
-          <hr class="my-3" *ngIf="rental?.charts?.revenueByZone?.length">
-          <div id="revenue-zone-donut-chart"></div>
-          <div *ngIf="!rental?.charts?.boutiquesByFloor?.length && !rental?.charts?.revenueByZone?.length" class="text-center text-muted py-4">Aucune donnée.</div>
+      </div>
+      <div class="dash-chart-body">
+        <div id="revenue-zone-bar-chart"></div>
+        <div *ngIf="rental?.charts?.revenueByZone?.length" class="dash-chart-divider"></div>
+        <div id="revenue-zone-donut-chart"></div>
+        <div *ngIf="!rental?.charts?.boutiquesByFloor?.length && !rental?.charts?.revenueByZone?.length" class="dash-chart-empty">
+          <i class="feather icon-pie-chart"></i>
+          <p>Aucune donnée</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== Tables: Réservations en Attente / Paiements en Retard / Alertes ===== -->
-  <div class="row" *ngIf="!loading && rental">
+  <!-- ===== Activity Panels ===== -->
+  <div class="dash-panels-row" *ngIf="!loading && rental">
     <!-- Réservations en Attente -->
-    <div class="col-xl-4 mb-4">
-      <div class="card h-100">
-        <div class="card-header">
-          <h6 class="mb-0"><i class="feather icon-clock mr-2"></i>Réservations en Attente</h6>
-        </div>
-        <div class="card-body p-0">
-          <div class="list-group list-group-flush">
-            <div class="list-group-item d-flex justify-content-between align-items-center"
-                 *ngFor="let r of rental.tables.pendingReservations">
-              <div>
-                <i class="feather icon-user mr-1 text-muted"></i>
-                <strong>{{ r.user?.firstName }} {{ r.user?.lastName }}</strong>
-                <br>
-                <small class="text-muted">
-                  Étage {{ r.boutique?.location?.floor || '?' }}, Zone {{ r.boutique?.location?.zone || '?' }}
-                  - N°{{ r.boutique?.location?.number || '?' }}
-                </small>
-              </div>
-              <span class="badge badge-warning">En Attente</span>
-            </div>
-            <div *ngIf="!rental.tables.pendingReservations?.length" class="list-group-item text-center text-muted py-3">
-              Aucune réservation en attente
-            </div>
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="dash-panel-icon icon-orange"><i class="feather icon-clock"></i></div>
+        <h6 class="dash-panel-title">Réservations en attente</h6>
+      </div>
+      <div class="dash-panel-body">
+        <div class="dash-panel-item" *ngFor="let r of rental.tables.pendingReservations">
+          <div class="dash-panel-dot dot-warning"></div>
+          <div class="dash-panel-info">
+            <span class="dash-panel-name">{{ r.user?.firstName }} {{ r.user?.lastName }}</span>
+            <span class="dash-panel-meta">Étage {{ r.boutique?.location?.floor || '?' }}, Zone {{ r.boutique?.location?.zone || '?' }} — N°{{ r.boutique?.location?.number || '?' }}</span>
           </div>
+          <span class="dash-panel-badge badge-warning">En attente</span>
+        </div>
+        <div *ngIf="!rental.tables.pendingReservations?.length" class="dash-panel-empty">
+          <i class="feather icon-check-circle"></i>
+          <span>Aucune réservation en attente</span>
         </div>
       </div>
     </div>
 
     <!-- Paiements en Retard -->
-    <div class="col-xl-4 mb-4">
-      <div class="card h-100">
-        <div class="card-header">
-          <h6 class="mb-0"><i class="feather icon-alert-triangle mr-2"></i>Paiements en Retard</h6>
-        </div>
-        <div class="card-body p-0">
-          <div class="list-group list-group-flush">
-            <div class="list-group-item d-flex justify-content-between align-items-center"
-                 *ngFor="let inv of rental.tables.latePayments">
-              <div>
-                <i class="feather icon-credit-card mr-1 text-muted"></i>
-                <strong>{{ inv.tenant?.firstName }} {{ inv.tenant?.lastName }}</strong>
-                <br>
-                <small class="text-muted">{{ inv.boutique?.name || 'Boutique' }} - {{ fmt(inv.amountDue) }} Ar</small>
-              </div>
-              <span class="badge badge-danger">{{ inv.daysOverdue }} Jours</span>
-            </div>
-            <div *ngIf="!rental.tables.latePayments?.length" class="list-group-item text-center text-muted py-3">
-              Aucun paiement en retard
-            </div>
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="dash-panel-icon icon-red"><i class="feather icon-alert-triangle"></i></div>
+        <h6 class="dash-panel-title">Paiements en retard</h6>
+      </div>
+      <div class="dash-panel-body">
+        <div class="dash-panel-item" *ngFor="let inv of rental.tables.latePayments">
+          <div class="dash-panel-dot dot-danger"></div>
+          <div class="dash-panel-info">
+            <span class="dash-panel-name">{{ inv.tenant?.firstName }} {{ inv.tenant?.lastName }}</span>
+            <span class="dash-panel-meta">{{ inv.boutique?.name || 'Boutique' }} — {{ fmt(inv.amountDue) }} Ar</span>
           </div>
+          <span class="dash-panel-badge badge-danger">{{ inv.daysOverdue }} jours</span>
+        </div>
+        <div *ngIf="!rental.tables.latePayments?.length" class="dash-panel-empty">
+          <i class="feather icon-check-circle"></i>
+          <span>Aucun paiement en retard</span>
         </div>
       </div>
     </div>
 
-    <!-- Alertes à Surveiller -->
-    <div class="col-xl-4 mb-4">
-      <div class="card h-100">
-        <div class="card-header">
-          <h6 class="mb-0"><i class="feather icon-bell mr-2"></i>Alertes à Surveiller</h6>
-        </div>
-        <div class="card-body p-0">
-          <div class="list-group list-group-flush">
-            <div class="list-group-item d-flex align-items-center"
-                 *ngFor="let alert of rental.tables.alerts">
-              <i class="feather {{ alert.icon }} mr-2" [ngClass]="getAlertClass(alert.type)"></i>
-              <span>{{ alert.message }}</span>
-            </div>
-            <div *ngIf="!rental.tables.alerts?.length" class="list-group-item text-center text-muted py-3">
-              Aucune alerte
-            </div>
+    <!-- Alertes -->
+    <div class="dash-panel">
+      <div class="dash-panel-header">
+        <div class="dash-panel-icon icon-cyan"><i class="feather icon-bell"></i></div>
+        <h6 class="dash-panel-title">Alertes à surveiller</h6>
+      </div>
+      <div class="dash-panel-body">
+        <div class="dash-panel-item" *ngFor="let alert of rental.tables.alerts">
+          <div class="dash-panel-dot" [ngClass]="'dot-' + (alert.type || 'info')"></div>
+          <div class="dash-panel-info">
+            <span class="dash-panel-name">{{ alert.message }}</span>
           </div>
+        </div>
+        <div *ngIf="!rental.tables.alerts?.length" class="dash-panel-empty">
+          <i class="feather icon-check-circle"></i>
+          <span>Aucune alerte</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== Users List ===== -->
-  <div class="row" *ngIf="!loading">
-    <div class="col-12 mb-4">
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-          <h6 class="mb-0"><i class="feather icon-users mr-2"></i>Liste des utilisateurs</h6>
-          <div class="d-flex gap-2 mt-2 mt-md-0">
-            <input type="text" class="form-control form-control-sm mr-2" placeholder="Rechercher..."
-                   style="width: 160px;" [(ngModel)]="usersSearch" (keyup.enter)="onUsersFilterChange()">
-            <select class="form-control form-control-sm mr-2" style="width: auto;"
-                    [(ngModel)]="usersRoleFilter" (ngModelChange)="onUsersFilterChange()">
-              <option value="">Tous les rôles</option>
-              <option value="admin">Admin</option>
-              <option value="boutique">Boutique</option>
-              <option value="acheteur">Acheteur</option>
-            </select>
-            <button class="btn btn-sm btn-outline-primary" (click)="onUsersFilterChange()">
-              <i class="feather icon-search"></i>
-            </button>
-          </div>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead class="thead-light">
-                <tr>
-                  <th>Nom</th>
-                  <th>Email</th>
-                  <th>Rôle</th>
-                  <th>Statut</th>
-                  <th>Inscription</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let user of users">
-                  <td>{{ user.firstName }} {{ user.lastName }}</td>
-                  <td>{{ user.email }}</td>
-                  <td><span class="badge" [ngClass]="getRoleBadge(user.role)">{{ getRoleLabel(user.role) }}</span></td>
-                  <td><span class="badge" [ngClass]="getStatusBadge(user.status)">{{ user.status }}</span></td>
-                  <td>{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
-                </tr>
-                <tr *ngIf="users.length === 0">
-                  <td colspan="5" class="text-center text-muted py-3">Aucun utilisateur trouvé.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card-footer d-flex justify-content-between align-items-center" *ngIf="usersPagination.pages > 1">
-          <small class="text-muted">{{ usersPagination.total }} utilisateurs</small>
+  <!-- ===== Users Table ===== -->
+  <div class="dash-users-section" *ngIf="!loading">
+    <div class="dash-data-card">
+      <div class="dash-data-header">
+        <div class="dash-chart-title-group">
+          <div class="dash-chart-icon icon-blue"><i class="feather icon-users"></i></div>
           <div>
-            <button class="btn btn-sm btn-outline-secondary mr-1" [disabled]="usersPagination.page <= 1"
-                    (click)="goToUsersPage(usersPagination.page - 1)">Précédent</button>
-            <span class="mx-2">{{ usersPagination.page }} / {{ usersPagination.pages }}</span>
-            <button class="btn btn-sm btn-outline-secondary ml-1" [disabled]="usersPagination.page >= usersPagination.pages"
-                    (click)="goToUsersPage(usersPagination.page + 1)">Suivant</button>
+            <h6 class="dash-chart-title">Liste des utilisateurs</h6>
+            <p class="dash-chart-subtitle">Gestion des comptes</p>
           </div>
+        </div>
+        <div class="dash-data-filters">
+          <div class="dash-filter-search">
+            <i class="feather icon-search"></i>
+            <input type="text" placeholder="Rechercher..." [(ngModel)]="usersSearch" (keyup.enter)="onUsersFilterChange()">
+          </div>
+          <select class="dash-filter-select" [(ngModel)]="usersRoleFilter" (ngModelChange)="onUsersFilterChange()">
+            <option value="">Tous les rôles</option>
+            <option value="admin">Admin</option>
+            <option value="boutique">Boutique</option>
+            <option value="acheteur">Acheteur</option>
+          </select>
+        </div>
+      </div>
+      <div class="dash-data-body">
+        <div class="table-responsive">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Statut</th>
+                <th>Inscription</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let user of users">
+                <td class="td-name">{{ user.firstName }} {{ user.lastName }}</td>
+                <td class="td-email">{{ user.email }}</td>
+                <td><span class="role-pill" [ngClass]="getRoleBadge(user.role)">{{ getRoleLabel(user.role) }}</span></td>
+                <td><span class="status-pill" [ngClass]="getStatusBadge(user.status)">{{ user.status }}</span></td>
+                <td class="td-date">{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+              </tr>
+              <tr *ngIf="users.length === 0">
+                <td colspan="5" class="td-empty">Aucun utilisateur trouvé.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="dash-data-footer" *ngIf="usersPagination.pages > 1">
+        <span class="dash-page-info">{{ usersPagination.total }} utilisateurs</span>
+        <div class="dash-page-controls">
+          <button class="page-btn" [disabled]="usersPagination.page <= 1" (click)="goToUsersPage(usersPagination.page - 1)">
+            <i class="feather icon-chevron-left"></i>
+          </button>
+          <span class="page-indicator">{{ usersPagination.page }} / {{ usersPagination.pages }}</span>
+          <button class="page-btn" [disabled]="usersPagination.page >= usersPagination.pages" (click)="goToUsersPage(usersPagination.page + 1)">
+            <i class="feather icon-chevron-right"></i>
+          </button>
         </div>
       </div>
     </div>

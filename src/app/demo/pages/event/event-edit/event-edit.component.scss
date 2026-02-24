@@ -1,1 +1,123 @@
-// Styles spécifiques si besoin
+// ============================================
+// Event Edit (Admin) — Premium Design
+// ============================================
+
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideLoader {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.admin-form-page { padding-bottom: 2rem; animation: fadeInUp 0.35s ease both; max-width: 800px; margin: 0 auto; }
+
+.af-header { margin-bottom: 24px; }
+.af-back-link {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500;
+  color: $ink-faint; text-decoration: none; margin-bottom: 12px; transition: color $transition;
+  &:hover { color: $blue; }
+}
+.af-title {
+  font-size: 1.5rem; font-weight: 700; color: $ink; margin: 0; letter-spacing: -0.02em;
+  i { margin-right: 10px; color: $blue; }
+}
+.af-subtitle { font-size: 13px; color: $ink-faint; margin: 4px 0 0; }
+
+.af-loading {
+  text-align: center; padding: 80px 20px;
+  p { color: $ink-faint; font-size: 14px; margin-top: 20px; }
+}
+.af-loader-track { width: 200px; height: 4px; border-radius: 4px; background: $surface-dim; overflow: hidden; margin: 0 auto; }
+.af-loader-fill { width: 60%; height: 100%; border-radius: 4px; background: linear-gradient(90deg, $blue, $purple); animation: slideLoader 1.2s ease-in-out infinite; }
+
+.af-card {
+  background: $surface; border: 1px solid $border-light; border-radius: $radius;
+  overflow: hidden;
+}
+.af-card-body { padding: 28px 32px; }
+
+.af-error {
+  display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+  background: rgba($red, 0.06); color: $red; border-radius: $radius-sm;
+  font-size: 14px; font-weight: 500; margin-bottom: 24px; border: 1px solid rgba($red, 0.12);
+  i { flex-shrink: 0; font-size: 18px; }
+}
+
+.af-section { margin-bottom: 8px; }
+.af-section-title {
+  font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  color: $ink-muted; margin-bottom: 18px; padding-bottom: 8px; border-bottom: 1px solid $border-light;
+}
+
+.af-form-grid { display: grid; gap: 18px; }
+.af-grid-2 { grid-template-columns: 1fr 1fr; }
+
+.af-field { margin-bottom: 18px; }
+.af-label {
+  display: block; font-size: 13px; font-weight: 600; color: $ink-soft; margin-bottom: 6px;
+}
+.af-required { color: $red; }
+
+.af-input, .af-select, .af-textarea {
+  width: 100%; padding: 10px 14px; border: 1.5px solid $border; border-radius: 8px;
+  font-size: 14px; color: $ink; background: $surface; font-family: inherit;
+  transition: border-color $transition;
+  &:focus { outline: none; border-color: $blue; box-shadow: 0 0 0 3px rgba($blue, 0.08); }
+  &::placeholder { color: $ink-faint; }
+}
+.af-textarea { resize: vertical; min-height: 100px; }
+.af-select { cursor: pointer; }
+
+.af-checkbox-wrap {
+  display: flex; align-items: flex-end; padding-bottom: 12px;
+}
+.af-checkbox-label {
+  display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+  font-size: 14px; font-weight: 500; color: $ink-soft;
+}
+.af-checkbox { width: 18px; height: 18px; accent-color: $blue; cursor: pointer; }
+
+.af-divider { height: 1px; background: $border-light; margin: 24px 0; }
+
+.af-actions {
+  display: flex; gap: 12px; padding-top: 8px;
+}
+.af-btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 11px 24px;
+  border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all $transition; border: none; font-family: inherit;
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+.af-btn-primary {
+  background: $ink; color: #fff;
+  &:hover:not(:disabled) { background: $blue; box-shadow: 0 4px 14px rgba($blue, 0.3); }
+}
+.af-btn-outline {
+  background: $surface; color: $ink-muted; border: 1.5px solid $border;
+  &:hover { border-color: $ink; color: $ink; }
+}
+
+@media (max-width: 768px) {
+  .af-card-body { padding: 20px; }
+  .af-grid-2 { grid-template-columns: 1fr; }
+}

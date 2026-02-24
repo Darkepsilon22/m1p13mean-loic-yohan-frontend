@@ -1,324 +1,401 @@
-<div class="row">
-  <div class="col-sm-12">
-    <!-- Réservation active -->
-    <app-card cardTitle="Ma réservation actuelle" [options]="false">
-      <!-- Erreur -->
-      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+<div class="mr-page">
 
-      <!-- Chargement -->
-      <div *ngIf="loading" class="text-center py-4">
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Chargement...</span>
+  <!-- Header -->
+  <div class="mr-header">
+    <div class="mr-header-icon">
+      <i class="feather icon-bookmark"></i>
+    </div>
+    <div>
+      <h4 class="mr-title">Ma réservation</h4>
+      <p class="mr-subtitle">Suivez et gérez votre réservation d'emplacement</p>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="mr-alert mr-alert-error">
+    <i class="feather icon-alert-circle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="mr-loading-card">
+    <div class="mr-spinner"></div>
+    <p>Chargement de votre réservation...</p>
+  </div>
+
+  <!-- No reservation -->
+  <div *ngIf="!loading && !reservation" class="mr-empty">
+    <div class="mr-empty-icon">
+      <i class="feather icon-inbox"></i>
+    </div>
+    <p class="mr-empty-title">Aucune réservation active</p>
+    <p class="mr-empty-text">Parcourez les emplacements disponibles pour réserver le vôtre.</p>
+    <a routerLink="/emplacement/available" class="mr-btn mr-btn-primary">
+      <i class="feather icon-search"></i> Voir les emplacements
+    </a>
+  </div>
+
+  <!-- Active reservation -->
+  <div *ngIf="!loading && reservation && boutique">
+
+    <!-- Status banners -->
+    <div *ngIf="reservation.status === 'temporaire'" class="mr-banner mr-banner-warning">
+      <div class="mr-banner-icon-wrap warning">
+        <i class="feather icon-alert-triangle"></i>
+      </div>
+      <div class="mr-banner-body">
+        <strong>Réservation temporaire</strong>
+        <p>Confirmez votre demande avant expiration pour la soumettre à l'administration.</p>
+        <div *ngIf="reservation.expiresAt" class="mr-countdown">
+          <i class="feather icon-clock"></i>
+          <span>Expire dans <strong>{{ getRemainingTime() }}</strong></span>
         </div>
       </div>
+    </div>
 
-      <!-- Pas de réservation -->
-      <div *ngIf="!loading && !reservation" class="text-center py-4">
-        <i class="feather icon-inbox" style="font-size: 3rem; color: #ccc;"></i>
-        <p class="mt-3 text-muted">Vous n'avez aucune réservation active.</p>
-        <a routerLink="/emplacement/available" class="btn btn-primary">
-          <i class="feather icon-search mr-1"></i> Voir les emplacements disponibles
-        </a>
+    <div *ngIf="reservation.status === 'en_attente_validation'" class="mr-banner mr-banner-info">
+      <div class="mr-banner-icon-wrap info">
+        <i class="feather icon-clock"></i>
       </div>
+      <div class="mr-banner-body">
+        <strong>En cours d'examen</strong>
+        <p>Votre demande est en cours d'examen par l'administration. Vous serez notifié de la décision.</p>
+      </div>
+    </div>
 
-      <!-- Réservation existante -->
-      <div *ngIf="!loading && reservation && boutique">
-        <div class="row">
-          <div class="col-md-8">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <div>
-                <h4>{{ boutique.name }}</h4>
-                <p class="text-muted mb-0">{{ boutique.shortDescription || boutique.description }}</p>
-              </div>
-              
-              <!-- Bouton Modifier la boutique (visible uniquement pour réservation confirmée) -->
-              <div *ngIf="reservation.status === 'confirmee'">
-                <button class="btn btn-outline-primary" (click)="goToEditBoutique()">
-                  <i class="feather icon-edit mr-1"></i> Modifier ma boutique
-                </button>
-              </div>
+    <div *ngIf="reservation.status === 'confirmee'" class="mr-banner mr-banner-success">
+      <div class="mr-banner-icon-wrap success">
+        <i class="feather icon-check-circle"></i>
+      </div>
+      <div class="mr-banner-body">
+        <strong>Réservation confirmée</strong>
+        <p>Cet emplacement vous est attribué. Consultez <a routerLink="/emplacement/my-contract" class="mr-link">Mon contrat</a> pour signer et régler le dépôt.</p>
+      </div>
+    </div>
+
+    <div *ngIf="reservation.status === 'refusee'" class="mr-banner mr-banner-danger">
+      <div class="mr-banner-icon-wrap danger">
+        <i class="feather icon-x-circle"></i>
+      </div>
+      <div class="mr-banner-body">
+        <strong>Demande refusée</strong>
+        <p>{{ reservation.rejectionReason || 'Votre demande a été refusée par l\'administration.' }}</p>
+      </div>
+    </div>
+
+    <!-- Main layout -->
+    <div class="mr-layout">
+
+      <!-- Left: Details -->
+      <div class="mr-main-col">
+        <div class="mr-card">
+          <div class="mr-card-top">
+            <div>
+              <h5 class="mr-boutique-name">{{ boutique.name }}</h5>
+              <p class="mr-boutique-desc">{{ boutique.shortDescription || boutique.description }}</p>
             </div>
+            <span class="mr-status" [ngClass]="'mr-status-' + reservation.status">
+              {{ getStatusLabel(reservation.status) }}
+            </span>
+          </div>
 
-            <table class="table table-bordered">
-              <tr>
-                <td width="40%"><strong>Statut de la réservation</strong></td>
-                <td>
-                  <span class="badge" [ngClass]="getStatusClass(reservation.status)">
-                    {{ getStatusLabel(reservation.status) }}
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td><strong>Emplacement</strong></td>
-                <td>Étage {{ boutique.location?.floor || 0 }}, Zone {{ boutique.location?.zone }}, N° {{ boutique.location?.number }}</td>
-              </tr>
-              <tr *ngIf="boutique.surface">
-                <td><strong>Surface</strong></td>
-                <td>{{ boutique.surface }} m²</td>
-              </tr>
-              <tr *ngIf="boutique.price">
-                <td><strong>Prix mensuel</strong></td>
-                <td>{{ formatPrice(boutique.price) }}</td>
-              </tr>
-              <tr>
-                <td><strong>Date de réservation</strong></td>
-                <td>{{ reservation.createdAt | date:'medium' }}</td>
-              </tr>
-              <tr *ngIf="reservation.status === 'confirmee' && reservation.confirmedAt">
-                <td><strong>Date de confirmation</strong></td>
-                <td>{{ reservation.confirmedAt | date:'medium' }}</td>
-              </tr>
-              <tr *ngIf="reservation.status === 'temporaire' && reservation.expiresAt">
-                <td><strong>Expire dans</strong></td>
-                <td class="text-danger font-weight-bold">{{ getRemainingTime() }}</td>
-              </tr>
-            </table>
-
-            <!-- Plan (modélisation) : emplacement réservé sur le plan -->
-            <div class="mt-4" *ngIf="boutique?.floorId">
-              <h5 class="mb-2">Votre emplacement sur le plan</h5>
-              <div *ngIf="mapLoading" class="text-muted small">Chargement du plan...</div>
-              <div *ngIf="!mapLoading && mapData" class="map-container-reservation">
-                <app-map-svg
-                  [floor]="mapData.floor"
-                  [zones]="mapData.zones"
-                  [boutiques]="mapData.boutiques"
-                  [specialSpaces]="mapData.specialSpaces"
-                  [isEditMode]="false"
-                  [selectedBoutiqueId]="boutique?._id"
-                  (zoneClick)="noop()"
-                  (boutiqueClick)="noop()"
-                  (specialSpaceClick)="noop()">
-                </app-map-svg>
-              </div>
+          <div class="mr-info-grid">
+            <div class="mr-info-item">
+              <span class="mr-info-label">
+                <i class="feather icon-map-pin"></i> Emplacement
+              </span>
+              <span class="mr-info-value">
+                Étage {{ boutique.location?.floor || 0 }}, Zone {{ boutique.location?.zone }}, N° {{ boutique.location?.number }}
+              </span>
             </div>
-
-            <!-- Actions selon le statut -->
-            <div class="mt-3" *ngIf="reservation.status === 'temporaire'">
-              <div class="alert alert-warning">
-                <i class="feather icon-alert-triangle mr-1"></i>
-                <strong>Attention:</strong> Votre réservation est temporaire. Vous devez la confirmer avant expiration pour soumettre votre demande à l'administration.
-              </div>
-              <button class="btn btn-success mr-2" (click)="openConfirmModal()">
-                <i class="feather icon-check mr-1"></i> Confirmer ma demande
-              </button>
-              <button class="btn btn-outline-danger" (click)="openCancelModal()">
-                <i class="feather icon-x mr-1"></i> Annuler
-              </button>
+            <div class="mr-info-item" *ngIf="boutique.surface">
+              <span class="mr-info-label">
+                <i class="feather icon-maximize"></i> Surface
+              </span>
+              <span class="mr-info-value">{{ boutique.surface }} m²</span>
             </div>
-
-            <div class="mt-3" *ngIf="reservation.status === 'en_attente_validation'">
-              <div class="alert alert-info">
-                <i class="feather icon-clock mr-1"></i>
-                Votre demande est en cours d'examen par l'administration. Vous serez notifié de la décision.
-              </div>
-              <button class="btn btn-outline-danger" (click)="openCancelModal()">
-                <i class="feather icon-x mr-1"></i> Annuler ma demande
-              </button>
+            <div class="mr-info-item" *ngIf="boutique.price">
+              <span class="mr-info-label">
+                <i class="feather icon-tag"></i> Loyer mensuel
+              </span>
+              <span class="mr-info-value mr-money">{{ formatPrice(boutique.price) }}</span>
             </div>
-
-            <!-- NOUVEAU: Actions pour réservation confirmée -->
-            <div class="mt-3" *ngIf="reservation.status === 'confirmee'">
-              <div class="alert alert-success">
-                <i class="feather icon-check-circle mr-1"></i>
-                <strong>Félicitations!</strong> Votre réservation a été confirmée. Cet emplacement vous est attribué.
-              </div>
-              <div class="alert alert-info mb-2">
-                <i class="feather icon-file-text mr-1"></i>
-                <strong>Contrat :</strong> L'administration peut vous envoyer un contrat de location. Accédez à <a routerLink="/emplacement/my-contract" class="font-weight-bold">Mon contrat</a> pour le signer et régler le dépôt de garantie.
-              </div>
-              <div class="alert alert-warning">
-                <i class="feather icon-info mr-1"></i>
-                <strong>Important:</strong> Vous pouvez annuler votre réservation à tout moment. L'emplacement redeviendra alors disponible pour d'autres utilisateurs.
-              </div>
-              <div class="btn-group">
-                <a routerLink="/emplacement/my-contract" class="btn btn-outline-primary">
-                  <i class="feather icon-file-text mr-1"></i> Mon contrat
-                </a>
-                <button class="btn btn-primary" (click)="goToEditBoutique()">
-                  <i class="feather icon-edit mr-1"></i> Modifier ma boutique
-                </button>
-                <button class="btn btn-outline-danger" (click)="openCancelConfirmedModal()">
-                  <i class="feather icon-trash-2 mr-1"></i> Résilier l'emplacement
-                </button>
-              </div>
+            <div class="mr-info-item">
+              <span class="mr-info-label">
+                <i class="feather icon-calendar"></i> Date de réservation
+              </span>
+              <span class="mr-info-value">{{ reservation.createdAt | date:'medium' }}</span>
             </div>
-
-            <div class="mt-3" *ngIf="reservation.status === 'refusee'">
-              <div class="alert alert-danger">
-                <i class="feather icon-x-circle mr-1"></i>
-                <strong>Refusée:</strong> {{ reservation.rejectionReason || 'Votre demande a été refusée.' }}
-              </div>
-              <a routerLink="/emplacement/available" class="btn btn-primary">
-                <i class="feather icon-search mr-1"></i> Chercher un autre emplacement
-              </a>
+            <div class="mr-info-item" *ngIf="reservation.status === 'confirmee' && reservation.confirmedAt">
+              <span class="mr-info-label">
+                <i class="feather icon-check"></i> Confirmée le
+              </span>
+              <span class="mr-info-value">{{ reservation.confirmedAt | date:'medium' }}</span>
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="card">
-              <div class="card-body text-center">
-                <img 
-                  [src]="boutique.logo || 'assets/images/default-shop.png'" 
-                  alt="{{ boutique.name }}" 
-                  class="img-fluid rounded mb-3"
-                  style="max-height: 200px; object-fit: cover;">
-                
-                <h6 class="mb-2">{{ boutique.name }}</h6>
-                <p class="text-muted small mb-3">{{ boutique.categoryId?.name || 'Non catégorisé' }}</p>
-                
-                <div *ngIf="reservation.status === 'confirmee'">
-                  <button class="btn btn-sm btn-outline-primary btn-block" (click)="goToEditBoutique()">
-                    <i class="feather icon-settings mr-1"></i> Gérer ma boutique
-                  </button>
-                </div>
-              </div>
-            </div>
+          <!-- Actions -->
+          <div class="mr-actions" *ngIf="reservation.status === 'temporaire'">
+            <button class="mr-btn mr-btn-success" (click)="openConfirmModal()">
+              <i class="feather icon-check"></i> Confirmer ma demande
+            </button>
+            <button class="mr-btn mr-btn-outline-danger" (click)="openCancelModal()">
+              <i class="feather icon-x"></i> Annuler
+            </button>
+          </div>
+
+          <div class="mr-actions" *ngIf="reservation.status === 'en_attente_validation'">
+            <button class="mr-btn mr-btn-outline-danger" (click)="openCancelModal()">
+              <i class="feather icon-x"></i> Annuler ma demande
+            </button>
+          </div>
+
+          <div class="mr-actions" *ngIf="reservation.status === 'confirmee'">
+            <a routerLink="/emplacement/my-contract" class="mr-btn mr-btn-outline">
+              <i class="feather icon-file-text"></i> Mon contrat
+            </a>
+            <button class="mr-btn mr-btn-primary" (click)="goToEditBoutique()">
+              <i class="feather icon-edit"></i> Modifier ma boutique
+            </button>
+            <button class="mr-btn mr-btn-outline-danger" (click)="openCancelConfirmedModal()">
+              <i class="feather icon-trash-2"></i> Résilier
+            </button>
+          </div>
+
+          <div class="mr-actions" *ngIf="reservation.status === 'refusee'">
+            <a routerLink="/emplacement/available" class="mr-btn mr-btn-primary">
+              <i class="feather icon-search"></i> Chercher un autre emplacement
+            </a>
+          </div>
+        </div>
+
+        <!-- Map -->
+        <div class="mr-card" *ngIf="boutique?.floorId">
+          <div class="mr-card-label">
+            <span class="mr-card-dot dot-blue"></span>
+            <span>Votre emplacement sur le plan</span>
+          </div>
+          <div *ngIf="mapLoading" class="mr-map-loading">
+            <div class="mr-spinner-sm"></div>
+            <span>Chargement du plan...</span>
+          </div>
+          <div *ngIf="!mapLoading && mapData" class="mr-map-container">
+            <app-map-svg
+              [floor]="mapData.floor"
+              [zones]="mapData.zones"
+              [boutiques]="mapData.boutiques"
+              [specialSpaces]="mapData.specialSpaces"
+              [isEditMode]="false"
+              [selectedBoutiqueId]="boutique?._id"
+              (zoneClick)="noop()"
+              (boutiqueClick)="noop()"
+              (specialSpaceClick)="noop()">
+            </app-map-svg>
           </div>
         </div>
       </div>
-    </app-card>
 
-    <!-- Historique -->
-    <app-card cardTitle="Historique des réservations" [options]="false" *ngIf="history.length > 0">
-      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
-        <input type="text" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Recherche par emplacement..."
+      <!-- Right: Boutique card -->
+      <div class="mr-side-col">
+        <div class="mr-boutique-card">
+          <div class="mr-boutique-img-wrap">
+            <img
+              [src]="boutique.logo || 'assets/images/default-shop.png'"
+              [alt]="boutique.name"
+              class="mr-boutique-img">
+          </div>
+          <div class="mr-boutique-card-body">
+            <h6 class="mr-boutique-card-name">{{ boutique.name }}</h6>
+            <span class="mr-boutique-category">{{ boutique.categoryId?.name || 'Non catégorisé' }}</span>
+            <button *ngIf="reservation.status === 'confirmee'"
+                    class="mr-btn mr-btn-outline mr-btn-block"
+                    (click)="goToEditBoutique()">
+              <i class="feather icon-settings"></i> Gérer ma boutique
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="mr-history" *ngIf="history.length > 0">
+    <div class="mr-section-title">
+      <i class="feather icon-clock"></i>
+      <span>Historique des réservations</span>
+    </div>
+
+    <!-- History filters -->
+    <div class="mr-history-toolbar">
+      <div class="mr-search-wrap">
+        <i class="feather icon-search"></i>
+        <input type="text" class="mr-search-input" placeholder="Rechercher par emplacement..."
                [(ngModel)]="historySearchQuery">
-        <span class="text-muted small">Afficher :</span>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="historyPageSize" (ngModelChange)="onHistoryPageSizeChange()">
+      </div>
+      <div class="mr-toolbar-right">
+        <span class="mr-toolbar-label">Afficher :</span>
+        <select class="mr-page-size-select" [(ngModel)]="historyPageSize" (ngModelChange)="onHistoryPageSizeChange()">
           <option *ngFor="let opt of historyPageSizeOptions" [value]="opt">{{ opt }}</option>
         </select>
       </div>
-      <div *ngIf="historyLoading" class="text-center py-3">Chargement...</div>
+    </div>
 
-      <div *ngIf="!historyLoading && filteredHistory.length === 0" class="text-muted py-3 text-center">
-        Aucun résultat pour cette recherche.
-      </div>
+    <div *ngIf="historyLoading" class="mr-history-loading">Chargement...</div>
 
-      <div class="table-responsive" *ngIf="!historyLoading && paginatedHistory.length > 0">
-        <table class="table table-hover">
+    <div *ngIf="!historyLoading && filteredHistory.length === 0" class="mr-history-empty">
+      Aucun résultat pour cette recherche.
+    </div>
+
+    <div *ngIf="!historyLoading && paginatedHistory.length > 0" class="mr-table-card">
+      <div class="mr-table-wrap">
+        <table class="mr-table">
           <thead>
             <tr>
               <th>Emplacement</th>
               <th>Statut</th>
               <th>Date</th>
-              <th>Motif (si refusé/annulé)</th>
+              <th>Motif</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let h of paginatedHistory">
               <td>{{ h.boutique?.name || h.boutiqueSnapshot?.name || 'N/A' }}</td>
               <td>
-                <span class="badge" [ngClass]="getStatusClass(h.status)">{{ getStatusLabel(h.status) }}</span>
+                <span class="mr-status" [ngClass]="'mr-status-' + h.status">
+                  {{ getStatusLabel(h.status) }}
+                </span>
               </td>
               <td>{{ h.createdAt | date:'short' }}</td>
-              <td>{{ h.rejectionReason || h.cancellationReason || '—' }}</td>
+              <td class="mr-reason">{{ h.rejectionReason || h.cancellationReason || '—' }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <div *ngIf="!historyLoading && filteredHistory.length > 0" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Page {{ historyCurrentPage }} / {{ totalHistoryPages }} ({{ filteredHistory.length }} réservation(s))</span>
-        <div>
-          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="historyCurrentPage <= 1" (click)="goToHistoryPage(historyCurrentPage - 1)">Précédent</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="historyCurrentPage >= totalHistoryPages" (click)="goToHistoryPage(historyCurrentPage + 1)">Suivant</button>
+      <div class="mr-pagination" *ngIf="filteredHistory.length > 0">
+        <span class="mr-page-info">
+          Page {{ historyCurrentPage }} / {{ totalHistoryPages }}
+          <span class="mr-page-count">({{ filteredHistory.length }} réservation(s))</span>
+        </span>
+        <div class="mr-page-btns">
+          <button class="mr-page-btn" [disabled]="historyCurrentPage <= 1" (click)="goToHistoryPage(historyCurrentPage - 1)">
+            <i class="feather icon-chevron-left"></i>
+          </button>
+          <button class="mr-page-btn" [disabled]="historyCurrentPage >= totalHistoryPages" (click)="goToHistoryPage(historyCurrentPage + 1)">
+            <i class="feather icon-chevron-right"></i>
+          </button>
         </div>
       </div>
-    </app-card>
+    </div>
   </div>
 </div>
 
-<!-- Modal Confirmation de demande -->
-<app-ui-modal #confirmModal dialogClass="modal-dialog-centered" [containerClick]="false">
-  <div class="app-modal-header">
-    <h5 class="modal-title">Confirmer la demande</h5>
-    <button type="button" class="close basic-close" aria-label="Close" (click)="closeConfirmModal()">
-      <span aria-hidden="true">&times;</span>
+<!-- Modal: Confirm reservation -->
+<app-ui-modal #confirmModal dialogClass="modal-dialog-centered mr-modal-dialog" [containerClick]="false">
+  <div class="app-modal-header mr-modal-header">
+    <div class="mr-modal-header-icon success">
+      <i class="feather icon-check-circle"></i>
+    </div>
+    <h5 class="mr-modal-title">Confirmer la demande</h5>
+    <button type="button" class="mr-modal-close" aria-label="Close" (click)="closeConfirmModal()">
+      <span>&times;</span>
     </button>
   </div>
-  <div class="app-modal-body">
-    <p>Êtes-vous sûr de vouloir soumettre votre demande de réservation pour <strong>{{ boutique?.name }}</strong> ?</p>
-    <p class="text-muted">Votre demande sera examinée par l'administration du centre commercial.</p>
-
-    <div *ngIf="actionError" class="alert alert-danger">{{ actionError }}</div>
-    <div *ngIf="actionSuccess" class="alert alert-success">{{ actionSuccess }}</div>
+  <div class="app-modal-body mr-modal-body">
+    <p>Soumettre votre demande de réservation pour <strong>{{ boutique?.name }}</strong> ?</p>
+    <p class="mr-modal-hint">Votre demande sera examinée par l'administration du centre commercial.</p>
+    <div *ngIf="actionError" class="mr-modal-alert mr-modal-alert-error">
+      <i class="feather icon-alert-circle"></i> {{ actionError }}
+    </div>
+    <div *ngIf="actionSuccess" class="mr-modal-alert mr-modal-alert-success">
+      <i class="feather icon-check-circle"></i> {{ actionSuccess }}
+    </div>
   </div>
-  <div class="app-modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="closeConfirmModal()" [disabled]="actionLoading">Annuler</button>
-    <button type="button" class="btn btn-success" (click)="confirmReservation()" [disabled]="actionLoading || actionSuccess">
+  <div class="app-modal-footer mr-modal-footer">
+    <button type="button" class="mr-btn mr-btn-outline" (click)="closeConfirmModal()" [disabled]="actionLoading">Annuler</button>
+    <button type="button" class="mr-btn mr-btn-success" (click)="confirmReservation()" [disabled]="actionLoading || actionSuccess">
+      <span *ngIf="actionLoading" class="mr-btn-spinner"></span>
       {{ actionLoading ? 'Envoi...' : 'Confirmer ma demande' }}
     </button>
   </div>
 </app-ui-modal>
 
-<!-- Modal Annulation (temporaire ou en attente) -->
-<app-ui-modal #cancelModal dialogClass="modal-dialog-centered" [containerClick]="false">
-  <div class="app-modal-header">
-    <h5 class="modal-title">Annuler la réservation</h5>
-    <button type="button" class="close basic-close" aria-label="Close" (click)="closeCancelModal()">
-      <span aria-hidden="true">&times;</span>
+<!-- Modal: Cancel reservation -->
+<app-ui-modal #cancelModal dialogClass="modal-dialog-centered mr-modal-dialog" [containerClick]="false">
+  <div class="app-modal-header mr-modal-header">
+    <div class="mr-modal-header-icon danger">
+      <i class="feather icon-x-circle"></i>
+    </div>
+    <h5 class="mr-modal-title">Annuler la réservation</h5>
+    <button type="button" class="mr-modal-close" aria-label="Close" (click)="closeCancelModal()">
+      <span>&times;</span>
     </button>
   </div>
-  <div class="app-modal-body">
-    <p>Êtes-vous sûr de vouloir annuler votre réservation pour <strong>{{ boutique?.name }}</strong> ?</p>
-    <p class="text-danger">Cette action est irréversible.</p>
-
-    <div *ngIf="actionError" class="alert alert-danger">{{ actionError }}</div>
-    <div *ngIf="actionSuccess" class="alert alert-success">{{ actionSuccess }}</div>
+  <div class="app-modal-body mr-modal-body">
+    <p>Annuler votre réservation pour <strong>{{ boutique?.name }}</strong> ?</p>
+    <p class="mr-modal-warn">Cette action est irréversible.</p>
+    <div *ngIf="actionError" class="mr-modal-alert mr-modal-alert-error">
+      <i class="feather icon-alert-circle"></i> {{ actionError }}
+    </div>
+    <div *ngIf="actionSuccess" class="mr-modal-alert mr-modal-alert-success">
+      <i class="feather icon-check-circle"></i> {{ actionSuccess }}
+    </div>
   </div>
-  <div class="app-modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="closeCancelModal()" [disabled]="actionLoading">Fermer</button>
-    <button type="button" class="btn btn-danger" (click)="cancelReservation()" [disabled]="actionLoading || actionSuccess">
+  <div class="app-modal-footer mr-modal-footer">
+    <button type="button" class="mr-btn mr-btn-outline" (click)="closeCancelModal()" [disabled]="actionLoading">Fermer</button>
+    <button type="button" class="mr-btn mr-btn-danger" (click)="cancelReservation()" [disabled]="actionLoading || actionSuccess">
+      <span *ngIf="actionLoading" class="mr-btn-spinner"></span>
       {{ actionLoading ? 'Annulation...' : 'Annuler la réservation' }}
     </button>
   </div>
 </app-ui-modal>
 
-<!-- NOUVEAU: Modal Résiliation (réservation confirmée) -->
-<app-ui-modal #cancelConfirmedModal dialogClass="modal-dialog-centered" [containerClick]="false">
-  <div class="app-modal-header">
-    <h5 class="modal-title">Résilier l'emplacement</h5>
-    <button type="button" class="close basic-close" aria-label="Close" (click)="closeCancelConfirmedModal()">
-      <span aria-hidden="true">&times;</span>
+<!-- Modal: Terminate confirmed reservation -->
+<app-ui-modal #cancelConfirmedModal dialogClass="modal-dialog-centered mr-modal-dialog" [containerClick]="false">
+  <div class="app-modal-header mr-modal-header">
+    <div class="mr-modal-header-icon danger">
+      <i class="feather icon-alert-triangle"></i>
+    </div>
+    <h5 class="mr-modal-title">Résilier l'emplacement</h5>
+    <button type="button" class="mr-modal-close" aria-label="Close" (click)="closeCancelConfirmedModal()">
+      <span>&times;</span>
     </button>
   </div>
-  <div class="app-modal-body">
-    <div class="alert alert-warning">
-      <i class="feather icon-alert-triangle mr-2"></i>
-      <strong>Attention :</strong> Vous êtes sur le point de résilier votre emplacement confirmé.
+  <div class="app-modal-body mr-modal-body">
+    <div class="mr-modal-alert mr-modal-alert-warning">
+      <i class="feather icon-alert-triangle"></i>
+      Vous êtes sur le point de résilier votre emplacement confirmé.
     </div>
-    
-    <p>Êtes-vous sûr de vouloir résilier votre réservation pour <strong>{{ boutique?.name }}</strong> ?</p>
-    
-    <ul class="text-muted small mb-3">
+
+    <p>Résilier votre réservation pour <strong>{{ boutique?.name }}</strong> ?</p>
+
+    <ul class="mr-consequence-list">
       <li>Votre emplacement redeviendra disponible immédiatement</li>
       <li>Vous perdrez l'accès à cet emplacement</li>
       <li>Cette action est irréversible</li>
     </ul>
 
-    <div class="form-group">
-      <label for="cancellationReason">Motif de résiliation (optionnel)</label>
-      <textarea 
-        id="cancellationReason"
-        class="form-control" 
-        rows="3" 
-        [(ngModel)]="cancellationReason"
-        placeholder="Pourquoi souhaitez-vous résilier cet emplacement ?"
-        maxlength="500">
-      </textarea>
-      <small class="form-text text-muted">{{ cancellationReason.length }}/500 caractères</small>
+    <div class="mr-modal-field">
+      <label class="mr-modal-label">Motif de résiliation (optionnel)</label>
+      <textarea class="mr-modal-input mr-modal-textarea"
+                [(ngModel)]="cancellationReason"
+                placeholder="Pourquoi souhaitez-vous résilier cet emplacement ?"
+                maxlength="500" rows="3"></textarea>
+      <span class="mr-modal-char-count">{{ cancellationReason.length }}/500</span>
     </div>
 
-    <div *ngIf="actionError" class="alert alert-danger mt-3">{{ actionError }}</div>
-    <div *ngIf="actionSuccess" class="alert alert-success mt-3">{{ actionSuccess }}</div>
+    <div *ngIf="actionError" class="mr-modal-alert mr-modal-alert-error">
+      <i class="feather icon-alert-circle"></i> {{ actionError }}
+    </div>
+    <div *ngIf="actionSuccess" class="mr-modal-alert mr-modal-alert-success">
+      <i class="feather icon-check-circle"></i> {{ actionSuccess }}
+    </div>
   </div>
-  <div class="app-modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="closeCancelConfirmedModal()" [disabled]="actionLoading">
-      Fermer
-    </button>
-    <button type="button" class="btn btn-danger" (click)="cancelConfirmedReservation()" [disabled]="actionLoading || actionSuccess">
-      <i class="feather icon-trash-2 mr-1"></i>
+  <div class="app-modal-footer mr-modal-footer">
+    <button type="button" class="mr-btn mr-btn-outline" (click)="closeCancelConfirmedModal()" [disabled]="actionLoading">Fermer</button>
+    <button type="button" class="mr-btn mr-btn-danger" (click)="cancelConfirmedReservation()" [disabled]="actionLoading || actionSuccess">
+      <span *ngIf="actionLoading" class="mr-btn-spinner"></span>
+      <i *ngIf="!actionLoading" class="feather icon-trash-2"></i>
       {{ actionLoading ? 'Résiliation...' : 'Confirmer la résiliation' }}
     </button>
   </div>

@@ -1,329 +1,326 @@
-<div class="row">
-  <div class="col-sm-12">
-    <app-card [cardTitle]="'Modifier ma boutique'" [options]="false">
+<div class="admin-form-page">
+  <div class="af-header">
+    <h4 class="af-title">
+      <i class="feather icon-edit"></i>
+      Modifier ma boutique
+    </h4>
+    <p class="af-subtitle">Mettez à jour les informations de votre boutique</p>
+  </div>
+
+  <div class="af-card">
+    <div class="af-card-body">
       <!-- Messages d'erreur/succès -->
-      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="feather icon-alert-triangle mr-2"></i>
+      <div *ngIf="errorMessage" class="af-error">
+        <i class="feather icon-alert-triangle"></i>
         {{ errorMessage }}
-        <button type="button" class="close" (click)="errorMessage = ''">
-          <span aria-hidden="true">&times;</span>
+        <button type="button" class="af-error-close" (click)="errorMessage = ''">
+          <span>&times;</span>
         </button>
       </div>
 
-      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="feather icon-check-circle mr-2"></i>
+      <div *ngIf="successMessage" class="af-success">
+        <i class="feather icon-check-circle"></i>
         {{ successMessage }}
       </div>
 
       <!-- Chargement -->
-      <div *ngIf="loading" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Chargement...</span>
-        </div>
-        <p class="mt-3 text-muted">Chargement des informations...</p>
+      <div *ngIf="loading" class="af-loading">
+        <div class="af-spinner"></div>
+        <p>Chargement des informations...</p>
       </div>
 
       <!-- Formulaire -->
       <form [formGroup]="boutiqueForm" (ngSubmit)="onSubmit()" *ngIf="!loading && boutique">
         <!-- Informations générales -->
-        <div class="row">
-          <div class="col-md-8">
-            <h5 class="mb-3">
-              <i class="feather icon-info mr-2"></i>
-              Informations générales
-            </h5>
+        <div class="af-section-row">
+          <div class="af-section-main">
+            <div class="af-section">
+              <h6 class="af-section-title"><i class="feather icon-info"></i> Informations générales</h6>
+              <div class="af-form-grid">
+                <div class="af-field af-field-full">
+                  <label class="af-label" for="name">Nom de la boutique <span class="af-required">*</span></label>
+                  <input
+                    type="text"
+                    class="af-input"
+                    id="name"
+                    formControlName="name"
+                    [class.af-input-error]="hasError('name')"
+                    placeholder="Ex: Boutique Mode">
+                  <small class="af-field-error" *ngIf="hasError('name')">
+                    {{ getErrorMessage('name') }}
+                  </small>
+                </div>
 
-            <div class="form-group">
-              <label for="name">Nom de la boutique <span class="text-danger">*</span></label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="name" 
-                formControlName="name"
-                [class.is-invalid]="hasError('name')"
-                placeholder="Ex: Boutique Mode">
-              <div class="invalid-feedback" *ngIf="hasError('name')">
-                {{ getErrorMessage('name') }}
+                <div class="af-field af-field-full">
+                  <label class="af-label" for="shortDescription">Description courte</label>
+                  <input
+                    type="text"
+                    class="af-input"
+                    id="shortDescription"
+                    formControlName="shortDescription"
+                    [class.af-input-error]="hasError('shortDescription')"
+                    placeholder="Brève description (200 caractères max)"
+                    maxlength="200">
+                  <small class="af-hint">
+                    {{ boutiqueForm.get('shortDescription')?.value?.length || 0 }}/200 caractères
+                  </small>
+                </div>
+
+                <div class="af-field af-field-full">
+                  <label class="af-label" for="description">Description complète <span class="af-required">*</span></label>
+                  <textarea
+                    class="af-input af-textarea"
+                    id="description"
+                    formControlName="description"
+                    [class.af-input-error]="hasError('description')"
+                    rows="5"
+                    placeholder="Description détaillée de votre boutique"
+                    maxlength="2000"></textarea>
+                  <small class="af-hint">
+                    {{ boutiqueForm.get('description')?.value?.length || 0 }}/2000 caractères
+                  </small>
+                  <small class="af-field-error" *ngIf="hasError('description')">
+                    {{ getErrorMessage('description') }}
+                  </small>
+                </div>
+
+                <div class="af-field af-field-full">
+                  <label class="af-label" for="categoryId">Catégorie <span class="af-required">*</span></label>
+                  <select
+                    class="af-input"
+                    id="categoryId"
+                    formControlName="categoryId"
+                    [class.af-input-error]="hasError('categoryId')"
+                    [disabled]="categoriesLoading">
+                    <option value="">
+                      {{ categoriesLoading ? 'Chargement des catégories...' : 'Sélectionnez une catégorie' }}
+                    </option>
+                    <option *ngFor="let cat of categories" [value]="cat._id">
+                      {{ cat.name }}
+                    </option>
+                  </select>
+                  <small class="af-field-error" *ngIf="hasError('categoryId')">
+                    {{ getErrorMessage('categoryId') }}
+                  </small>
+                  <small class="af-hint">
+                    <span *ngIf="categoriesLoading">
+                      <i class="feather icon-loader spinning"></i>
+                      Chargement...
+                    </span>
+                    <span *ngIf="!categoriesLoading && categories.length === 0">
+                      <i class="feather icon-alert-triangle"></i>
+                      Aucune catégorie disponible. Catégorie actuelle: {{ boutique?.categoryId?.name || 'Non définie' }}
+                    </span>
+                    <span *ngIf="!categoriesLoading && categories.length > 0">
+                      {{ categories.length }} catégorie(s) disponible(s)
+                    </span>
+                  </small>
+                </div>
               </div>
-            </div>
-
-            <div class="form-group">
-              <label for="shortDescription">Description courte</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="shortDescription" 
-                formControlName="shortDescription"
-                [class.is-invalid]="hasError('shortDescription')"
-                placeholder="Brève description (200 caractères max)"
-                maxlength="200">
-              <small class="form-text text-muted">
-                {{ boutiqueForm.get('shortDescription')?.value?.length || 0 }}/200 caractères
-              </small>
-            </div>
-
-            <div class="form-group">
-              <label for="description">Description complète <span class="text-danger">*</span></label>
-              <textarea 
-                class="form-control" 
-                id="description" 
-                formControlName="description"
-                [class.is-invalid]="hasError('description')"
-                rows="5"
-                placeholder="Description détaillée de votre boutique"
-                maxlength="2000"></textarea>
-              <small class="form-text text-muted">
-                {{ boutiqueForm.get('description')?.value?.length || 0 }}/2000 caractères
-              </small>
-              <div class="invalid-feedback" *ngIf="hasError('description')">
-                {{ getErrorMessage('description') }}
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="categoryId">Catégorie <span class="text-danger">*</span></label>
-              <select 
-                class="form-control" 
-                id="categoryId" 
-                formControlName="categoryId"
-                [class.is-invalid]="hasError('categoryId')"
-                [disabled]="categoriesLoading">
-                <option value="">
-                  {{ categoriesLoading ? 'Chargement des catégories...' : 'Sélectionnez une catégorie' }}
-                </option>
-                <option *ngFor="let cat of categories" [value]="cat._id">
-                  {{ cat.name }}
-                </option>
-              </select>
-              <div class="invalid-feedback" *ngIf="hasError('categoryId')">
-                {{ getErrorMessage('categoryId') }}
-              </div>
-              <small class="form-text text-muted">
-                <span *ngIf="categoriesLoading">
-                  <i class="feather icon-loader spinning mr-1"></i>
-                  Chargement...
-                </span>
-                <span *ngIf="!categoriesLoading && categories.length === 0">
-                  <i class="feather icon-alert-triangle mr-1"></i>
-                  Aucune catégorie disponible. Catégorie actuelle: {{ boutique?.categoryId?.name || 'Non définie' }}
-                </span>
-                <span *ngIf="!categoriesLoading && categories.length > 0">
-                  {{ categories.length }} catégorie(s) disponible(s)
-                </span>
-              </small>
             </div>
           </div>
 
-          <!-- Images -->
-          <div class="col-md-4">
-            <h5 class="mb-3">
-              <i class="feather icon-image mr-2"></i>
-              Images
-            </h5>
+          <!-- Images sidebar -->
+          <div class="af-section-side">
+            <div class="af-section">
+              <h6 class="af-section-title"><i class="feather icon-image"></i> Images</h6>
+              <div class="af-form-grid">
+                <div class="af-field af-field-full">
+                  <label class="af-label" for="logo">Logo</label>
+                  <input
+                    type="text"
+                    class="af-input"
+                    id="logo"
+                    formControlName="logo"
+                    placeholder="URL du logo">
+                  <small class="af-hint">URL de votre logo</small>
+                  <!-- Aperçu du logo -->
+                  <div class="af-img-preview" *ngIf="boutiqueForm.get('logo')?.value">
+                    <img
+                      [src]="boutiqueForm.get('logo')?.value"
+                      alt="Logo"
+                      class="af-preview-img"
+                      (error)="$any($event.target).src='assets/images/default-shop.png'">
+                  </div>
+                </div>
 
-            <div class="form-group">
-              <label for="logo">Logo</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="logo" 
-                formControlName="logo"
-                placeholder="URL du logo">
-              <small class="form-text text-muted">URL de votre logo</small>
-              
-              <!-- Aperçu du logo -->
-              <div class="mt-2" *ngIf="boutiqueForm.get('logo')?.value">
-                <img 
-                  [src]="boutiqueForm.get('logo')?.value" 
-                  alt="Logo" 
-                  class="img-thumbnail"
-                  style="max-height: 150px; max-width: 100%;"
-                  (error)="$any($event.target).src='assets/images/default-shop.png'">
+                <div class="af-field af-field-full">
+                  <label class="af-label" for="coverImage">Image de couverture</label>
+                  <input
+                    type="text"
+                    class="af-input"
+                    id="coverImage"
+                    formControlName="coverImage"
+                    placeholder="URL de l'image de couverture">
+                  <small class="af-hint">URL de votre image de couverture</small>
+                </div>
               </div>
-            </div>
-
-            <div class="form-group">
-              <label for="coverImage">Image de couverture</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="coverImage" 
-                formControlName="coverImage"
-                placeholder="URL de l'image de couverture">
-              <small class="form-text text-muted">URL de votre image de couverture</small>
             </div>
           </div>
         </div>
 
-        <hr class="my-4">
-
         <!-- Informations de contact -->
-        <h5 class="mb-3">
-          <i class="feather icon-phone mr-2"></i>
-          Informations de contact
-        </h5>
-
-        <div formGroupName="contact" class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="phone">Téléphone <span class="text-danger">*</span></label>
-              <input 
-                type="tel" 
-                class="form-control" 
-                id="phone" 
+        <div class="af-section">
+          <h6 class="af-section-title"><i class="feather icon-phone"></i> Informations de contact</h6>
+          <div formGroupName="contact" class="af-form-grid af-grid-2">
+            <div class="af-field">
+              <label class="af-label" for="phone">Téléphone <span class="af-required">*</span></label>
+              <input
+                type="tel"
+                class="af-input"
+                id="phone"
                 formControlName="phone"
-                [class.is-invalid]="hasError('contact.phone')"
+                [class.af-input-error]="hasError('contact.phone')"
                 placeholder="Ex: +261 34 00 000 00">
-              <div class="invalid-feedback" *ngIf="hasError('contact.phone')">
+              <small class="af-field-error" *ngIf="hasError('contact.phone')">
                 {{ getErrorMessage('contact.phone') }}
-              </div>
+              </small>
             </div>
 
-            <div class="form-group">
-              <label for="email">Email <span class="text-danger">*</span></label>
-              <input 
-                type="email" 
-                class="form-control" 
-                id="email" 
+            <div class="af-field">
+              <label class="af-label" for="email">Email <span class="af-required">*</span></label>
+              <input
+                type="email"
+                class="af-input"
+                id="email"
                 formControlName="email"
-                [class.is-invalid]="hasError('contact.email')"
+                [class.af-input-error]="hasError('contact.email')"
                 placeholder="contact@boutique.com">
-              <div class="invalid-feedback" *ngIf="hasError('contact.email')">
+              <small class="af-field-error" *ngIf="hasError('contact.email')">
                 {{ getErrorMessage('contact.email') }}
-              </div>
+              </small>
             </div>
-          </div>
 
-          <div class="col-md-6">
-            <div class="form-group">
-              <label for="website">Site web</label>
-              <input 
-                type="url" 
-                class="form-control" 
-                id="website" 
+            <div class="af-field">
+              <label class="af-label" for="website">Site web</label>
+              <input
+                type="url"
+                class="af-input"
+                id="website"
                 formControlName="website"
                 placeholder="https://www.votresite.com">
             </div>
 
-            <div class="form-group">
-              <label for="facebook">Facebook</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="facebook" 
+            <div class="af-field">
+              <label class="af-label" for="facebook">Facebook</label>
+              <input
+                type="text"
+                class="af-input"
+                id="facebook"
                 formControlName="facebook"
                 placeholder="https://facebook.com/votreboutique">
             </div>
 
-            <div class="form-group">
-              <label for="instagram">Instagram</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="instagram" 
+            <div class="af-field af-field-full">
+              <label class="af-label" for="instagram">Instagram</label>
+              <input
+                type="text"
+                class="af-input"
+                id="instagram"
                 formControlName="instagram"
                 placeholder="@votreboutique">
             </div>
           </div>
         </div>
 
-        <hr class="my-4">
-
         <!-- Horaires d'ouverture -->
-        <h5 class="mb-3">
-          <i class="feather icon-clock mr-2"></i>
-          Horaires d'ouverture
-        </h5>
-
-        <div class="table-responsive">
-          <table class="table table-bordered">
-            <thead>
-              <tr>
-                <th style="width: 20%;">Jour</th>
-                <th style="width: 20%;">Fermé</th>
-                <th style="width: 30%;">Ouverture</th>
-                <th style="width: 30%;">Fermeture</th>
-              </tr>
-            </thead>
-            <tbody formArrayName="openingHours">
-              <tr *ngFor="let hour of openingHours.controls; let i = index" [formGroupName]="i">
-                <td>
+        <div class="af-section">
+          <h6 class="af-section-title"><i class="feather icon-clock"></i> Horaires d'ouverture</h6>
+          <div class="af-schedule-table">
+            <div class="af-schedule-header">
+              <span class="af-schedule-col-day">Jour</span>
+              <span class="af-schedule-col-closed">Fermé</span>
+              <span class="af-schedule-col-time">Ouverture</span>
+              <span class="af-schedule-col-time">Fermeture</span>
+            </div>
+            <div formArrayName="openingHours">
+              <div *ngFor="let hour of openingHours.controls; let i = index" [formGroupName]="i" class="af-schedule-row">
+                <span class="af-schedule-col-day">
                   <strong>{{ daysOfWeek[i].label }}</strong>
-                </td>
-                <td>
-                  <div class="custom-control custom-switch">
-                    <input 
-                      type="checkbox" 
-                      class="custom-control-input" 
+                </span>
+                <span class="af-schedule-col-closed">
+                  <label class="af-toggle" [for]="'closed-' + i">
+                    <input
+                      type="checkbox"
+                      class="af-toggle-input"
                       [id]="'closed-' + i"
                       formControlName="isClosed">
-                    <label class="custom-control-label" [for]="'closed-' + i"></label>
-                  </div>
-                </td>
-                <td>
-                  <input 
-                    type="time" 
-                    class="form-control" 
+                    <span class="af-toggle-slider"></span>
+                  </label>
+                </span>
+                <span class="af-schedule-col-time">
+                  <input
+                    type="time"
+                    class="af-input"
                     formControlName="open"
                     [disabled]="hour.get('isClosed')?.value"
                     placeholder="--:--">
-                </td>
-                <td>
-                  <input 
-                    type="time" 
-                    class="form-control" 
+                </span>
+                <span class="af-schedule-col-time">
+                  <input
+                    type="time"
+                    class="af-input"
                     formControlName="close"
                     [disabled]="hour.get('isClosed')?.value"
                     placeholder="--:--">
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <hr class="my-4">
-
-        <!-- Informations de l'emplacement (lecture seule) -->
-        <h5 class="mb-3">
-          <i class="feather icon-map-pin mr-2"></i>
-          Emplacement
-        </h5>
-
-        <div class="alert alert-info">
-          <p class="mb-2">
-            <strong>Étage:</strong> {{ boutique.location?.floor || 0 }} &nbsp;|&nbsp;
-            <strong>Zone:</strong> {{ boutique.location?.zone || 'N/A' }} &nbsp;|&nbsp;
-            <strong>Numéro:</strong> {{ boutique.location?.number || 'N/A' }}
-          </p>
-          <p class="mb-0">
-            <strong>Surface:</strong> {{ boutique.surface || 'N/A' }} m² &nbsp;|&nbsp;
-            <strong>Prix:</strong> {{ formatPrice(boutique.price) }}
-          </p>
-          <small class="text-muted">
-            <i class="feather icon-info mr-1"></i>
-            Pour modifier l'emplacement, contactez l'administration.
-          </small>
+        <!-- Emplacement (lecture seule) -->
+        <div class="af-section">
+          <h6 class="af-section-title"><i class="feather icon-map-pin"></i> Emplacement</h6>
+          <div class="af-info-box">
+            <div class="af-info-row">
+              <div class="af-info-item">
+                <span class="af-info-label">Étage</span>
+                <span class="af-info-value">{{ boutique.location?.floor || 0 }}</span>
+              </div>
+              <div class="af-info-item">
+                <span class="af-info-label">Zone</span>
+                <span class="af-info-value">{{ boutique.location?.zone || 'N/A' }}</span>
+              </div>
+              <div class="af-info-item">
+                <span class="af-info-label">Numéro</span>
+                <span class="af-info-value">{{ boutique.location?.number || 'N/A' }}</span>
+              </div>
+              <div class="af-info-item">
+                <span class="af-info-label">Surface</span>
+                <span class="af-info-value">{{ boutique.surface || 'N/A' }} m²</span>
+              </div>
+              <div class="af-info-item">
+                <span class="af-info-label">Prix</span>
+                <span class="af-info-value">{{ formatPrice(boutique.price) }}</span>
+              </div>
+            </div>
+            <small class="af-info-note">
+              <i class="feather icon-info"></i>
+              Pour modifier l'emplacement, contactez l'administration.
+            </small>
+          </div>
         </div>
 
         <!-- Boutons d'action -->
-        <div class="form-group mt-4">
-          <button 
-            type="submit" 
-            class="btn btn-primary mr-2"
+        <div class="af-actions">
+          <button
+            type="submit"
+            class="af-btn af-btn-primary"
             [disabled]="saving || boutiqueForm.invalid">
-            <i class="feather icon-save mr-1"></i>
+            <i class="feather icon-save"></i>
             {{ saving ? 'Enregistrement...' : 'Enregistrer les modifications' }}
           </button>
-          <button 
-            type="button" 
-            class="btn btn-secondary"
+          <button
+            type="button"
+            class="af-btn af-btn-outline"
             (click)="onCancel()"
             [disabled]="saving">
-            <i class="feather icon-x mr-1"></i>
+            <i class="feather icon-x"></i>
             Annuler
           </button>
         </div>
       </form>
-    </app-card>
+    </div>
   </div>
 </div>

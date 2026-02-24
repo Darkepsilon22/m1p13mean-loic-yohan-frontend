@@ -1,3 +1,283 @@
-.action-btns .btn {
-  margin-right: 4px;
+// ============================================
+// Admin Contracts — Premium Design
+// ============================================
+
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideLoader {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+@keyframes spinSmall {
+  to { transform: rotate(360deg); }
+}
+
+.admin-list-page { padding-bottom: 2rem; animation: fadeInUp 0.3s ease; }
+
+// Header
+.al-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+}
+.al-title {
+  font-size: 1.5rem; font-weight: 700; color: $ink; margin: 0; letter-spacing: -0.02em;
+  i { margin-right: 10px; color: $blue; }
+}
+.al-subtitle { font-size: 13px; color: $ink-faint; margin: 4px 0 0; }
+.al-create-btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px;
+  background: $ink; color: #fff; border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all $transition;
+  i { font-size: 14px; }
+  &:hover { background: $blue; box-shadow: 0 4px 14px rgba($blue, 0.3); }
+}
+
+// Alerts
+.al-success {
+  display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+  background: rgba($green, 0.06); color: darken($green, 15%); border-radius: $radius-sm;
+  font-size: 14px; font-weight: 500; margin-bottom: 20px; border: 1px solid rgba($green, 0.12);
+  i { flex-shrink: 0; font-size: 18px; }
+}
+.al-error {
+  display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+  background: rgba($red, 0.06); color: $red; border-radius: $radius-sm;
+  font-size: 14px; font-weight: 500; margin-bottom: 20px; border: 1px solid rgba($red, 0.12);
+  i { flex-shrink: 0; font-size: 18px; }
+}
+.al-alert-close {
+  margin-left: auto; background: none; border: none; font-size: 20px;
+  cursor: pointer; opacity: 0.5; color: inherit; line-height: 1;
+  &:hover { opacity: 1; }
+}
+
+// Create Card
+.al-create-card {
+  background: $surface; border: 1px solid $border-light; border-radius: $radius;
+  margin-bottom: 24px; overflow: hidden; animation: fadeInUp 0.25s ease;
+}
+.al-create-head {
+  padding: 16px 24px; border-bottom: 1px solid $border-light; background: $surface-warm;
+  h5 {
+    margin: 0; font-size: 15px; font-weight: 700; color: $ink;
+    i { margin-right: 8px; color: $blue; }
+  }
+}
+.al-create-body { padding: 24px; }
+
+// Form fields
+.af-form-grid { display: grid; gap: 18px; margin-bottom: 18px; }
+.af-grid-2 { grid-template-columns: 1fr 1fr; }
+.af-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.af-field { }
+.af-label {
+  display: block; font-size: 13px; font-weight: 600; color: $ink-soft; margin-bottom: 6px;
+}
+.af-required { color: $red; }
+.af-input, .af-select, .af-textarea {
+  width: 100%; padding: 10px 14px; border: 1.5px solid $border; border-radius: 8px;
+  font-size: 14px; color: $ink; background: $surface; font-family: inherit;
+  transition: border-color $transition;
+  &:focus { outline: none; border-color: $blue; box-shadow: 0 0 0 3px rgba($blue, 0.08); }
+  &::placeholder { color: $ink-faint; }
+  &[readonly] { background: $surface-dim; color: $ink-muted; }
+}
+.af-textarea { resize: vertical; }
+.af-select { cursor: pointer; }
+.af-error {
+  display: flex; align-items: center; gap: 12px; padding: 14px 20px;
+  background: rgba($red, 0.06); color: $red; border-radius: $radius-sm;
+  font-size: 14px; font-weight: 500; margin-bottom: 18px; border: 1px solid rgba($red, 0.12);
+  i { flex-shrink: 0; }
+}
+
+.af-actions { display: flex; gap: 12px; padding-top: 8px; }
+.af-btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px;
+  border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all $transition; border: none; font-family: inherit;
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+.af-btn-primary { background: $ink; color: #fff; &:hover:not(:disabled) { background: $blue; box-shadow: 0 4px 14px rgba($blue, 0.3); } }
+.af-btn-outline { background: $surface; color: $ink-muted; border: 1.5px solid $border; &:hover { border-color: $ink; color: $ink; } }
+.af-btn-danger { background: $red; color: #fff; &:hover:not(:disabled) { background: darken($red, 8%); } }
+.af-btn-warn { background: $orange; color: $ink; &:hover:not(:disabled) { background: darken($orange, 8%); } }
+.af-spinner-sm {
+  display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(#fff, 0.3);
+  border-top-color: #fff; border-radius: 50%; animation: spinSmall 0.6s linear infinite;
+}
+
+// Filters
+.al-filters {
+  background: $surface; border: 1px solid $border-light; border-radius: $radius;
+  padding: 14px 20px; margin-bottom: 20px;
+}
+.al-filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.al-select {
+  padding: 9px 14px; border: 1.5px solid $border; border-radius: 8px;
+  font-size: 13px; color: $ink; background: $surface; font-family: inherit;
+  cursor: pointer; transition: border-color $transition;
+  &:focus { outline: none; border-color: $blue; }
+}
+
+// Loading
+.al-loading {
+  text-align: center; padding: 80px 20px;
+  p { color: $ink-faint; font-size: 14px; margin-top: 20px; }
+}
+.al-loader-track { width: 200px; height: 4px; border-radius: 4px; background: $surface-dim; overflow: hidden; margin: 0 auto; }
+.al-loader-fill { width: 60%; height: 100%; border-radius: 4px; background: linear-gradient(90deg, $blue, $purple); animation: slideLoader 1.2s ease-in-out infinite; }
+
+// Table
+.al-table-card {
+  background: $surface; border: 1px solid $border-light; border-radius: $radius;
+  overflow: hidden; animation: fadeInUp 0.4s ease both; animation-delay: 0.1s;
+}
+.al-table {
+  width: 100%; border-collapse: collapse;
+  thead {
+    tr { background: $surface-warm; }
+    th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: $ink-faint; font-weight: 600; padding: 12px 16px; border-bottom: 1px solid $border-light; white-space: nowrap; }
+  }
+  tbody tr {
+    transition: background $transition;
+    &:hover { background: rgba($blue, 0.02); }
+    &:not(:last-child) td { border-bottom: 1px solid $border-light; }
+  }
+  td { padding: 14px 16px; font-size: 14px; color: $ink-soft; vertical-align: middle; }
+}
+.al-table-empty { padding: 40px 16px !important; }
+.al-empty-inline {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  color: $ink-faint; font-size: 14px;
+  i { font-size: 18px; }
+}
+
+.td-name { font-weight: 700; color: $ink; }
+.td-muted { color: $ink-muted; font-size: 13px; }
+.td-mono { font-variant-numeric: tabular-nums; font-weight: 500; }
+.td-actions { white-space: nowrap; }
+
+// Status pills
+.status-pill {
+  display: inline-block; font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; padding: 4px 10px; border-radius: 50px; white-space: nowrap;
+  &.badge-success, &.pill-success { background: rgba($green, 0.1); color: darken($green, 10%); }
+  &.badge-secondary, &.pill-muted { background: rgba($ink-faint, 0.15); color: $ink-muted; }
+  &.badge-warning, &.pill-warning { background: rgba($orange, 0.12); color: darken($orange, 20%); }
+  &.badge-danger, &.pill-danger { background: rgba($red, 0.1); color: $red; }
+  &.badge-info, &.pill-info { background: rgba($blue, 0.1); color: $blue; }
+  &.badge-primary, &.pill-primary { background: rgba($purple, 0.1); color: $purple; }
+}
+
+// Action buttons
+.action-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border: 1.5px solid $border; background: $surface;
+  border-radius: 8px; color: $ink-muted; cursor: pointer; transition: all $transition;
+  text-decoration: none; margin: 0 2px;
+  i { font-size: 14px; }
+  &.action-approve:hover { border-color: $green; color: $green; background: rgba($green, 0.04); }
+  &.action-delete:hover { border-color: $red; color: $red; background: rgba($red, 0.04); }
+  &.action-send:hover { border-color: $blue; color: $blue; background: rgba($blue, 0.04); }
+  &.action-warn:hover { border-color: $orange; color: darken($orange, 15%); background: rgba($orange, 0.04); }
+}
+
+// Pagination
+.al-pagination {
+  display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px;
+}
+.al-page-info { font-size: 13px; font-weight: 600; color: $ink; }
+.al-page-controls { display: flex; gap: 4px; }
+.page-btn {
+  display: flex; align-items: center; justify-content: center; min-width: 36px; height: 36px;
+  padding: 0 10px; border: 1.5px solid $border; background: $surface; border-radius: 8px;
+  cursor: pointer; color: $ink-soft; font-size: 13px; font-weight: 500; transition: all $transition;
+  i { font-size: 15px; }
+  &:hover:not(:disabled) { border-color: $ink; background: $ink; color: #fff; }
+  &:disabled { opacity: 0.3; cursor: not-allowed; }
+  &.page-active { background: $ink; color: #fff; border-color: $ink; }
+}
+
+// ============================================
+// MODALS
+// ============================================
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1050; background: rgba($ink, 0.5);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  backdrop-filter: blur(4px); animation: fadeInUp 0.2s ease;
+}
+.modal-card {
+  background: $surface; border-radius: $radius; width: 100%; max-width: 560px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.2); overflow: hidden;
+}
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 24px; border-bottom: 1px solid $border-light; background: $surface-warm;
+  h5 {
+    margin: 0; font-size: 16px; font-weight: 700; color: $ink;
+    i { margin-right: 8px; color: $blue; }
+  }
+}
+.modal-close {
+  background: none; border: none; font-size: 22px; color: $ink-faint;
+  cursor: pointer; line-height: 1; &:hover { color: $ink; }
+}
+.modal-body { padding: 24px; }
+.modal-desc { font-size: 14px; color: $ink-soft; margin-bottom: 16px; }
+.modal-info-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
+}
+.modal-info-item {
+  background: $surface-dim; padding: 12px 16px; border-radius: 8px;
+}
+.modal-info-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: $ink-faint; font-weight: 600; margin-bottom: 4px; }
+.modal-info-value { font-size: 16px; font-weight: 700; color: $ink; }
+
+.modal-payments { margin-bottom: 16px; }
+.modal-payments-title { font-size: 13px; font-weight: 700; color: $ink-soft; margin-bottom: 10px; }
+.modal-table {
+  width: 100%; border-collapse: collapse;
+  thead th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: $ink-faint; font-weight: 600; padding: 8px 12px; border-bottom: 1px solid $border-light; }
+  tbody td { padding: 8px 12px; font-size: 13px; color: $ink-soft; border-bottom: 1px solid $border-light; }
+}
+.modal-note {
+  font-size: 13px; color: $blue; background: rgba($blue, 0.05); padding: 10px 14px;
+  border-radius: 8px; margin-top: 16px;
+  i { margin-right: 6px; }
+}
+.modal-foot {
+  display: flex; justify-content: flex-end; gap: 10px; padding: 16px 24px;
+  border-top: 1px solid $border-light; background: $surface-warm;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .al-header { flex-direction: column; align-items: flex-start; }
+  .af-grid-2 { grid-template-columns: 1fr; }
+  .af-grid-4 { grid-template-columns: 1fr 1fr; }
+  .modal-card { max-width: 100%; }
+}
+@media (max-width: 480px) {
+  .af-grid-4 { grid-template-columns: 1fr; }
 }

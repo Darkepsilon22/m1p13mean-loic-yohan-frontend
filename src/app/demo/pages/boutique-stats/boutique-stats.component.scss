@@ -1,112 +1,552 @@
+// ============================================
+// Boutique Stats — Refined Dashboard
+// ============================================
+
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+
+$radius: 14px;
+$radius-sm: 10px;
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+$shadow-md: 0 4px 24px rgba(0, 0, 0, 0.07), 0 1px 4px rgba(0, 0, 0, 0.04);
+$transition: 0.25s ease;
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideLoader {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin { animation: spin 1s linear infinite; }
+
 .stats-page {
   padding-bottom: 2rem;
+  animation: fadeInUp 0.3s ease;
 }
 
-/* Stat Cards */
-.stat-card {
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s, box-shadow 0.2s;
+// ── Page Header ──
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.stats-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $ink;
+  margin: 0;
+  letter-spacing: -0.02em;
+
+  i {
+    margin-right: 10px;
+    color: $purple;
+  }
+}
+
+.stats-subtitle {
+  font-size: 13px;
+  color: $ink-faint;
+  margin: 4px 0 0;
+}
+
+.stats-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 1.5px solid $border;
+  background: $surface;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $ink-soft;
+  cursor: pointer;
+  transition: all $transition;
+
+  i { font-size: 14px; }
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border-color: $ink-soft;
+    background: $ink;
+    color: #fff;
   }
 
-  .card-body {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
-.stat-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
+// ── Loading ──
+.stats-loading {
+  text-align: center;
+  padding: 80px 20px;
+
+  p {
+    color: $ink-faint;
+    font-size: 14px;
+    margin-top: 20px;
+  }
+}
+
+.stats-loader {
+  width: 200px;
+  height: 4px;
+  border-radius: 4px;
+  background: $surface-dim;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.loader-bar {
+  width: 60%;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, $blue, $purple);
+  animation: slideLoader 1.2s ease-in-out infinite;
+}
+
+// ── Error ──
+.stats-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba($red, 0.06);
+  color: $red;
+  border-radius: $radius-sm;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  border: 1px solid rgba($red, 0.12);
+
+  i { flex-shrink: 0; font-size: 18px; }
+}
+
+// ============================================
+// STAT CARDS
+// ============================================
+
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: $surface;
+  border-radius: $radius;
+  border: 1px solid $border-light;
+  overflow: hidden;
+  transition: all $transition;
+  animation: fadeInUp 0.4s ease both;
+
+  &:nth-child(1) { animation-delay: 0s; }
+  &:nth-child(2) { animation-delay: 0.06s; }
+  &:nth-child(3) { animation-delay: 0.12s; }
+  &:nth-child(4) { animation-delay: 0.18s; }
+
+  &:hover {
+    border-color: $border;
+    box-shadow: $shadow-md;
+    transform: translateY(-3px);
+  }
+}
+
+.stat-card-accent {
+  height: 4px;
+}
+
+.stat-card-blue .stat-card-accent { background: linear-gradient(90deg, $blue, lighten($blue, 12%)); }
+.stat-card-green .stat-card-accent { background: linear-gradient(90deg, $green, lighten($green, 10%)); }
+.stat-card-orange .stat-card-accent { background: linear-gradient(90deg, $orange, lighten($orange, 10%)); }
+.stat-card-purple .stat-card-accent { background: linear-gradient(90deg, $purple, lighten($purple, 12%)); }
+
+.stat-card-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+}
+
+.stat-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
   flex-shrink: 0;
+
+  i { font-size: 22px; }
 }
 
-.stat-card-primary .stat-icon {
-  background: rgba(70, 128, 255, 0.12);
-  color: #4680ff;
-}
+.stat-card-blue .stat-icon-wrap { background: rgba($blue, 0.1); color: $blue; }
+.stat-card-green .stat-icon-wrap { background: rgba($green, 0.1); color: $green; }
+.stat-card-orange .stat-icon-wrap { background: rgba($orange, 0.1); color: $orange; }
+.stat-card-purple .stat-icon-wrap { background: rgba($purple, 0.1); color: $purple; }
 
-.stat-card-success .stat-icon {
-  background: rgba(46, 216, 163, 0.12);
-  color: #2ed8a3;
-}
-
-.stat-card-warning .stat-icon {
-  background: rgba(255, 186, 87, 0.12);
-  color: #ffba57;
-}
-
-.stat-card-danger .stat-icon {
-  background: rgba(255, 83, 112, 0.12);
-  color: #ff5370;
-}
-
-.stat-content {
+.stat-info {
   flex: 1;
   min-width: 0;
 }
 
 .stat-label {
-  font-size: 12px;
-  color: #999;
-  margin: 0 0 2px;
+  display: block;
+  font-size: 11px;
+  color: $ink-faint;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.08em;
   font-weight: 600;
+  margin-bottom: 4px;
 }
 
 .stat-value {
-  font-size: 22px;
+  font-size: 1.4rem;
   font-weight: 700;
+  color: $ink;
   margin: 0;
-  color: #333;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+
+  small {
+    font-size: 13px;
+    font-weight: 500;
+    color: $ink-muted;
+  }
 }
 
 .stat-growth {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: 12px;
   font-weight: 600;
+  margin-top: 4px;
+}
+
+.stat-sub {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: $ink-faint;
+  margin-top: 4px;
+
+  i { font-size: 12px; }
+
+  &.stat-sub-danger {
+    color: $red;
+  }
+}
+
+// ============================================
+// CHART CARDS
+// ============================================
+
+.charts-row {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.chart-card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease both;
+  animation-delay: 0.2s;
+}
+
+.chart-card-wide { flex: 2; min-width: 0; }
+.chart-card-narrow { flex: 1; min-width: 0; }
+.chart-card-half { flex: 1; min-width: 0; }
+
+.chart-card-header {
+  padding: 20px 24px 0;
+}
+
+.chart-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chart-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i { font-size: 16px; }
+
+  &.chart-icon-blue { background: rgba($blue, 0.1); color: $blue; }
+  &.chart-icon-green { background: rgba($green, 0.1); color: $green; }
+  &.chart-icon-orange { background: rgba($orange, 0.1); color: $orange; }
+  &.chart-icon-red { background: rgba($red, 0.1); color: $red; }
+  &.chart-icon-purple { background: rgba($purple, 0.1); color: $purple; }
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: $ink;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.chart-subtitle {
+  font-size: 12px;
+  color: $ink-faint;
+  margin: 2px 0 0;
+}
+
+.chart-card-body {
+  padding: 16px 20px 20px;
+}
+
+.chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: $ink-faint;
 
   i {
-    margin-right: 2px;
+    font-size: 2rem;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+
+  p {
+    font-size: 13px;
+    margin: 0;
   }
 }
 
-/* Cards */
-.card-header {
-  background: transparent;
-  border-bottom: 1px solid #f1f1f1;
-  padding: 16px 20px;
+// ============================================
+// DATA TABLES
+// ============================================
 
-  h6 {
-    font-weight: 600;
-    color: #333;
+.data-section {
+  margin-bottom: 18px;
+}
+
+.data-card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease both;
+  animation-delay: 0.25s;
+}
+
+.data-card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid $border-light;
+}
+
+.data-card-body {
+  padding: 0;
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    tr {
+      background: $surface-warm;
+    }
+
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: $ink-faint;
+      font-weight: 600;
+      padding: 12px 20px;
+      border-bottom: 1px solid $border-light;
+      white-space: nowrap;
+
+      &:first-child { padding-left: 24px; }
+      &:last-child { padding-right: 24px; }
+    }
+  }
+
+  tbody {
+    tr {
+      transition: background $transition;
+
+      &:hover {
+        background: rgba($blue, 0.02);
+      }
+
+      &:not(:last-child) td {
+        border-bottom: 1px solid $border-light;
+      }
+    }
+
+    td {
+      padding: 14px 20px;
+      font-size: 14px;
+      color: $ink-soft;
+      vertical-align: middle;
+
+      &:first-child { padding-left: 24px; }
+      &:last-child { padding-right: 24px; }
+    }
   }
 }
 
-/* Table */
-.table {
-  th {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #888;
-    font-weight: 600;
-    border-top: none;
+.th-rank {
+  width: 50px;
+}
+
+.td-product {
+  font-weight: 600;
+  color: $ink;
+}
+
+.td-mono {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.td-date {
+  color: $ink-faint;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+// Rank Badges
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  background: $surface-dim;
+  color: $ink-muted;
+
+  &.rank-gold { background: rgba(#FFD700, 0.15); color: #b8860b; }
+  &.rank-silver { background: rgba(#C0C0C0, 0.2); color: #707070; }
+  &.rank-bronze { background: rgba(#CD7F32, 0.15); color: #8B5E3C; }
+}
+
+// Order Reference
+.order-ref {
+  background: rgba($blue, 0.06);
+  color: $blue;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+// Status Pills
+.status-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 10px;
+  border-radius: 50px;
+  white-space: nowrap;
+
+  &.status-warning { background: rgba($orange, 0.12); color: darken($orange, 15%); }
+  &.status-info { background: rgba($blue, 0.1); color: $blue; }
+  &.status-primary { background: rgba($purple, 0.1); color: $purple; }
+  &.status-success { background: rgba($green, 0.1); color: darken($green, 10%); }
+  &.status-danger { background: rgba($red, 0.1); color: $red; }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+
+@media (max-width: 1200px) {
+  .stats-cards {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  td {
-    vertical-align: middle;
+  .charts-row {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .stats-header {
+    margin-bottom: 20px;
+  }
+
+  .stats-title {
+    font-size: 1.25rem;
+  }
+
+  .stat-card-body {
+    padding: 16px 18px;
+  }
+
+  .stat-value {
+    font-size: 1.2rem;
+  }
+
+  .chart-card-header {
+    padding: 16px 18px 0;
+  }
+
+  .chart-card-body {
+    padding: 12px 14px 16px;
+  }
+
+  .stats-table {
+    thead th, tbody td {
+      padding: 10px 14px;
+
+      &:first-child { padding-left: 16px; }
+      &:last-child { padding-right: 16px; }
+    }
   }
 }
