@@ -58,7 +58,18 @@ const SOCKET_EVENTS: { event: string; message: (d: any) => string }[] = [
 
   { event: 'order:created', message: d => `Nouvelle commande : ${d.reference}` },
   { event: 'order:cancelled', message: d => `Commande annulée : ${d.reference}` },
-  { event: 'order:statusUpdated', message: d => `Commande ${d.reference} → ${d.status}` },
+  { event: 'order:statusUpdated', message: d => {
+    const statusLabels: Record<string, string> = {
+      confirmed: 'confirmée',
+      processing: 'en préparation',
+      shipped: 'expédiée',
+      delivered: 'livrée',
+      completed: 'terminée'
+    };
+    const label = statusLabels[d.status] || d.status;
+    return `Commande ${d.reference} : ${label}`;
+  }},
+  { event: 'order:receptionConfirmed', message: d => `${d.customerName} a confirmé la réception de la commande ${d.reference}` },
 
   { event: 'payment:initialized', message: d => `Paiement initialisé : ${d.paymentRef}` },
   { event: 'payment:confirmed', message: d => `Paiement confirmé : ${d.paymentRef}` },
