@@ -255,6 +255,92 @@ $transition: 0.25s ease;
   }
 }
 
+.td-actions {
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.hide-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid $border;
+  background: $surface;
+  border-radius: 8px;
+  color: $ink-faint;
+  cursor: pointer;
+  transition: all $transition;
+
+  i { font-size: 14px; }
+
+  &:hover {
+    border-color: $orange;
+    color: darken($orange, 15%);
+    background: rgba($orange, 0.04);
+  }
+
+  &.is-hidden {
+    border-color: rgba($green, 0.4);
+    color: $green;
+    background: rgba($green, 0.04);
+
+    &:hover {
+      border-color: $green;
+      color: darken($green, 10%);
+      background: rgba($green, 0.08);
+    }
+  }
+}
+
+.delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid $border;
+  background: $surface;
+  border-radius: 8px;
+  color: $ink-faint;
+  cursor: pointer;
+  transition: all $transition;
+
+  i { font-size: 14px; }
+
+  &:hover {
+    border-color: $red;
+    color: $red;
+    background: rgba($red, 0.04);
+  }
+}
+
+.rv-modal-sm { max-width: 440px; }
+
+.rv-modal-header-danger {
+  h5 i { color: $red !important; }
+}
+
+.rv-delete-warning {
+  font-size: 14px;
+  color: $ink-soft;
+  line-height: 1.5;
+  margin: 0 0 18px;
+}
+
+.rv-btn-danger {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 24px; border: none; background: $red; color: #fff; border-radius: 10px;
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all $transition;
+  i { font-size: 14px; }
+  &:hover:not(:disabled) { background: darken($red, 8%); box-shadow: 0 4px 14px rgba($red, 0.3); }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
 // Pagination
 .rv-pagination {
   display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 24px; padding-top: 20px;

@@ -142,9 +142,9 @@ export class BoutiquePublicDetailComponent implements OnInit {
 
   loadReviews(): void {
     this.loadingReviews = true;
-    this.reviewService.getAll({ boutiqueId: this.boutiqueId, productId: 'null', limit: 100 }).subscribe({
+    this.reviewService.getAll({ boutiqueId: this.boutiqueId, productId: 'null', status: 'published', limit: 100 }).subscribe({
       next: (res) => {
-        this.reviews = res.reviews ?? [];
+        this.reviews = (res.reviews ?? []).filter(r => r.status === 'published');
         this.calculateRatingStats();
         const userId = this.auth.getStoredUser()?._id;
         if (userId) {

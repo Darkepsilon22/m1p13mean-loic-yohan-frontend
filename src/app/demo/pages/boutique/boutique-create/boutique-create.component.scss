@@ -90,26 +90,8 @@ $transition: 0.25s ease;
   }
 }
 
-.af-section {
-  margin-bottom: 32px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid $border-light;
-
-  &:last-of-type {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-}
-
-.af-section-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: $ink-soft;
-  margin: 0 0 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.af-amenities-section {
+  margin-top: 20px;
 }
 
 .af-form-grid {
@@ -119,6 +101,10 @@ $transition: 0.25s ease;
 
   &.af-grid-3 {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  &.af-grid-4 {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
   }
 }
 
@@ -201,8 +187,8 @@ select.af-input {
 // Amenities
 .af-amenities-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 
 .af-amenity-item {
@@ -301,7 +287,8 @@ select.af-input {
     padding: 20px;
   }
 
-  .af-form-grid.af-grid-3 {
+  .af-form-grid.af-grid-3,
+  .af-form-grid.af-grid-4 {
     grid-template-columns: 1fr;
   }
 
