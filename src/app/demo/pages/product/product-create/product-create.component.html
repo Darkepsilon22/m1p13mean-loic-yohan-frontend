@@ -38,107 +38,76 @@
       <span>{{ errorMessage }}</span>
     </div>
 
-    <!-- Card: Informations -->
+    <!-- Single compact card -->
     <div class="pc-card">
-      <div class="pc-card-label">
-        <span class="pc-card-dot"></span>
-        <span>Informations</span>
-      </div>
-
-      <div class="pc-field">
-        <label class="pc-label">Nom du produit <span class="req">*</span></label>
-        <input type="text" class="pc-input" formControlName="name" placeholder="Nom du produit">
-        <span class="pc-field-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">Nom requis</span>
-      </div>
-
-      <div class="pc-field">
-        <label class="pc-label">Description</label>
-        <textarea class="pc-textarea" formControlName="description" rows="3" placeholder="Décrivez votre produit..."></textarea>
-      </div>
-
-      <div class="pc-field">
-        <label class="pc-label">Catégorie interne</label>
-        <input type="text" class="pc-input" formControlName="categoryInternal" placeholder="Ex: Vêtements, Électronique...">
-      </div>
-    </div>
-
-    <!-- Card: Photo -->
-    <div class="pc-card">
-      <div class="pc-card-label">
-        <span class="pc-card-dot dot-purple"></span>
-        <span>Photo</span>
-      </div>
-
-      <div class="pc-field">
-        <label class="pc-label">URL de l'image</label>
-        <div class="pc-input-icon-wrap">
-          <i class="feather icon-link"></i>
-          <input type="url" class="pc-input pc-input-icon" formControlName="photoUrl" placeholder="https://exemple.com/image.jpg">
-        </div>
-        <span class="pc-hint">Collez l'URL complète de l'image du produit</span>
-      </div>
-
-      <!-- Preview -->
-      <div *ngIf="form.get('photoUrl')?.value" class="pc-img-preview">
-        <img [src]="form.get('photoUrl')?.value" alt="Aperçu" (error)="onImageError()">
-        <div *ngIf="imageError" class="pc-img-error">
-          <i class="feather icon-alert-triangle"></i>
-          <span>Impossible de charger l'image</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Card: Tarification -->
-    <div class="pc-card">
-      <div class="pc-card-label">
-        <span class="pc-card-dot dot-green"></span>
-        <span>Tarification</span>
-      </div>
-
+      <!-- Row 1: Nom + Catégorie -->
       <div class="pc-row">
-        <div class="pc-field pc-flex-1">
+        <div class="pc-field pc-flex-2">
+          <label class="pc-label">Nom du produit <span class="req">*</span></label>
+          <input type="text" class="pc-input" formControlName="name" placeholder="Nom du produit">
+          <span class="pc-field-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">Nom requis</span>
+        </div>
+        <div class="pc-field">
+          <label class="pc-label">Catégorie interne</label>
+          <input type="text" class="pc-input" formControlName="categoryInternal" placeholder="Ex: Vêtements">
+        </div>
+      </div>
+
+      <!-- Row 2: Prix + Prix barré + Stock + Seuil -->
+      <div class="pc-row pc-row-4">
+        <div class="pc-field">
           <label class="pc-label">Prix (Ar) <span class="req">*</span></label>
           <div class="pc-input-icon-wrap">
             <i class="feather icon-tag"></i>
             <input type="number" step="0.01" min="0" class="pc-input pc-input-icon" formControlName="price" placeholder="0.00">
           </div>
-          <span class="pc-field-error" *ngIf="form.get('price')?.invalid && form.get('price')?.touched">Prix requis, min 0</span>
+          <span class="pc-field-error" *ngIf="form.get('price')?.invalid && form.get('price')?.touched">Requis</span>
         </div>
-        <div class="pc-field pc-flex-1">
+        <div class="pc-field">
           <label class="pc-label">Prix barré (Ar)</label>
           <input type="number" step="0.01" min="0" class="pc-input" formControlName="originalPrice" placeholder="Optionnel">
         </div>
-      </div>
-    </div>
-
-    <!-- Card: Stock & Disponibilité -->
-    <div class="pc-card">
-      <div class="pc-card-label">
-        <span class="pc-card-dot dot-orange"></span>
-        <span>Stock & Disponibilité</span>
-      </div>
-
-      <div class="pc-row">
-        <div class="pc-field pc-flex-1">
+        <div class="pc-field">
           <label class="pc-label">Stock initial</label>
           <input type="number" min="0" class="pc-input" formControlName="stock" placeholder="0">
         </div>
-        <div class="pc-field pc-flex-1">
+        <div class="pc-field">
           <label class="pc-label">Seuil alerte</label>
           <input type="number" min="0" class="pc-input" formControlName="lowStockThreshold" placeholder="5">
         </div>
       </div>
 
-      <div class="pc-field">
-        <label class="pc-label">Disponibilité</label>
-        <select class="pc-select" formControlName="availability">
-          <option value="available">Disponible</option>
-          <option value="outOfStock">Rupture de stock</option>
-          <option value="onOrder">Sur commande</option>
-        </select>
+      <!-- Row 3: Description + Photo URL + Disponibilité -->
+      <div class="pc-row pc-row-3">
+        <div class="pc-field">
+          <label class="pc-label">Description</label>
+          <input type="text" class="pc-input" formControlName="description" placeholder="Description courte...">
+        </div>
+        <div class="pc-field">
+          <label class="pc-label">Photo (URL)</label>
+          <div class="pc-input-icon-wrap">
+            <i class="feather icon-link"></i>
+            <input type="url" class="pc-input pc-input-icon" formControlName="photoUrl" placeholder="https://...">
+          </div>
+        </div>
+        <div class="pc-field">
+          <label class="pc-label">Disponibilité</label>
+          <select class="pc-select" formControlName="availability">
+            <option value="available">Disponible</option>
+            <option value="outOfStock">Rupture de stock</option>
+            <option value="onOrder">Sur commande</option>
+          </select>
+        </div>
       </div>
 
-      <div class="pc-field pc-field-last">
+      <!-- Row 4: Image preview + Toggle -->
+      <div class="pc-row-inline">
+        <div *ngIf="form.get('photoUrl')?.value" class="pc-img-preview-inline">
+          <img [src]="form.get('photoUrl')?.value" alt="Aperçu" (error)="onImageError()">
+          <div *ngIf="imageError" class="pc-img-error">
+            <i class="feather icon-alert-triangle"></i> Image invalide
+          </div>
+        </div>
         <label class="pc-toggle-label">
           <input type="checkbox" formControlName="isFeatured" class="pc-toggle-input">
           <span class="pc-toggle-track">

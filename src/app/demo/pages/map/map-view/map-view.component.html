@@ -1,82 +1,216 @@
-<div class="map-view-page">
-  <app-card cardTitle="Plan du centre" [options]="false">
-    <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
-      <label class="mb-0">Étage :</label>
-      <select
-        *ngIf="floors.length"
-        class="form-control form-control-sm"
-        style="width: auto;"
-        [value]="floorId"
-        (change)="onFloorChange($any($event.target).value)">
-        <option *ngFor="let f of floors" [value]="f._id">{{ f.name }}</option>
-      </select>
-      <span *ngIf="data?.floor" class="text-muted small">{{ data.floor.name }} ({{ data.floor.width }}×{{ data.floor.height }})</span>
-    </div>
-
-    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-    <div *ngIf="loading" class="text-center py-5">Chargement...</div>
-
-    <div *ngIf="!loading && data" class="row">
-      <div class="col-lg-8">
-        <div class="map-container">
-          <app-map-svg
-            [floor]="data.floor"
-            [zones]="data.zones"
-            [boutiques]="data.boutiques"
-            [specialSpaces]="data.specialSpaces"
-            [isEditMode]="false"
-            [selectedBoutiqueId]="selectedBoutique?._id"
-            [selectedZoneId]="selectedZone?._id"
-            (boutiqueClick)="onBoutiqueClick($event)"
-            (zoneClick)="onZoneClick($event)"
-            (specialSpaceClick)="onSpecialSpaceClick($event)">
-          </app-map-svg>
+<div class="plan-view">
+  <!-- Top Bar -->
+  <div class="plan-topbar">
+    <div class="plan-topbar-left">
+      <div class="plan-brand">
+        <i class="feather icon-layout"></i>
+        <div>
+          <h4 class="plan-title">Plan du Centre</h4>
+          <p class="plan-subtitle" *ngIf="data?.floor">{{ data.floor.name }} · {{ data.floor.width }}×{{ data.floor.height }}</p>
+          <p class="plan-subtitle" *ngIf="!data?.floor">Sélectionnez un étage</p>
         </div>
       </div>
-      <div class="col-lg-4">
-        <div *ngIf="selectedBoutique" class="card mb-3">
-          <div class="card-header py-2">Boutique / Emplacement</div>
-          <div class="card-body py-2 small">
-            <div *ngIf="loadingBoutiqueDetails" class="text-muted">Chargement des détails...</div>
-            <ng-container *ngIf="!loadingBoutiqueDetails">
-              <p class="mb-1"><strong>{{ selectedBoutiqueDetails?.name || selectedBoutique.name || selectedBoutique.location?.number || '—' }}</strong></p>
-              <p class="mb-1">Surface : {{ (selectedBoutiqueDetails?.surface ?? selectedBoutique.surface) != null ? (selectedBoutiqueDetails?.surface ?? selectedBoutique.surface) + ' m²' : '—' }}</p>
-              <p class="mb-1">Prix : {{ (selectedBoutiqueDetails?.price ?? selectedBoutique.price) != null ? ((selectedBoutiqueDetails?.price ?? selectedBoutique.price) | number:'1.0-0') + ' Ar' : '—' }}</p>
-              <p class="mb-1">Statut : <span class="badge" [ngClass]="'status-' + (selectedBoutiqueDetails?.emplacementStatus ?? selectedBoutique.emplacementStatus)">{{ getStatusLabel(selectedBoutiqueDetails?.emplacementStatus ?? selectedBoutique.emplacementStatus) }}</span></p>
-              <p *ngIf="selectedBoutiqueDetails?.zoneId?.name" class="mb-1">Zone : {{ selectedBoutiqueDetails.zoneId.name }}</p>
-              <p *ngIf="selectedBoutiqueDetails?.floorId?.name" class="mb-1">Étage : {{ selectedBoutiqueDetails.floorId.name }}</p>
-              <p *ngIf="selectedBoutiqueDetails?.categoryId?.name" class="mb-1">Catégorie : {{ selectedBoutiqueDetails.categoryId.name }}</p>
-              <p *ngIf="selectedBoutiqueDetails?.contact?.email" class="mb-1">Contact : {{ selectedBoutiqueDetails.contact.email }}</p>
-              <p *ngIf="selectedBoutiqueDetails?.contact?.phone" class="mb-1">Tél. : {{ selectedBoutiqueDetails.contact.phone }}</p>
-              <p *ngIf="selectedBoutiqueDetails?.description" class="mb-2 text-muted">{{ selectedBoutiqueDetails.description }}</p>
-              <!-- Réserver un emplacement libre (rôle Boutique) -->
-              <div *ngIf="isSelectedEmplacementLibre" class="mt-2 pt-2 border-top">
-                <p class="mb-2 text-muted small">Cet emplacement est disponible. Vous pouvez le réserver (réservation temporaire 15 min).</p>
-                <div *ngIf="reserveError" class="alert alert-danger py-1 px-2 small">{{ reserveError }}</div>
-                <div *ngIf="reserveSuccess" class="alert alert-success py-1 px-2 small">{{ reserveSuccess }}</div>
-                <button type="button" class="btn btn-primary btn-block btn-sm" (click)="reserveSelectedEmplacement()" [disabled]="reserveLoading || reserveSuccess">
-                  <i class="feather icon-bookmark mr-1"></i>{{ reserveLoading ? 'Réservation...' : 'Réserver cet emplacement' }}
-                </button>
-              </div>
-            </ng-container>
-          </div>
-        </div>
-        <div *ngIf="selectedZone" class="card mb-3">
-          <div class="card-header py-2">Zone</div>
-          <div class="card-body py-2 small">
-            <p class="mb-1"><strong>{{ selectedZone.name }}</strong></p>
-            <p class="mb-0">Surface totale : {{ selectedZone.surfaceTotal }} m²</p>
-          </div>
-        </div>
-        <div *ngIf="selectedSpecialSpace" class="card mb-3">
-          <div class="card-header py-2">Espace spécial</div>
-          <div class="card-body py-2 small">
-            <p class="mb-1"><strong>{{ getSpecialSpaceTypeLabel(selectedSpecialSpace.type) }}</strong></p>
-            <p *ngIf="selectedSpecialSpace.name" class="mb-0">{{ selectedSpecialSpace.name }}</p>
-          </div>
-        </div>
-        <app-map-legend *ngIf="!selectedBoutique && !selectedZone && !selectedSpecialSpace"></app-map-legend>
+    </div>
+    <div class="plan-topbar-center">
+      <div class="floor-switcher" *ngIf="floors.length">
+        <button
+          *ngFor="let f of floors"
+          class="floor-chip"
+          [class.active]="floorId === f._id"
+          (click)="onFloorChange(f._id)">
+          {{ f.name }}
+        </button>
       </div>
     </div>
-  </app-card>
+    <div class="plan-topbar-right">
+      <a routerLink="/map/navigate" class="plan-nav-btn">
+        <i class="feather icon-navigation"></i>
+        <span>Naviguer</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="plan-alert plan-alert-danger">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="plan-loading">
+    <div class="plan-loading-spinner"></div>
+    <p>Chargement du plan...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && data" class="plan-content">
+    <!-- Map Canvas -->
+    <div class="plan-canvas-wrapper">
+      <div class="plan-canvas">
+        <app-map-svg
+          [floor]="data.floor"
+          [zones]="data.zones"
+          [boutiques]="data.boutiques"
+          [specialSpaces]="data.specialSpaces"
+          [isEditMode]="false"
+          [selectedBoutiqueId]="selectedBoutique?._id"
+          [selectedZoneId]="selectedZone?._id"
+          (boutiqueClick)="onBoutiqueClick($event)"
+          (zoneClick)="onZoneClick($event)"
+          (specialSpaceClick)="onSpecialSpaceClick($event)">
+        </app-map-svg>
+      </div>
+      <!-- Floating Legend -->
+      <div class="plan-floating-legend">
+        <div class="legend-row">
+          <span class="legend-dot dot-libre"></span> Libre
+        </div>
+        <div class="legend-row">
+          <span class="legend-dot dot-reserve"></span> Réservé
+        </div>
+        <div class="legend-row">
+          <span class="legend-dot dot-occupe"></span> Occupé
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="plan-sidebar" [class.has-selection]="selectedBoutique || selectedZone || selectedSpecialSpace">
+      <!-- Default state: Legend + Stats -->
+      <div *ngIf="!selectedBoutique && !selectedZone && !selectedSpecialSpace" class="sidebar-default">
+        <div class="sidebar-section">
+          <h6 class="sidebar-heading"><i class="feather icon-info"></i> Informations</h6>
+          <p class="sidebar-hint">Cliquez sur un élément du plan pour afficher ses détails.</p>
+        </div>
+        <div class="sidebar-section">
+          <h6 class="sidebar-heading"><i class="feather icon-layers"></i> Légende</h6>
+          <div class="legend-grid">
+            <div class="legend-item">
+              <div class="legend-swatch sw-libre"></div>
+              <span>Libre</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-swatch sw-reserve"></div>
+              <span>Réservé</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-swatch sw-occupe"></div>
+              <span>Occupé</span>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h6 class="sidebar-heading"><i class="feather icon-map"></i> Espaces spéciaux</h6>
+          <div class="legend-grid">
+            <div class="legend-item"><div class="legend-swatch sw-relax"></div><span>Détente</span></div>
+            <div class="legend-item"><div class="legend-swatch sw-toilets"></div><span>Toilettes</span></div>
+            <div class="legend-item"><div class="legend-swatch sw-stairs"></div><span>Escaliers</span></div>
+            <div class="legend-item"><div class="legend-swatch sw-elevator"></div><span>Ascenseurs</span></div>
+            <div class="legend-item"><div class="legend-swatch sw-exit"></div><span>Sorties</span></div>
+            <div class="legend-item"><div class="legend-swatch sw-parking"></div><span>Parking</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutique Detail -->
+      <div *ngIf="selectedBoutique" class="sidebar-detail">
+        <div class="detail-header">
+          <div class="detail-icon"><i class="feather icon-shopping-bag"></i></div>
+          <div>
+            <h5 class="detail-title">{{ selectedBoutiqueDetails?.name || selectedBoutique.name || selectedBoutique.location?.number || 'Emplacement' }}</h5>
+            <span class="detail-badge" [ngClass]="'badge-' + (selectedBoutiqueDetails?.emplacementStatus ?? selectedBoutique.emplacementStatus)">
+              {{ getStatusLabel(selectedBoutiqueDetails?.emplacementStatus ?? selectedBoutique.emplacementStatus) }}
+            </span>
+          </div>
+          <button class="detail-close" (click)="selectedBoutique = null; selectedBoutiqueDetails = null"><i class="feather icon-x"></i></button>
+        </div>
+
+        <div *ngIf="loadingBoutiqueDetails" class="detail-loading">
+          <div class="plan-loading-spinner small"></div>
+          <span>Chargement...</span>
+        </div>
+
+        <div *ngIf="!loadingBoutiqueDetails" class="detail-body">
+          <div class="detail-grid">
+            <div class="detail-metric" *ngIf="(selectedBoutiqueDetails?.surface ?? selectedBoutique.surface) != null">
+              <span class="metric-value">{{ selectedBoutiqueDetails?.surface ?? selectedBoutique.surface }}</span>
+              <span class="metric-label">m²</span>
+            </div>
+            <div class="detail-metric" *ngIf="(selectedBoutiqueDetails?.price ?? selectedBoutique.price) != null">
+              <span class="metric-value">{{ (selectedBoutiqueDetails?.price ?? selectedBoutique.price) | number:'1.0-0' }}</span>
+              <span class="metric-label">Ar / mois</span>
+            </div>
+          </div>
+
+          <div class="detail-props">
+            <div class="detail-prop" *ngIf="selectedBoutiqueDetails?.zoneId?.name">
+              <i class="feather icon-grid"></i>
+              <span>Zone : {{ selectedBoutiqueDetails.zoneId.name }}</span>
+            </div>
+            <div class="detail-prop" *ngIf="selectedBoutiqueDetails?.floorId?.name">
+              <i class="feather icon-layers"></i>
+              <span>Étage : {{ selectedBoutiqueDetails.floorId.name }}</span>
+            </div>
+            <div class="detail-prop" *ngIf="selectedBoutiqueDetails?.categoryId?.name">
+              <i class="feather icon-tag"></i>
+              <span>{{ selectedBoutiqueDetails.categoryId.name }}</span>
+            </div>
+            <div class="detail-prop" *ngIf="selectedBoutiqueDetails?.contact?.email">
+              <i class="feather icon-mail"></i>
+              <span>{{ selectedBoutiqueDetails.contact.email }}</span>
+            </div>
+            <div class="detail-prop" *ngIf="selectedBoutiqueDetails?.contact?.phone">
+              <i class="feather icon-phone"></i>
+              <span>{{ selectedBoutiqueDetails.contact.phone }}</span>
+            </div>
+          </div>
+
+          <p *ngIf="selectedBoutiqueDetails?.description" class="detail-description">{{ selectedBoutiqueDetails.description }}</p>
+
+          <!-- Reserve CTA -->
+          <div *ngIf="isSelectedEmplacementLibre" class="detail-cta">
+            <p class="cta-hint">Cet emplacement est disponible. Réservation temporaire de 15 min.</p>
+            <div *ngIf="reserveError" class="plan-alert plan-alert-danger compact">{{ reserveError }}</div>
+            <div *ngIf="reserveSuccess" class="plan-alert plan-alert-success compact">{{ reserveSuccess }}</div>
+            <button class="cta-btn" (click)="reserveSelectedEmplacement()" [disabled]="reserveLoading || reserveSuccess">
+              <i class="feather icon-bookmark"></i>
+              {{ reserveLoading ? 'Réservation...' : 'Réserver cet emplacement' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone Detail -->
+      <div *ngIf="selectedZone" class="sidebar-detail">
+        <div class="detail-header">
+          <div class="detail-icon zone-icon"><i class="feather icon-grid"></i></div>
+          <div>
+            <h5 class="detail-title">{{ selectedZone.name }}</h5>
+            <span class="detail-subtitle">Zone</span>
+          </div>
+          <button class="detail-close" (click)="selectedZone = null"><i class="feather icon-x"></i></button>
+        </div>
+        <div class="detail-body">
+          <div class="detail-grid">
+            <div class="detail-metric">
+              <span class="metric-value">{{ selectedZone.surfaceTotal }}</span>
+              <span class="metric-label">m² total</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Special Space Detail -->
+      <div *ngIf="selectedSpecialSpace" class="sidebar-detail">
+        <div class="detail-header">
+          <div class="detail-icon space-icon"><i class="feather icon-map-pin"></i></div>
+          <div>
+            <h5 class="detail-title">{{ getSpecialSpaceTypeLabel(selectedSpecialSpace.type) }}</h5>
+            <span *ngIf="selectedSpecialSpace.name" class="detail-subtitle">{{ selectedSpecialSpace.name }}</span>
+          </div>
+          <button class="detail-close" (click)="selectedSpecialSpace = null"><i class="feather icon-x"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

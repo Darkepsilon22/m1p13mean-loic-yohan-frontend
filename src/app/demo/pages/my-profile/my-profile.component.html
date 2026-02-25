@@ -48,7 +48,7 @@
       </div>
 
       <form [formGroup]="form" (ngSubmit)="onSubmitProfile()" class="mp-form">
-        <div class="mp-form-row">
+        <div class="mp-form-row mp-form-row-4">
           <div class="mp-field">
             <label class="mp-label">Prénom <span class="mp-required">*</span></label>
             <input type="text" class="mp-input" formControlName="firstName" placeholder="Votre prénom">
@@ -59,8 +59,6 @@
             <input type="text" class="mp-input" formControlName="lastName" placeholder="Votre nom">
             <span class="mp-field-error" *ngIf="getError('lastName')">{{ getError('lastName') }}</span>
           </div>
-        </div>
-        <div class="mp-form-row">
           <div class="mp-field">
             <label class="mp-label">Téléphone</label>
             <div class="mp-input-icon">
@@ -69,7 +67,7 @@
             </div>
           </div>
           <div class="mp-field">
-            <label class="mp-label">Photo de profil (URL)</label>
+            <label class="mp-label">Photo (URL)</label>
             <div class="mp-input-icon">
               <i class="feather icon-image"></i>
               <input type="url" class="mp-input mp-input-with-icon" formControlName="avatar" placeholder="https://...">
@@ -79,7 +77,7 @@
         <div class="mp-form-actions">
           <button type="submit" class="mp-btn-save" [disabled]="loading">
             <i class="feather icon-save" *ngIf="!loading"></i>
-            {{ loading ? 'Enregistrement...' : 'Enregistrer les modifications' }}
+            {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
           </button>
         </div>
       </form>

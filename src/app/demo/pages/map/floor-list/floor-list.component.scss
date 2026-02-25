@@ -1,3 +1,375 @@
-.floor-list-page {
-  .table td { vertical-align: middle; }
+// ============================================
+// Floor List — Blueprint Theme
+// ============================================
+
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+$accent: #4680ff;
+$accent-dark: #3568d4;
+$accent-glow: rgba(70, 128, 255, 0.10);
+
+$radius-sm: 8px;
+$radius: 12px;
+$radius-lg: 16px;
+$transition: 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+$shadow-sm: 0 1px 4px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+$shadow-md: 0 4px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.03);
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.floor-page {
+  animation: fadeSlideUp 0.4s ease-out;
+}
+
+// ── Header ──
+.floor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  margin-bottom: 16px;
+  box-shadow: $shadow-sm;
+  flex-wrap: wrap;
+}
+
+.floor-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  > i {
+    font-size: 22px;
+    color: $accent;
+    background: $accent-glow;
+    padding: 10px;
+    border-radius: $radius-sm;
+  }
+}
+
+.floor-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: $ink;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.floor-subtitle {
+  font-size: 12px;
+  color: $ink-muted;
+  margin: 2px 0 0;
+}
+
+.floor-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+// ── Buttons ──
+.floor-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: $radius-sm;
+  border: none;
+  cursor: pointer;
+  transition: all $transition;
+  text-decoration: none;
+
+  i { font-size: 14px; }
+
+  &.floor-btn-primary {
+    background: $accent;
+    color: #fff;
+    &:hover { background: $accent-dark; transform: translateY(-1px); }
+  }
+
+  &.floor-btn-outline {
+    background: $surface;
+    color: $ink-soft;
+    border: 1px solid $border;
+    &:hover { border-color: $accent; color: $accent; }
+  }
+
+  &.floor-btn-success {
+    background: #22c55e;
+    color: #fff;
+    &:hover { background: #16a34a; }
+  }
+
+  &.floor-btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// ── Create Card ──
+.floor-create-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: $shadow-sm;
+  animation: fadeSlideUp 0.3s ease-out;
+}
+
+.create-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: $ink;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i { color: $accent; font-size: 16px; }
+}
+
+.create-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    font-size: 11px;
+    font-weight: 700;
+    color: $ink-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  input {
+    padding: 8px 12px;
+    font-size: 13px;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    background: $surface-warm;
+    color: $ink;
+    transition: border-color $transition;
+    min-width: 80px;
+
+    &:focus {
+      outline: none;
+      border-color: $accent;
+      box-shadow: 0 0 0 3px $accent-glow;
+    }
+  }
+
+  &.compact {
+    input { padding: 6px 10px; font-size: 12px; min-width: 60px; }
+  }
+}
+
+// ── Alert ──
+.floor-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  margin-bottom: 16px;
+
+  &.floor-alert-danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+}
+
+// ── Loading ──
+.floor-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  color: $ink-muted;
+
+  p { margin-top: 12px; font-size: 14px; }
+}
+
+.floor-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid $border;
+  border-top-color: $accent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+// ── Empty ──
+.floor-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+
+  .floor-empty-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: $surface-dim;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    i { font-size: 24px; color: $ink-faint; }
+  }
+
+  h5 { font-size: 16px; font-weight: 700; color: $ink; margin-bottom: 6px; }
+  p { font-size: 13px; color: $ink-muted; margin: 0; }
+}
+
+// ── Table ──
+.floor-table-card {
+  background: $surface;
+  border: 1px solid $border;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-sm;
+}
+
+.floor-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    th {
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      color: $ink-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid $border;
+      text-align: left;
+      background: $surface-warm;
+
+      &.text-right { text-align: right; }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid $border-light;
+      transition: background $transition;
+
+      &:last-child { border-bottom: none; }
+      &:hover:not(.editing-row) { background: $surface-warm; }
+    }
+
+    td {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: $ink-soft;
+      vertical-align: middle;
+    }
+  }
+
+  .td-mono {
+    font-weight: 700;
+    color: $ink;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .td-name {
+    font-weight: 600;
+    color: $ink;
+  }
+
+  .td-dim {
+    color: $ink-muted;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  .td-actions {
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-sm;
+  border: 1px solid $border;
+  background: $surface;
+  color: $ink-muted;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all $transition;
+  margin-left: 4px;
+
+  i { font-size: 14px; }
+
+  &:hover { border-color: $ink-muted; color: $ink-soft; }
+
+  &.action-primary:hover {
+    border-color: $accent;
+    color: $accent;
+    background: $accent-glow;
+  }
+
+  &.action-danger:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: #fef2f2;
+  }
+
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+// ── Edit Row ──
+.editing-row {
+  background: $surface-warm !important;
+
+  td { padding: 12px 16px; }
+}
+
+.edit-inline-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 6px;
+  padding-bottom: 2px;
 }

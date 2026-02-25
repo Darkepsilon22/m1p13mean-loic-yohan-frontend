@@ -1,20 +1,66 @@
-.map-legend {
-  .legend-swatch {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    border-radius: 2px;
-    margin-right: 6px;
-    vertical-align: middle;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-  }
-  .status-libre { background: #d4edda; }
-  .status-temporaire { background: #fff3cd; }
-  .status-occupee { background: #cce5ff; }
-  .type-relax { background: #d4edda; }
-  .type-toilets { background: #cce5ff; }
-  .type-stairs { background: #fff3cd; }
-  .type-elevator { background: #f8d7da; }
-  .type-exit { background: #d1ecf1; }
-  .type-parking { background: #e2e3e5; }
+.plan-legend {
+  background: #fff;
+  border: 1px solid #e6e4df;
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+
+.legend-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b6e7a;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  i { font-size: 13px; }
+}
+
+.legend-group {
+  margin-bottom: 14px;
+  &:last-child { margin-bottom: 0; }
+}
+
+.legend-group-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca0ab;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.legend-entries {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.legend-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #2d2d35;
+}
+
+.lg-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+
+  &.lg-libre { background: #ecfdf5; border: 2px solid #22c55e; }
+  &.lg-reserve { background: #fffbeb; border: 2px solid #f59e0b; }
+  &.lg-occupe { background: #eff6ff; border: 2px solid #3b82f6; }
+  &.lg-relax { background: #d1fae5; border: 2px solid #34d399; }
+  &.lg-toilets { background: #dbeafe; border: 2px solid #60a5fa; }
+  &.lg-stairs { background: #fef3c7; border: 2px solid #fbbf24; }
+  &.lg-elevator { background: #fce7f3; border: 2px solid #f472b6; }
+  &.lg-exit { background: #ccfbf1; border: 2px solid #2dd4bf; }
+  &.lg-parking { background: #f1f5f9; border: 2px solid #94a3b8; }
 }

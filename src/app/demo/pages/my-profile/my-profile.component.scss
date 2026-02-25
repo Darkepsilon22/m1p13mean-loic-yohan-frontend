@@ -336,7 +336,11 @@ $transition: 0.25s ease;
 .mp-form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 14px;
+
+  &.mp-form-row-4 {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
 }
 
 .mp-field {
