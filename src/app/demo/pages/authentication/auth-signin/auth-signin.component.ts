@@ -43,6 +43,13 @@ export class AuthSigninComponent implements OnInit {
     });
   }
 
+  /** Test account credentials per login type */
+  private readonly testAccounts: Record<string, { email: string; password: string }> = {
+    admin: { email: 'admin@test.com', password: 'Test1234!' },
+    boutique: { email: 'boutique@test.com', password: 'Test1234!' },
+    acheteur: { email: 'acheteur@test.com', password: 'Test1234!' }
+  };
+
   ngOnInit(): void {
     this.loginType = (this.route.snapshot.data['loginType'] || 'acheteur') as 'acheteur' | 'boutique' | 'admin';
     this.route.queryParams.subscribe(params => {
@@ -53,6 +60,12 @@ export class AuthSigninComponent implements OnInit {
         this.resetSuccessMessage = 'Mot de passe réinitialisé. Vous pouvez vous connecter.';
       }
     });
+
+    // Pre-fill test account credentials
+    const testAccount = this.testAccounts[this.loginType];
+    if (testAccount) {
+      this.form.patchValue({ email: testAccount.email, password: testAccount.password });
+    }
   }
 
   getTitle(): string {
@@ -97,6 +110,10 @@ export class AuthSigninComponent implements OnInit {
           this.loginEmail = res.data.email;
           this.showOtpStep = true;
           this.errorMessage = '';
+          // Auto-fill OTP for test accounts
+          if (res.data.otp) {
+            this.otpForm.patchValue({ otp: res.data.otp });
+          }
         } else {
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
           this.router.navigateByUrl(returnUrl);

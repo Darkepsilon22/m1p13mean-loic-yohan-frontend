@@ -198,7 +198,7 @@ export class CartComponent implements OnInit {
       this.checkoutError = 'Veuillez entrer une adresse email valide.';
       return false;
     }
-    if (!this.customerPhone.trim()) {
+    if (!String(this.customerPhone).trim()) {
       this.checkoutError = 'Veuillez entrer votre numéro de téléphone.';
       return false;
     }
@@ -222,11 +222,11 @@ export class CartComponent implements OnInit {
     const orderData: CreateOrderBody = {
       customerName: this.customerName.trim(),
       customerEmail: this.customerEmail.trim(),
-      customerPhone: this.customerPhone.trim(),
+      customerPhone: String(this.customerPhone).trim(),
       shippingAddress: {
         street: this.shippingStreet.trim(),
         city: this.shippingCity.trim(),
-        postalCode: this.shippingPostalCode.trim() || '000',
+        postalCode: String(this.shippingPostalCode).trim() || '000',
         country: this.shippingCountry,
         additionalInfo: this.shippingAdditionalInfo.trim()
       },
