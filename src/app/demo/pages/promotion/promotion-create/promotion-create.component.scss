@@ -1,5 +1,5 @@
 // ============================================
-// Promotion Create — Refined Form
+// Promotion Create — Compact Horizontal Form
 // ============================================
 
 $ink: #0f0f12;
@@ -30,19 +30,15 @@ $transition: 0.25s ease;
 :host { display: block; }
 
 .promo-create-page {
-  padding-bottom: 2rem;
   animation: fadeInUp 0.3s ease;
 }
 
 .pc-header {
-  margin-bottom: 24px;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-bottom: 20px;
 }
 
 .pc-title {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: $ink;
   margin: 0;
@@ -59,16 +55,13 @@ $transition: 0.25s ease;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 20px;
+  padding: 12px 18px;
   background: rgba($orange, 0.06);
   color: darken($orange, 20%);
   border-radius: $radius-sm;
   font-size: 13px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   border: 1px solid rgba($orange, 0.15);
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
   i { color: $orange; font-size: 16px; }
 }
 
@@ -76,57 +69,66 @@ $transition: 0.25s ease;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 20px;
+  padding: 12px 18px;
   background: rgba($red, 0.06);
   color: $red;
   border-radius: $radius-sm;
   font-size: 14px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   border: 1px solid rgba($red, 0.12);
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
-// Form Card
+// ── Form Card ──
 .pc-form-card {
   background: $surface;
   border: 1px solid $border-light;
   border-radius: $radius;
-  padding: 32px;
-  max-width: 700px;
-  margin: 0 auto;
+  padding: 24px 28px;
 }
 
+// ── Rows ──
+.pc-row {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 16px;
+
+  .pc-field { flex: 1; margin-bottom: 0; }
+}
+
+.pc-row-3 {
+  .pc-field { flex: 1; }
+  .pc-flex-2 { flex: 2; }
+}
+
+// ── Fields ──
 .pc-field {
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 
   label {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: $ink-muted;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .required { color: $red; }
 
-  .field-hint {
-    font-size: 12px;
-    color: $ink-faint;
-    margin: -4px 0 10px;
+  .field-hint-inline {
+    font-weight: 400;
     text-transform: none;
     letter-spacing: 0;
-    font-weight: 400;
+    color: $ink-faint;
+    font-size: 11px;
   }
 
   .field-error {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     color: $red;
-    margin-top: 6px;
+    margin-top: 4px;
     font-weight: 500;
     text-transform: none;
     letter-spacing: 0;
@@ -139,10 +141,10 @@ $transition: 0.25s ease;
   select,
   textarea {
     width: 100%;
-    padding: 11px 16px;
+    padding: 9px 12px;
     border: 1.5px solid $border;
-    border-radius: 10px;
-    font-size: 14px;
+    border-radius: 8px;
+    font-size: 13px;
     color: $ink;
     background: $surface;
     font-family: inherit;
@@ -157,40 +159,45 @@ $transition: 0.25s ease;
     &::placeholder { color: $ink-faint; }
   }
 
-  textarea {
-    resize: vertical;
-    min-height: 60px;
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b6e7a' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+    cursor: pointer;
   }
 }
 
-.pc-field-row {
+// ── Product Grid (chips) ──
+.pc-product-grid {
   display: flex;
-  gap: 18px;
-
-  .pc-field { flex: 1; }
-}
-
-// Product Selection
-.pc-product-list {
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 12px;
   border: 1px solid $border-light;
-  border-radius: 10px;
-  padding: 12px 16px;
-  max-height: 200px;
+  border-radius: 8px;
+  max-height: 140px;
   overflow-y: auto;
 }
 
-.pc-product-item {
-  display: flex;
+.pc-product-chip {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 0;
-  margin: 0;
-  font-size: 13px;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid $border;
+  border-radius: 20px;
+  font-size: 12px;
   color: $ink-soft;
   cursor: pointer;
+  margin: 0;
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
+  transition: all $transition;
+  background: $surface;
+  white-space: nowrap;
 
   input {
     accent-color: $promo-accent;
@@ -199,49 +206,54 @@ $transition: 0.25s ease;
     padding: 0;
     border: none;
     box-shadow: none;
+    margin: 0;
   }
 
-  &:not(:last-child) {
-    border-bottom: 1px solid $border-light;
+  .chip-name {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-}
 
-.pc-product-name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  .chip-price {
+    font-weight: 600;
+    color: $ink-muted;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
 
-.pc-product-price {
-  font-weight: 600;
-  color: $ink-muted;
-  font-size: 12px;
-  flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
+  &.checked {
+    background: rgba($promo-accent, 0.06);
+    border-color: rgba($promo-accent, 0.25);
+    color: $ink;
+  }
+
+  &:hover {
+    border-color: rgba($promo-accent, 0.3);
+  }
 }
 
 .pc-product-empty {
   color: $ink-faint;
-  font-size: 13px;
+  font-size: 12px;
 }
 
-// Actions
+// ── Actions ──
 .pc-actions {
   display: flex;
-  gap: 12px;
-  margin-top: 28px;
-  padding-top: 24px;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 18px;
   border-top: 1px solid $border-light;
 }
 
 .pc-btn-cancel {
-  padding: 11px 24px;
+  padding: 9px 20px;
   border: 1.5px solid $border;
   background: $surface;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
   color: $ink-muted;
   cursor: pointer;
@@ -254,23 +266,23 @@ $transition: 0.25s ease;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 28px;
+  padding: 9px 24px;
   border: none;
   background: $ink;
   color: #fff;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all $transition;
 
-  i { font-size: 15px; }
+  i { font-size: 14px; }
 
   &:hover:not(:disabled) { background: $promo-accent; box-shadow: 0 4px 14px rgba($promo-accent, 0.3); }
   &:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 @media (max-width: 768px) {
-  .pc-form-card { padding: 22px 18px; }
-  .pc-field-row { flex-direction: column; gap: 0; }
+  .pc-form-card { padding: 18px; }
+  .pc-row { flex-direction: column; gap: 0; .pc-field { margin-bottom: 14px; } }
 }

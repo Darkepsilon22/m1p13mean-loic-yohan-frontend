@@ -22,21 +22,13 @@
   <!-- Form -->
   <div class="pc-form-card" *ngIf="boutiqueId">
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <!-- Title -->
-      <div class="pc-field">
-        <label>Titre <span class="required">*</span></label>
-        <input type="text" formControlName="title" placeholder="Ex: Soldes d'été">
-        <span class="field-error" *ngIf="form.get('title')?.invalid && form.get('title')?.touched">Requis, max 200 caractères</span>
-      </div>
-
-      <!-- Description -->
-      <div class="pc-field">
-        <label>Description</label>
-        <textarea formControlName="description" rows="2" placeholder="Description optionnelle"></textarea>
-      </div>
-
-      <!-- Type & Value -->
-      <div class="pc-field-row">
+      <!-- Row 1: Title + Type + Value -->
+      <div class="pc-row pc-row-3">
+        <div class="pc-field pc-flex-2">
+          <label>Titre <span class="required">*</span></label>
+          <input type="text" formControlName="title" placeholder="Ex: Soldes d'été">
+          <span class="field-error" *ngIf="form.get('title')?.invalid && form.get('title')?.touched">Requis</span>
+        </div>
         <div class="pc-field">
           <label>Type <span class="required">*</span></label>
           <select formControlName="type">
@@ -48,7 +40,7 @@
         <div class="pc-field" *ngIf="form.get('type')?.value === 'percentage'">
           <label>Réduction (%) <span class="required">*</span></label>
           <input type="number" formControlName="value" min="1" max="99" placeholder="1-99">
-          <span class="field-error" *ngIf="form.get('value')?.invalid && form.get('value')?.touched">Entre 1 et 99</span>
+          <span class="field-error" *ngIf="form.get('value')?.invalid && form.get('value')?.touched">1-99</span>
         </div>
         <div class="pc-field" *ngIf="form.get('type')?.value === 'fixed'">
           <label>Réduction (Ar) <span class="required">*</span></label>
@@ -56,28 +48,20 @@
         </div>
       </div>
 
-      <!-- Products -->
-      <div class="pc-field">
-        <label>Produits concernés</label>
-        <p class="field-hint">Ne rien sélectionner = toute la boutique</p>
-        <div class="pc-product-list">
-          <label *ngFor="let prod of myProducts" class="pc-product-item">
-            <input type="checkbox" [checked]="isProductSelected(prod._id)" (change)="toggleProduct(prod._id)">
-            <span class="pc-product-name">{{ prod.name }}</span>
-            <span class="pc-product-price">{{ prod.price | number:'1.0-0' }} Ar</span>
-          </label>
-          <span *ngIf="myProducts.length === 0" class="pc-product-empty">Aucun produit. Créez des produits d'abord.</span>
+      <!-- Row 2: Description + Image -->
+      <div class="pc-row pc-row-2">
+        <div class="pc-field">
+          <label>Description</label>
+          <input type="text" formControlName="description" placeholder="Description optionnelle">
+        </div>
+        <div class="pc-field">
+          <label>Image (URL)</label>
+          <input type="url" formControlName="image" placeholder="https://...">
         </div>
       </div>
 
-      <!-- Image -->
-      <div class="pc-field">
-        <label>Image (URL optionnelle)</label>
-        <input type="url" formControlName="image" placeholder="https://...">
-      </div>
-
-      <!-- Dates -->
-      <div class="pc-field-row">
+      <!-- Row 3: Dates -->
+      <div class="pc-row pc-row-2">
         <div class="pc-field">
           <label>Date de début <span class="required">*</span></label>
           <input type="datetime-local" formControlName="startDate">
@@ -85,7 +69,20 @@
         <div class="pc-field">
           <label>Date de fin <span class="required">*</span></label>
           <input type="datetime-local" formControlName="endDate">
-          <span class="field-error" *ngIf="form.get('endDate')?.invalid && form.get('endDate')?.touched">La date de fin doit être après la date de début</span>
+          <span class="field-error" *ngIf="form.get('endDate')?.invalid && form.get('endDate')?.touched">Doit être après le début</span>
+        </div>
+      </div>
+
+      <!-- Row 4: Products (compact) -->
+      <div class="pc-field">
+        <label>Produits concernés <span class="field-hint-inline">— ne rien cocher = toute la boutique</span></label>
+        <div class="pc-product-grid">
+          <label *ngFor="let prod of myProducts" class="pc-product-chip" [class.checked]="isProductSelected(prod._id)">
+            <input type="checkbox" [checked]="isProductSelected(prod._id)" (change)="toggleProduct(prod._id)">
+            <span class="chip-name">{{ prod.name }}</span>
+            <span class="chip-price">{{ prod.price | number:'1.0-0' }} Ar</span>
+          </label>
+          <span *ngIf="myProducts.length === 0" class="pc-product-empty">Aucun produit.</span>
         </div>
       </div>
 

@@ -403,10 +403,24 @@ $transition: 0.25s ease;
 .mr-map-container {
   min-height: 280px;
   max-height: 500px;
-  overflow: auto;
-  border: 1px solid $border-light;
+  overflow: hidden;
   border-radius: $radius-sm;
-  background: $surface-warm;
+  background: linear-gradient(135deg, #1a1d2e 0%, #1e2236 50%, #1a1e30 100%);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
 // Boutique side card

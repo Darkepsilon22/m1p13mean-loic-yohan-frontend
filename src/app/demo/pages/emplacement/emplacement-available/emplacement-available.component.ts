@@ -128,7 +128,6 @@ export class EmplacementAvailableComponent implements OnInit {
     this.selectedEmplacement = b;
     this.reserveError = '';
     this.reserveSuccess = '';
-    this.reserveModal.show();
   }
 
   noop(): void {}

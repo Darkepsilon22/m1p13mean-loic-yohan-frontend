@@ -1,170 +1,278 @@
-<div class="row">
-  <div class="col-sm-12">
-    <app-card cardTitle="Emplacements disponibles" [options]="false">
-      <!-- Choix vue : Liste | Vue plan (modélisation) -->
-      <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
-        <span class="mr-2">Vue :</span>
-        <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode === 'list'" [class.btn-outline-secondary]="viewMode !== 'list'" (click)="setViewMode('list')">
-          <i class="feather icon-list mr-1"></i> Liste
+<div class="ea-page">
+
+  <!-- ── Header Bar ── -->
+  <div class="ea-header">
+    <div class="ea-header-left">
+      <div class="ea-brand">
+        <i class="feather icon-map-pin"></i>
+        <div>
+          <h4 class="ea-title">Emplacements disponibles</h4>
+          <p class="ea-subtitle">{{ emplacements.length }} emplacement{{ emplacements.length > 1 ? 's' : '' }} disponible{{ emplacements.length > 1 ? 's' : '' }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="ea-header-center">
+      <div class="ea-view-switch">
+        <button class="view-chip" [class.active]="viewMode === 'list'" (click)="setViewMode('list')">
+          <i class="feather icon-list"></i> Liste
         </button>
-        <button type="button" class="btn btn-sm" [class.btn-primary]="viewMode === 'plan'" [class.btn-outline-secondary]="viewMode !== 'plan'" (click)="setViewMode('plan')">
-          <i class="feather icon-map mr-1"></i> Vue plan
+        <button class="view-chip" [class.active]="viewMode === 'plan'" (click)="setViewMode('plan')">
+          <i class="feather icon-map"></i> Vue plan
         </button>
-        <ng-container *ngIf="viewMode === 'plan' && floors.length">
-          <label class="mb-0 ml-2">Étage :</label>
-          <select class="form-control form-control-sm" style="width: auto;" [value]="selectedFloorId" (change)="onPlanFloorChange($any($event.target).value)">
-            <option *ngFor="let f of floors" [value]="f._id">{{ f.name }}</option>
-          </select>
-        </ng-container>
+      </div>
+    </div>
+    <div class="ea-header-right">
+      <ng-container *ngIf="viewMode === 'plan' && floors.length">
+        <div class="floor-switcher">
+          <button
+            *ngFor="let f of floors"
+            class="floor-chip"
+            [class.active]="selectedFloorId === f._id"
+            (click)="onPlanFloorChange(f._id)">
+            {{ f.name }}
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- ── Error ── -->
+  <div *ngIf="errorMessage" class="ea-alert ea-alert-danger">
+    <i class="feather icon-alert-triangle"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- ══  VUE PLAN                        ══ -->
+  <!-- ══════════════════════════════════════ -->
+  <div *ngIf="viewMode === 'plan'" class="ea-plan-content">
+    <!-- Map Canvas -->
+    <div class="ea-canvas-wrapper">
+      <!-- Loading -->
+      <div *ngIf="mapLoading" class="ea-plan-loading">
+        <div class="ea-spinner"></div>
+        <p>Chargement du plan...</p>
       </div>
 
-      <!-- Filtres (visibles en vue liste) -->
-      <div class="row mb-4" *ngIf="viewMode === 'list'">
-        <div class="col-md-3 form-group">
-          <label>Étage</label>
-          <select class="form-control" [(ngModel)]="filterFloor" (ngModelChange)="onFilterChange()">
-            <option [ngValue]="null">Tous</option>
-            <option [ngValue]="0">Rez-de-chaussée</option>
-            <option [ngValue]="1">1er étage</option>
-            <option [ngValue]="2">2ème étage</option>
-            <option [ngValue]="3">3ème étage</option>
-          </select>
+      <!-- Map -->
+      <div *ngIf="!mapLoading && mapData" class="ea-canvas">
+        <app-map-svg
+          [floor]="mapData.floor"
+          [zones]="mapData.zones"
+          [boutiques]="mapData.boutiques"
+          [specialSpaces]="mapData.specialSpaces"
+          [isEditMode]="false"
+          [selectedBoutiqueId]="selectedEmplacement?._id"
+          (boutiqueClick)="onBoutiqueClickFromMap($event)"
+          (zoneClick)="noop()"
+          (specialSpaceClick)="noop()">
+        </app-map-svg>
+      </div>
+
+      <!-- No data -->
+      <div *ngIf="!mapLoading && selectedFloorId && !mapData && floors.length" class="ea-plan-empty">
+        <i class="feather icon-alert-circle"></i>
+        <p>Aucune donnée de plan pour cet étage.</p>
+      </div>
+
+      <!-- Floating Legend -->
+      <div *ngIf="!mapLoading && mapData" class="ea-floating-legend">
+        <div class="legend-row">
+          <span class="legend-dot dot-libre"></span> Libre
         </div>
-        <div class="col-md-3 form-group">
-          <label>Zone</label>
-          <input type="text" class="form-control" [(ngModel)]="filterZone" (ngModelChange)="onFilterChange()" placeholder="Ex: A, B, C...">
+        <div class="legend-row">
+          <span class="legend-dot dot-reserve"></span> Réservé
         </div>
-        <div class="col-md-2 form-group">
-          <label>Prix min (MGA)</label>
-          <input type="number" class="form-control" [(ngModel)]="filterMinPrice" (ngModelChange)="onFilterChange()" placeholder="Min">
-        </div>
-        <div class="col-md-2 form-group">
-          <label>Prix max (MGA)</label>
-          <input type="number" class="form-control" [(ngModel)]="filterMaxPrice" (ngModelChange)="onFilterChange()" placeholder="Max">
-        </div>
-        <div class="col-md-2 form-group d-flex align-items-end">
-          <button class="btn btn-outline-secondary btn-block" (click)="clearFilters()">Réinitialiser</button>
+        <div class="legend-row">
+          <span class="legend-dot dot-occupe"></span> Occupé
         </div>
       </div>
-      <div class="mb-3 d-flex flex-wrap align-items-center gap-2" *ngIf="viewMode === 'list'">
-        <input type="text" class="form-control form-control-sm" style="max-width: 200px;" placeholder="Recherche par nom..."
-               [(ngModel)]="searchName">
-        <span class="text-muted small">Afficher :</span>
-        <select class="form-control form-control-sm" style="width: auto;" [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
+    </div>
+
+    <!-- Sidebar -->
+    <div class="ea-sidebar" [class.has-selection]="selectedEmplacement">
+      <!-- Default -->
+      <div *ngIf="!selectedEmplacement" class="sidebar-default">
+        <div class="sidebar-icon-wrap">
+          <i class="feather icon-crosshair"></i>
+        </div>
+        <h6 class="sidebar-prompt">Sélectionnez un emplacement</h6>
+        <p class="sidebar-hint">Cliquez sur un emplacement libre (vert) sur le plan pour voir ses détails et le réserver.</p>
+        <div class="sidebar-legend">
+          <div class="legend-item"><span class="legend-swatch sw-libre"></span> Libre</div>
+          <div class="legend-item"><span class="legend-swatch sw-reserve"></span> Réservé</div>
+          <div class="legend-item"><span class="legend-swatch sw-occupe"></span> Occupé</div>
+        </div>
+      </div>
+
+      <!-- Selected Emplacement -->
+      <div *ngIf="selectedEmplacement" class="sidebar-detail">
+        <div class="detail-header">
+          <div class="detail-icon"><i class="feather icon-shopping-bag"></i></div>
+          <div>
+            <h5 class="detail-title">{{ selectedEmplacement.name }}</h5>
+            <span class="detail-badge badge-libre">Disponible</span>
+          </div>
+          <button class="detail-close" (click)="selectedEmplacement = null">
+            <i class="feather icon-x"></i>
+          </button>
+        </div>
+
+        <div class="detail-body">
+          <!-- Metrics -->
+          <div class="detail-grid">
+            <div class="detail-metric" *ngIf="selectedEmplacement.surface">
+              <span class="metric-value">{{ selectedEmplacement.surface }}</span>
+              <span class="metric-label">m²</span>
+            </div>
+            <div class="detail-metric" *ngIf="selectedEmplacement.price">
+              <span class="metric-value">{{ selectedEmplacement.price | number:'1.0-0' }}</span>
+              <span class="metric-label">Ar / mois</span>
+            </div>
+          </div>
+
+          <!-- Properties -->
+          <div class="detail-props">
+            <div class="detail-prop" *ngIf="selectedEmplacement.floorId?.name">
+              <i class="feather icon-layers"></i>
+              <span>{{ selectedEmplacement.floorId.name }}</span>
+            </div>
+            <div class="detail-prop" *ngIf="selectedEmplacement.zoneId?.name">
+              <i class="feather icon-grid"></i>
+              <span>{{ selectedEmplacement.zoneId.name }}</span>
+            </div>
+            <div class="detail-prop" *ngIf="selectedEmplacement.categoryId?.name">
+              <i class="feather icon-tag"></i>
+              <span>{{ selectedEmplacement.categoryId.name }}</span>
+            </div>
+          </div>
+
+          <!-- Reserve CTA -->
+          <div class="detail-cta">
+            <p class="cta-hint"><i class="feather icon-info"></i> Réservation temporaire de 15 minutes.</p>
+            <button class="cta-btn" (click)="reserveModal.show()">
+              <i class="feather icon-bookmark"></i>
+              Réserver cet emplacement
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- ══  VUE LISTE                       ══ -->
+  <!-- ══════════════════════════════════════ -->
+  <ng-container *ngIf="viewMode === 'list'">
+    <!-- Filters Bar -->
+    <div class="ea-filters-bar">
+      <div class="ea-filter">
+        <label><i class="feather icon-layers"></i> Étage</label>
+        <select [(ngModel)]="filterFloor" (ngModelChange)="onFilterChange()">
+          <option [ngValue]="null">Tous</option>
+          <option [ngValue]="0">Rez-de-chaussée</option>
+          <option [ngValue]="1">1er étage</option>
+          <option [ngValue]="2">2ème étage</option>
+          <option [ngValue]="3">3ème étage</option>
+        </select>
+      </div>
+      <div class="ea-filter">
+        <label><i class="feather icon-grid"></i> Zone</label>
+        <input type="text" [(ngModel)]="filterZone" (ngModelChange)="onFilterChange()" placeholder="A, B, C...">
+      </div>
+      <div class="ea-filter">
+        <label><i class="feather icon-dollar-sign"></i> Prix min</label>
+        <input type="number" [(ngModel)]="filterMinPrice" (ngModelChange)="onFilterChange()" placeholder="Min">
+      </div>
+      <div class="ea-filter">
+        <label><i class="feather icon-dollar-sign"></i> Prix max</label>
+        <input type="number" [(ngModel)]="filterMaxPrice" (ngModelChange)="onFilterChange()" placeholder="Max">
+      </div>
+      <div class="ea-filter ea-filter-actions">
+        <input type="text" class="ea-search" [(ngModel)]="searchName" placeholder="Rechercher...">
+        <button class="ea-reset-btn" (click)="clearFilters()">
+          <i class="feather icon-refresh-cw"></i>
+        </button>
+      </div>
+      <div class="ea-filter ea-filter-size">
+        <select [(ngModel)]="selectedPageSize" (ngModelChange)="onPageSizeChange()">
           <option *ngFor="let opt of pageSizeOptions" [value]="opt">{{ opt }}</option>
         </select>
       </div>
+    </div>
 
-      <!-- Vue plan : carte des emplacements disponibles sur l'étage -->
-      <div *ngIf="viewMode === 'plan'" class="row mt-2">
-        <div class="col-lg-8">
-          <div *ngIf="mapLoading" class="text-center py-5">Chargement du plan...</div>
-          <div *ngIf="!mapLoading && mapData" class="map-container">
-            <app-map-svg
-              [floor]="mapData.floor"
-              [zones]="mapData.zones"
-              [boutiques]="mapData.boutiques"
-              [specialSpaces]="mapData.specialSpaces"
-              [isEditMode]="false"
-              [selectedBoutiqueId]="selectedEmplacement?._id"
-              (boutiqueClick)="onBoutiqueClickFromMap($event)"
-              (zoneClick)="noop()"
-              (specialSpaceClick)="noop()">
-            </app-map-svg>
-          </div>
-          <div *ngIf="!mapLoading && selectedFloorId && !mapData && floors.length" class="text-center py-4 text-muted">
-            Aucune donnée de plan pour cet étage.
-          </div>
+    <!-- Loading -->
+    <div *ngIf="loading" class="ea-list-loading">
+      <div class="ea-spinner"></div>
+      <p>Chargement...</p>
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!loading && emplacements.length === 0" class="ea-list-empty">
+      <div class="empty-icon"><i class="feather icon-map-pin"></i></div>
+      <h6>Aucun emplacement disponible</h6>
+      <p>Aucun emplacement n'est disponible pour le moment.</p>
+    </div>
+
+    <!-- No search result -->
+    <div *ngIf="!loading && emplacements.length > 0 && filteredEmplacements.length === 0" class="ea-list-empty">
+      <div class="empty-icon"><i class="feather icon-search"></i></div>
+      <h6>Aucun résultat</h6>
+      <p>Aucun emplacement ne correspond à votre recherche.</p>
+    </div>
+
+    <!-- Cards Grid -->
+    <div *ngIf="!loading && paginatedEmplacements.length > 0" class="ea-cards-grid">
+      <div *ngFor="let emp of paginatedEmplacements" class="ea-card" (click)="openReserveModal(emp)">
+        <div class="ea-card-top">
+          <span class="ea-card-status">Libre</span>
+          <span class="ea-card-floor" *ngIf="emp.floorId?.name">{{ emp.floorId.name }}</span>
+          <span class="ea-card-floor" *ngIf="!emp.floorId?.name && emp.location?.floor != null">Étage {{ emp.location.floor }}</span>
         </div>
-        <div class="col-lg-4">
-          <div *ngIf="selectedEmplacement" class="card mb-3">
-            <div class="card-header py-2">Emplacement sélectionné</div>
-            <div class="card-body py-2 small">
-              <p class="mb-1"><strong>{{ selectedEmplacement.name }}</strong></p>
-              <p class="mb-1" *ngIf="selectedEmplacement.floorId?.name || selectedEmplacement.zoneId?.name">
-                <span *ngIf="selectedEmplacement.floorId?.name">{{ selectedEmplacement.floorId.name }}</span>
-                <span *ngIf="selectedEmplacement.floorId?.name && selectedEmplacement.zoneId?.name"> · </span>
-                <span *ngIf="selectedEmplacement.zoneId?.name">{{ selectedEmplacement.zoneId.name }}</span>
-              </p>
-              <p class="mb-1" *ngIf="selectedEmplacement.surface">{{ selectedEmplacement.surface }} m²</p>
-              <p class="mb-1" *ngIf="selectedEmplacement.price">{{ formatPrice(selectedEmplacement.price) }}</p>
-              <button class="btn btn-primary btn-block btn-sm" (click)="reserveModal.show()">
-                <i class="feather icon-bookmark mr-1"></i> Réserver
-              </button>
-            </div>
+        <h5 class="ea-card-name">{{ emp.name }}</h5>
+        <p class="ea-card-desc" *ngIf="emp.shortDescription || emp.description">{{ (emp.shortDescription || emp.description) | slice:0:80 }}</p>
+        <div class="ea-card-tags">
+          <span *ngIf="emp.zoneId?.name" class="ea-tag"><i class="feather icon-grid"></i> {{ emp.zoneId.name }}</span>
+          <span *ngIf="!emp.zoneId?.name && emp.location?.zone" class="ea-tag"><i class="feather icon-grid"></i> Zone {{ emp.location.zone }}</span>
+          <span *ngIf="emp.location?.number" class="ea-tag">N° {{ emp.location.number }}</span>
+          <span *ngIf="emp.categoryId?.name" class="ea-tag"><i class="feather icon-tag"></i> {{ emp.categoryId.name }}</span>
+        </div>
+        <div class="ea-card-metrics">
+          <div class="ea-metric" *ngIf="emp.surface">
+            <span class="ea-metric-val">{{ emp.surface }}</span>
+            <span class="ea-metric-unit">m²</span>
           </div>
-          <p *ngIf="viewMode === 'plan' && !selectedEmplacement" class="text-muted small">Cliquez sur un emplacement sur le plan pour le réserver.</p>
-        </div>
-      </div>
-
-      <!-- Erreur -->
-      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-
-      <!-- Chargement (vue liste) -->
-      <div *ngIf="loading && viewMode === 'list'" class="text-center py-4">
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Chargement...</span>
-        </div>
-      </div>
-
-      <!-- Aucun résultat -->
-      <div *ngIf="!loading && viewMode === 'list' && emplacements.length === 0" class="text-center py-4 text-muted">
-        <i class="feather icon-map-pin" style="font-size: 3rem;"></i>
-        <p class="mt-3">Aucun emplacement disponible pour le moment.</p>
-      </div>
-
-      <!-- Liste des emplacements -->
-      <div *ngIf="viewMode === 'list' && !loading && emplacements.length > 0 && filteredEmplacements.length === 0" class="text-center py-3 text-muted">
-        Aucun résultat pour cette recherche.
-      </div>
-      <div *ngIf="viewMode === 'list' && !loading && paginatedEmplacements.length > 0" class="row">
-        <div class="col-md-6 col-lg-4" *ngFor="let emp of paginatedEmplacements">
-          <div class="card border mb-3">
-            <div class="card-body">
-              <h5 class="card-title">{{ emp.name }}</h5>
-              <p class="text-muted small mb-2">{{ emp.shortDescription || emp.description | slice:0:100 }}...</p>
-
-              <div class="mb-2">
-                <span class="badge badge-info mr-1" *ngIf="emp.floorId?.name">{{ emp.floorId.name }}</span>
-                <span class="badge badge-info mr-1" *ngIf="!emp.floorId?.name && emp.location?.floor != null">Étage {{ emp.location.floor }}</span>
-                <span class="badge badge-secondary mr-1" *ngIf="emp.zoneId?.name">{{ emp.zoneId.name }}</span>
-                <span class="badge badge-secondary mr-1" *ngIf="!emp.zoneId?.name && emp.location?.zone">Zone {{ emp.location.zone }}</span>
-                <span class="badge badge-light" *ngIf="emp.location?.number">N° {{ emp.location.number }}</span>
-              </div>
-
-              <ul class="list-unstyled small mb-3">
-                <li *ngIf="emp.surface"><i class="feather icon-maximize mr-1"></i> {{ emp.surface }} m²</li>
-                <li *ngIf="emp.price"><i class="feather icon-dollar-sign mr-1"></i> {{ formatPrice(emp.price) }} / mois</li>
-                <li *ngIf="emp.categoryId"><i class="feather icon-tag mr-1"></i> {{ emp.categoryId.name }}</li>
-              </ul>
-
-              <div *ngIf="emp.amenities && emp.amenities.length > 0" class="mb-3">
-                <small class="text-muted">Équipements:</small>
-                <div>
-                  <span class="badge badge-light mr-1 mb-1" *ngFor="let a of emp.amenities">{{ a }}</span>
-                </div>
-              </div>
-
-              <button class="btn btn-primary btn-block" (click)="openReserveModal(emp)">
-                <i class="feather icon-bookmark mr-1"></i> Réserver
-              </button>
-            </div>
+          <div class="ea-metric" *ngIf="emp.price">
+            <span class="ea-metric-val">{{ emp.price | number:'1.0-0' }}</span>
+            <span class="ea-metric-unit">Ar/mois</span>
           </div>
         </div>
-      </div>
-
-      <div *ngIf="viewMode === 'list' && !loading && filteredEmplacements.length > 0" class="d-flex justify-content-between align-items-center mt-3">
-        <span class="text-muted">Page {{ currentPage }} / {{ totalEmplacementPages }} ({{ filteredEmplacements.length }} emplacement(s))</span>
-        <div>
-          <button type="button" class="btn btn-sm btn-outline-secondary mr-1" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">Précédent</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" [disabled]="currentPage >= totalEmplacementPages" (click)="goToPage(currentPage + 1)">Suivant</button>
+        <div *ngIf="emp.amenities && emp.amenities.length > 0" class="ea-card-amenities">
+          <span *ngFor="let a of emp.amenities" class="ea-amenity">{{ a }}</span>
+        </div>
+        <div class="ea-card-action">
+          <i class="feather icon-bookmark"></i>
+          <span>Réserver</span>
         </div>
       </div>
-    </app-card>
-  </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!loading && filteredEmplacements.length > 0" class="ea-pagination">
+      <span class="ea-page-info">Page {{ currentPage }} / {{ totalEmplacementPages }} · {{ filteredEmplacements.length }} résultat{{ filteredEmplacements.length > 1 ? 's' : '' }}</span>
+      <div class="ea-page-btns">
+        <button class="ea-page-btn" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+          <i class="feather icon-chevron-left"></i>
+        </button>
+        <button class="ea-page-btn" [disabled]="currentPage >= totalEmplacementPages" (click)="goToPage(currentPage + 1)">
+          <i class="feather icon-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </ng-container>
 </div>
 
-<!-- Modal de réservation -->
+<!-- ══ Modal de réservation ══ -->
 <app-ui-modal #reserveModal dialogClass="modal-dialog-centered" [containerClick]="false">
   <div class="app-modal-header">
     <h5 class="modal-title">Réserver cet emplacement</h5>

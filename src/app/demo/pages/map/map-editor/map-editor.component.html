@@ -1,195 +1,220 @@
-<div class="map-editor-page">
-  <app-card cardTitle="Éditeur de plan" [options]="false">
-    <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
-      <a routerLink="/map/floors" class="btn btn-outline-secondary btn-sm">Liste des étages</a>
-      <a routerLink="/map/view" class="btn btn-outline-secondary btn-sm">Voir le plan</a>
-      <label class="mb-0">Étage :</label>
-      <select
-        *ngIf="floors.length"
-        class="form-control form-control-sm"
-        style="width: auto;"
-        [value]="floorId"
-        (change)="onFloorChange($any($event.target).value)">
-        <option *ngFor="let f of floors" [value]="f._id">{{ f.name }}</option>
-      </select>
+<div class="editor-page">
+  <!-- Header -->
+  <div class="editor-header">
+    <div class="editor-brand">
+      <i class="feather icon-edit-3"></i>
+      <div>
+        <h4 class="editor-title">Éditeur de plan</h4>
+        <p class="editor-subtitle">Modifiez zones, espaces et emplacements</p>
+      </div>
+    </div>
+    <div class="editor-header-center">
+      <div class="floor-switcher" *ngIf="floors.length">
+        <button
+          *ngFor="let f of floors"
+          class="floor-chip"
+          [class.active]="floorId === f._id"
+          (click)="onFloorChange(f._id)">
+          {{ f.name }}
+        </button>
+      </div>
+    </div>
+    <div class="editor-header-actions">
+      <a routerLink="/map/floors" class="editor-btn editor-btn-outline">
+        <i class="feather icon-layers"></i> Étages
+      </a>
+      <a routerLink="/map/view" class="editor-btn editor-btn-outline">
+        <i class="feather icon-layout"></i> Voir le plan
+      </a>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  <div *ngIf="errorMessage" class="editor-alert editor-alert-danger">
+    <i class="feather icon-alert-triangle"></i> {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="editor-alert editor-alert-success">
+    <i class="feather icon-check-circle"></i> {{ successMessage }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="editor-loading">
+    <div class="editor-spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && data" class="editor-content">
+    <div class="editor-canvas-wrapper">
+      <div class="editor-canvas">
+        <app-map-svg
+          [floor]="data.floor"
+          [zones]="data.zones"
+          [boutiques]="data.boutiques"
+          [specialSpaces]="data.specialSpaces"
+          [isEditMode]="true"
+          [selectedZoneId]="selectedZone?._id ?? null"
+          [selectedBoutiqueId]="selectedBoutique?._id ?? null"
+          [selectedSpecialSpaceId]="selectedSpecialSpace?._id ?? null"
+          [debugNodes]="activePanel === 'navigation' ? navigationNodes : []"
+          [debugEdges]="activePanel === 'navigation' ? navigationEdges : []"
+          (zoneClick)="onZoneClick($event)"
+          (boutiqueClick)="onBoutiqueClick($event)"
+          (specialSpaceClick)="onSpecialSpaceClick($event)"
+          (zoneShapeChange)="onZoneShapeChange($event)"
+          (spaceShapeChange)="onSpaceShapeChange($event)"
+          (boutiqueShapeChange)="onBoutiqueShapeChange($event)">
+        </app-map-svg>
+      </div>
     </div>
 
-    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
-    <div *ngIf="loading" class="text-center py-5">Chargement...</div>
-
-    <div *ngIf="!loading && data" class="row">
-      <div class="col-lg-8">
-        <div class="map-container">
-          <app-map-svg
-            [floor]="data.floor"
-            [zones]="data.zones"
-            [boutiques]="data.boutiques"
-            [specialSpaces]="data.specialSpaces"
-            [isEditMode]="true"
-            [selectedZoneId]="selectedZone?._id ?? null"
-            [selectedBoutiqueId]="selectedBoutique?._id ?? null"
-            [selectedSpecialSpaceId]="selectedSpecialSpace?._id ?? null"
-            [debugNodes]="activePanel === 'navigation' ? navigationNodes : []"
-            [debugEdges]="activePanel === 'navigation' ? navigationEdges : []"
-            (zoneClick)="onZoneClick($event)"
-            (boutiqueClick)="onBoutiqueClick($event)"
-            (specialSpaceClick)="onSpecialSpaceClick($event)"
-            (zoneShapeChange)="onZoneShapeChange($event)"
-            (spaceShapeChange)="onSpaceShapeChange($event)"
-            (boutiqueShapeChange)="onBoutiqueShapeChange($event)">
-          </app-map-svg>
-        </div>
+    <!-- Sidebar -->
+    <div class="editor-sidebar">
+      <!-- Tabs -->
+      <div class="editor-tabs">
+        <button class="editor-tab" [class.active]="activePanel === 'zones'" (click)="activePanel = 'zones'">
+          <i class="feather icon-grid"></i> Zones
+        </button>
+        <button class="editor-tab" [class.active]="activePanel === 'spaces'" (click)="activePanel = 'spaces'">
+          <i class="feather icon-map-pin"></i> Espaces
+        </button>
+        <button class="editor-tab" [class.active]="activePanel === 'boutiques'" (click)="activePanel = 'boutiques'">
+          <i class="feather icon-shopping-bag"></i> Boutiques
+        </button>
+        <button class="editor-tab" [class.active]="activePanel === 'navigation'" (click)="activePanel = 'navigation'">
+          <i class="feather icon-navigation"></i> Nav
+        </button>
       </div>
-      <div class="col-lg-4">
-        <ul class="nav nav-tabs nav-tabs-sm mb-2">
-          <li class="nav-item">
-            <a class="nav-link" [class.active]="activePanel === 'zones'" (click)="activePanel = 'zones'">Zones</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" [class.active]="activePanel === 'spaces'" (click)="activePanel = 'spaces'">Espaces</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" [class.active]="activePanel === 'boutiques'" (click)="activePanel = 'boutiques'">Boutiques</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" [class.active]="activePanel === 'navigation'" (click)="activePanel = 'navigation'">Navigation</a>
-          </li>
-        </ul>
 
-        <!-- Zones -->
-        <div *ngIf="activePanel === 'zones'" class="sidebar-panel">
-          <button type="button" class="btn btn-primary btn-sm mb-2" (click)="startAddZone()">Ajouter une zone</button>
-          <div *ngIf="addingZone || selectedZone" class="card card-body bg-light mb-2">
-            <h6 class="mb-2">{{ addingZone ? 'Nouvelle zone' : 'Modifier la zone' }}</h6>
-            <div *ngIf="selectedZone && !addingZone" class="alert alert-secondary py-2 small mb-2">
-              <strong>Contrainte zone :</strong> Surface utilisée {{ getZoneSurfaceUsed(selectedZone._id) }} m² / {{ selectedZone.surfaceTotal }} m²
+      <div class="editor-panel-content">
+        <!-- Zones Panel -->
+        <div *ngIf="activePanel === 'zones'" class="panel-inner">
+          <button class="panel-add-btn" (click)="startAddZone()">
+            <i class="feather icon-plus"></i> Ajouter une zone
+          </button>
+          <div *ngIf="addingZone || selectedZone" class="panel-form-card">
+            <h6 class="panel-form-title">{{ addingZone ? 'Nouvelle zone' : 'Modifier la zone' }}</h6>
+            <div *ngIf="selectedZone && !addingZone" class="panel-constraint">
+              Surface utilisée {{ getZoneSurfaceUsed(selectedZone._id) }} m² / {{ selectedZone.surfaceTotal }} m²
               ({{ getZoneSurfaceRemaining(selectedZone._id) }} m² restants)
             </div>
             <form [formGroup]="zoneForm" (ngSubmit)="saveZone()">
-              <div class="mb-2">
-                <label class="form-label">Nom</label>
-                <input type="text" class="form-control form-control-sm" formControlName="name" />
+              <div class="pf-field"><label>Nom</label><input type="text" formControlName="name" /></div>
+              <div class="pf-field"><label>Surface totale (m²)</label><input type="number" formControlName="surfaceTotal" min="1" /></div>
+              <div class="pf-grid-4">
+                <div class="pf-field"><label>x</label><input type="number" formControlName="x" /></div>
+                <div class="pf-field"><label>y</label><input type="number" formControlName="y" /></div>
+                <div class="pf-field"><label>Largeur</label><input type="number" formControlName="width" /></div>
+                <div class="pf-field"><label>Hauteur</label><input type="number" formControlName="height" /></div>
               </div>
-              <div class="mb-2">
-                <label class="form-label">Surface totale (m²)</label>
-                <input type="number" class="form-control form-control-sm" formControlName="surfaceTotal" min="1" />
-              </div>
-              <div class="row g-1 mb-2">
-                <div class="col-6"><label class="form-label">x</label><input type="number" class="form-control form-control-sm" formControlName="x" /></div>
-                <div class="col-6"><label class="form-label">y</label><input type="number" class="form-control form-control-sm" formControlName="y" /></div>
-                <div class="col-6"><label class="form-label">Largeur</label><input type="number" class="form-control form-control-sm" formControlName="width" /></div>
-                <div class="col-6"><label class="form-label">Hauteur</label><input type="number" class="form-control form-control-sm" formControlName="height" /></div>
-              </div>
-              <div class="d-flex gap-1">
-                <button type="submit" class="btn btn-success btn-sm" [disabled]="zoneForm.invalid || savingZone">{{ savingZone ? 'Enregistrement...' : 'Enregistrer' }}</button>
-                <button *ngIf="selectedZone && !addingZone" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteZone()">Supprimer</button>
+              <div class="pf-actions">
+                <button type="submit" class="editor-btn editor-btn-success editor-btn-sm" [disabled]="zoneForm.invalid || savingZone">{{ savingZone ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button *ngIf="selectedZone && !addingZone" type="button" class="editor-btn editor-btn-danger editor-btn-sm" (click)="deleteZone()">Supprimer</button>
               </div>
             </form>
           </div>
-          <p class="small text-muted mb-0">Cliquez sur la carte pour sélectionner une zone.</p>
+          <p class="panel-hint">Cliquez sur la carte pour sélectionner une zone.</p>
         </div>
 
-        <!-- Espaces spéciaux -->
-        <div *ngIf="activePanel === 'spaces'" class="sidebar-panel">
-          <button type="button" class="btn btn-primary btn-sm mb-2" (click)="startAddSpace()">Ajouter un espace</button>
-          <div *ngIf="addingSpace || selectedSpecialSpace" class="card card-body bg-light mb-2">
-            <h6 class="mb-2">{{ addingSpace ? 'Nouvel espace spécial' : 'Modifier' }}</h6>
+        <!-- Spaces Panel -->
+        <div *ngIf="activePanel === 'spaces'" class="panel-inner">
+          <button class="panel-add-btn" (click)="startAddSpace()">
+            <i class="feather icon-plus"></i> Ajouter un espace
+          </button>
+          <div *ngIf="addingSpace || selectedSpecialSpace" class="panel-form-card">
+            <h6 class="panel-form-title">{{ addingSpace ? 'Nouvel espace spécial' : 'Modifier' }}</h6>
             <form [formGroup]="spaceForm" (ngSubmit)="saveSpace()">
-              <div class="mb-2">
-                <label class="form-label">Type</label>
-                <select class="form-control form-control-sm" formControlName="type">
+              <div class="pf-field">
+                <label>Type</label>
+                <select formControlName="type">
                   <option *ngFor="let t of specialSpaceTypes" [value]="t">{{ typeLabels[t] }}</option>
                 </select>
               </div>
-              <div class="mb-2">
-                <label class="form-label">Nom (optionnel)</label>
-                <input type="text" class="form-control form-control-sm" formControlName="name" />
+              <div class="pf-field"><label>Nom (optionnel)</label><input type="text" formControlName="name" /></div>
+              <div class="pf-grid-4">
+                <div class="pf-field"><label>x</label><input type="number" formControlName="x" /></div>
+                <div class="pf-field"><label>y</label><input type="number" formControlName="y" /></div>
+                <div class="pf-field"><label>Largeur</label><input type="number" formControlName="width" /></div>
+                <div class="pf-field"><label>Hauteur</label><input type="number" formControlName="height" /></div>
               </div>
-              <div class="row g-1 mb-2">
-                <div class="col-6"><label class="form-label">x</label><input type="number" class="form-control form-control-sm" formControlName="x" /></div>
-                <div class="col-6"><label class="form-label">y</label><input type="number" class="form-control form-control-sm" formControlName="y" /></div>
-                <div class="col-6"><label class="form-label">Largeur</label><input type="number" class="form-control form-control-sm" formControlName="width" /></div>
-                <div class="col-6"><label class="form-label">Hauteur</label><input type="number" class="form-control form-control-sm" formControlName="height" /></div>
-              </div>
-              <div class="d-flex gap-1">
-                <button type="submit" class="btn btn-success btn-sm" [disabled]="spaceForm.invalid || savingSpace">{{ savingSpace ? 'Enregistrement...' : 'Enregistrer' }}</button>
-                <button *ngIf="selectedSpecialSpace && !addingSpace" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteSpace()">Supprimer</button>
+              <div class="pf-actions">
+                <button type="submit" class="editor-btn editor-btn-success editor-btn-sm" [disabled]="spaceForm.invalid || savingSpace">{{ savingSpace ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button *ngIf="selectedSpecialSpace && !addingSpace" type="button" class="editor-btn editor-btn-danger editor-btn-sm" (click)="deleteSpace()">Supprimer</button>
               </div>
             </form>
           </div>
-          <p class="small text-muted mb-0">Cliquez sur la carte pour sélectionner un espace.</p>
+          <p class="panel-hint">Cliquez sur la carte pour sélectionner un espace.</p>
         </div>
 
-        <!-- Boutiques / Emplacements -->
-        <div *ngIf="activePanel === 'boutiques'" class="sidebar-panel">
-          <div class="d-flex gap-1 mb-2">
-            <button type="button" class="btn btn-primary btn-sm" (click)="startAddBoutique()">Ajouter un emplacement</button>
-          </div>
-          <!-- Placer un emplacement existant -->
-          <div *ngIf="unplacedBoutiques.length > 0 && addingBoutique" class="card card-body bg-light mb-2">
-            <h6 class="mb-2 small">Ou placer un emplacement existant</h6>
-            <select class="form-control form-control-sm mb-2" [value]="selectedUnplacedId" (change)="onSelectUnplaced($any($event.target).value)">
+        <!-- Boutiques Panel -->
+        <div *ngIf="activePanel === 'boutiques'" class="panel-inner">
+          <button class="panel-add-btn" (click)="startAddBoutique()">
+            <i class="feather icon-plus"></i> Ajouter un emplacement
+          </button>
+          <div *ngIf="unplacedBoutiques.length > 0 && addingBoutique" class="panel-form-card">
+            <h6 class="panel-form-title">Placer un emplacement existant</h6>
+            <select class="pf-select" [value]="selectedUnplacedId" (change)="onSelectUnplaced($any($event.target).value)">
               <option value="">-- Emplacement existant --</option>
               <option *ngFor="let b of unplacedBoutiques" [value]="b._id">{{ b.name || 'Sans nom' }} ({{ b.categoryId?.name || '?' }})</option>
             </select>
-            <p class="small text-muted mb-0">Ces emplacements ont été créés mais ne sont pas encore positionnés sur la carte.</p>
+            <p class="panel-hint-sm">Emplacements créés mais non positionnés.</p>
           </div>
-          <div *ngIf="addingBoutique && !selectedZone" class="alert alert-info small">Cliquez sur une zone dans la carte pour y placer un emplacement.</div>
-          <div *ngIf="(addingBoutique && selectedZone) || (selectedBoutique && !addingBoutique)" class="card card-body bg-light mb-2">
-            <h6 class="mb-2">{{ addingBoutique ? (selectedUnplacedId ? 'Placer dans ' + selectedZone?.name : 'Nouvel emplacement dans ' + selectedZone?.name) : 'Modifier l\'emplacement' }}</h6>
-            <div *ngIf="selectedZone" class="alert alert-secondary py-2 small mb-2">
-              <strong>Contrainte zone « {{ selectedZone.name }} » :</strong> Surface utilisée {{ getZoneSurfaceUsed(selectedZone._id) }} m² / {{ selectedZone.surfaceTotal }} m²
-              ({{ getZoneSurfaceRemaining(selectedZone._id) }} m² restants). Votre emplacement ne doit pas dépasser la surface restante.
+          <div *ngIf="addingBoutique && !selectedZone" class="panel-info">
+            <i class="feather icon-alert-circle"></i> Cliquez sur une zone pour y placer un emplacement.
+          </div>
+          <div *ngIf="(addingBoutique && selectedZone) || (selectedBoutique && !addingBoutique)" class="panel-form-card">
+            <h6 class="panel-form-title">{{ addingBoutique ? (selectedUnplacedId ? 'Placer dans ' + selectedZone?.name : 'Nouvel emplacement dans ' + selectedZone?.name) : 'Modifier l\'emplacement' }}</h6>
+            <div *ngIf="selectedZone" class="panel-constraint">
+              Zone « {{ selectedZone.name }} » : {{ getZoneSurfaceUsed(selectedZone._id) }} / {{ selectedZone.surfaceTotal }} m²
+              ({{ getZoneSurfaceRemaining(selectedZone._id) }} m² restants)
             </div>
-            <div *ngIf="addingBoutique && selectedZone && boutiqueForm.get('surface')?.value > getZoneSurfaceRemaining(selectedZone._id)" class="alert alert-warning py-2 small mb-2">
-              La surface saisie dépasse la surface restante dans la zone. Réduisez la surface ou choisissez une autre zone.
+            <div *ngIf="addingBoutique && selectedZone && boutiqueForm.get('surface')?.value > getZoneSurfaceRemaining(selectedZone._id)" class="panel-warning">
+              La surface dépasse la surface restante de la zone.
             </div>
             <form [formGroup]="boutiqueForm" (ngSubmit)="selectedUnplacedId ? placeExistingBoutique() : saveBoutique()">
-              <div class="mb-2">
-                <label class="form-label">Nom</label>
-                <input type="text" class="form-control form-control-sm" formControlName="name" />
-              </div>
-              <div class="mb-2" *ngIf="addingBoutique && !selectedUnplacedId">
-                <label class="form-label">Catégorie</label>
-                <select class="form-control form-control-sm" formControlName="categoryId">
+              <div class="pf-field"><label>Nom</label><input type="text" formControlName="name" /></div>
+              <div class="pf-field" *ngIf="addingBoutique && !selectedUnplacedId">
+                <label>Catégorie</label>
+                <select formControlName="categoryId">
                   <option value="">-- Choisir --</option>
                   <option *ngFor="let c of categories" [value]="c._id">{{ c.name }}</option>
                 </select>
               </div>
-              <div class="row g-1 mb-2">
-                <div class="col-6"><label class="form-label">Surface (m²)</label><input type="number" class="form-control form-control-sm" formControlName="surface" min="1" /></div>
-                <div class="col-6"><label class="form-label">Prix (Ar)</label><input type="number" class="form-control form-control-sm" formControlName="price" min="0" /></div>
+              <div class="pf-grid-4">
+                <div class="pf-field"><label>Surface (m²)</label><input type="number" formControlName="surface" min="1" /></div>
+                <div class="pf-field"><label>Prix (Ar)</label><input type="number" formControlName="price" min="0" /></div>
+                <div class="pf-field"><label>x</label><input type="number" formControlName="x" /></div>
+                <div class="pf-field"><label>y</label><input type="number" formControlName="y" /></div>
+                <div class="pf-field"><label>Largeur</label><input type="number" formControlName="width" /></div>
+                <div class="pf-field"><label>Hauteur</label><input type="number" formControlName="height" /></div>
               </div>
-              <div class="row g-1 mb-2">
-                <div class="col-6"><label class="form-label">x</label><input type="number" class="form-control form-control-sm" formControlName="x" /></div>
-                <div class="col-6"><label class="form-label">y</label><input type="number" class="form-control form-control-sm" formControlName="y" /></div>
-                <div class="col-6"><label class="form-label">Largeur</label><input type="number" class="form-control form-control-sm" formControlName="width" /></div>
-                <div class="col-6"><label class="form-label">Hauteur</label><input type="number" class="form-control form-control-sm" formControlName="height" /></div>
-              </div>
-              <div class="d-flex gap-1">
-                <button type="submit" class="btn btn-success btn-sm" [disabled]="boutiqueForm.invalid || savingBoutique">{{ savingBoutique ? 'Enregistrement...' : (selectedUnplacedId ? 'Placer sur la carte' : 'Enregistrer') }}</button>
-                <button *ngIf="selectedBoutique && !addingBoutique" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteBoutique()">Supprimer</button>
+              <div class="pf-actions">
+                <button type="submit" class="editor-btn editor-btn-success editor-btn-sm" [disabled]="boutiqueForm.invalid || savingBoutique">{{ savingBoutique ? 'Enregistrement...' : (selectedUnplacedId ? 'Placer sur la carte' : 'Enregistrer') }}</button>
+                <button *ngIf="selectedBoutique && !addingBoutique" type="button" class="editor-btn editor-btn-danger editor-btn-sm" (click)="deleteBoutique()">Supprimer</button>
               </div>
             </form>
           </div>
-          <p class="small text-muted mb-0">Cliquez sur la carte pour sélectionner ou placer un emplacement.</p>
+          <p class="panel-hint">Cliquez sur la carte pour sélectionner ou placer un emplacement.</p>
         </div>
 
-        <!-- Navigation (noeuds et arêtes) -->
-        <div *ngIf="activePanel === 'navigation'" class="sidebar-panel">
-          <div class="mb-2">
-            <button type="button" class="btn btn-primary btn-sm mr-2" (click)="startAddNode()">Ajouter un noeud</button>
-            <button type="button" class="btn btn-secondary btn-sm" (click)="startAddEdge()">Ajouter une arête</button>
+        <!-- Navigation Panel -->
+        <div *ngIf="activePanel === 'navigation'" class="panel-inner">
+          <div class="panel-add-row">
+            <button class="panel-add-btn" (click)="startAddNode()">
+              <i class="feather icon-plus"></i> Noeud
+            </button>
+            <button class="panel-add-btn panel-add-secondary" (click)="startAddEdge()">
+              <i class="feather icon-plus"></i> Arête
+            </button>
           </div>
 
-          <!-- Formulaire noeud -->
-          <div *ngIf="addingNode || selectedNavigationNode" class="card card-body bg-light mb-2">
-            <h6 class="mb-2">{{ addingNode ? 'Nouveau noeud' : 'Modifier le noeud' }}</h6>
+          <!-- Node Form -->
+          <div *ngIf="addingNode || selectedNavigationNode" class="panel-form-card">
+            <h6 class="panel-form-title">{{ addingNode ? 'Nouveau noeud' : 'Modifier le noeud' }}</h6>
             <form [formGroup]="nodeForm" (ngSubmit)="saveNode()">
-              <div class="mb-2">
-                <label class="form-label">Type</label>
-                <select class="form-control form-control-sm" formControlName="type">
+              <div class="pf-field">
+                <label>Type</label>
+                <select formControlName="type">
                   <option value="intersection">Intersection</option>
                   <option value="corridor">Couloir</option>
                   <option value="stairs">Escalier</option>
@@ -200,108 +225,90 @@
                   <option value="poi">Point d'intérêt</option>
                 </select>
               </div>
-              <div class="mb-2">
-                <label class="form-label">Label (optionnel)</label>
-                <input type="text" class="form-control form-control-sm" formControlName="label" placeholder="Ex: Escalier A" />
+              <div class="pf-field"><label>Label (optionnel)</label><input type="text" formControlName="label" placeholder="Ex: Escalier A" /></div>
+              <div class="pf-grid-4">
+                <div class="pf-field"><label>x</label><input type="number" formControlName="x" /></div>
+                <div class="pf-field"><label>y</label><input type="number" formControlName="y" /></div>
               </div>
-              <div class="row g-1 mb-2">
-                <div class="col-6"><label class="form-label">x</label><input type="number" class="form-control form-control-sm" formControlName="x" /></div>
-                <div class="col-6"><label class="form-label">y</label><input type="number" class="form-control form-control-sm" formControlName="y" /></div>
-              </div>
-              <div class="mb-2">
-                <label class="form-label">Espace spécial lié (optionnel)</label>
-                <select class="form-control form-control-sm" formControlName="specialSpaceId">
+              <div class="pf-field">
+                <label>Espace spécial lié</label>
+                <select formControlName="specialSpaceId">
                   <option value="">-- Aucun --</option>
                   <option *ngFor="let s of spaces" [value]="s._id">{{ typeLabels[s.type] }} {{ s.name || '' }}</option>
                 </select>
               </div>
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="nodeAccessible" formControlName="accessible">
-                <label class="form-check-label" for="nodeAccessible">Accessible (PMR)</label>
-              </div>
-              <div class="d-flex gap-1">
-                <button type="submit" class="btn btn-success btn-sm" [disabled]="nodeForm.invalid || savingNode">{{ savingNode ? 'Enregistrement...' : 'Enregistrer' }}</button>
-                <button *ngIf="selectedNavigationNode && !addingNode" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteNode()">Supprimer</button>
+              <label class="pf-checkbox">
+                <input type="checkbox" formControlName="accessible">
+                <span>Accessible (PMR)</span>
+              </label>
+              <div class="pf-actions">
+                <button type="submit" class="editor-btn editor-btn-success editor-btn-sm" [disabled]="nodeForm.invalid || savingNode">{{ savingNode ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button *ngIf="selectedNavigationNode && !addingNode" type="button" class="editor-btn editor-btn-danger editor-btn-sm" (click)="deleteNode()">Supprimer</button>
               </div>
             </form>
           </div>
 
-          <!-- Formulaire arête -->
-          <div *ngIf="addingEdge || selectedNavigationEdge" class="card card-body bg-light mb-2">
-            <h6 class="mb-2">{{ addingEdge ? 'Nouvelle arête' : 'Modifier l\'arête' }}</h6>
+          <!-- Edge Form -->
+          <div *ngIf="addingEdge || selectedNavigationEdge" class="panel-form-card">
+            <h6 class="panel-form-title">{{ addingEdge ? 'Nouvelle arête' : 'Modifier l\'arête' }}</h6>
             <form [formGroup]="edgeForm" (ngSubmit)="saveEdge()">
-              <div class="mb-2">
-                <label class="form-label">De (noeud départ)</label>
-                <select class="form-control form-control-sm" formControlName="fromNode">
+              <div class="pf-field">
+                <label>De (noeud départ)</label>
+                <select formControlName="fromNode">
                   <option value="">-- Choisir --</option>
-                  <option *ngFor="let n of navigationNodes" [value]="n._id">
-                    {{ n.label || n.type }} ({{ n.x }}, {{ n.y }})
-                  </option>
+                  <option *ngFor="let n of navigationNodes" [value]="n._id">{{ n.label || n.type }} ({{ n.x }}, {{ n.y }})</option>
                 </select>
               </div>
-              <div class="mb-2">
-                <label class="form-label">Vers (noeud arrivée)</label>
-                <select class="form-control form-control-sm" formControlName="toNode">
+              <div class="pf-field">
+                <label>Vers (noeud arrivée)</label>
+                <select formControlName="toNode">
                   <option value="">-- Choisir --</option>
-                  <option *ngFor="let n of navigationNodes" [value]="n._id">
-                    {{ n.label || n.type }} ({{ n.x }}, {{ n.y }})
-                  </option>
+                  <option *ngFor="let n of navigationNodes" [value]="n._id">{{ n.label || n.type }} ({{ n.x }}, {{ n.y }})</option>
                 </select>
               </div>
-              <div class="mb-2">
-                <label class="form-label">Coût (distance, optionnel - calculé automatiquement si 0)</label>
-                <input type="number" class="form-control form-control-sm" formControlName="cost" min="0.1" step="0.1" />
-              </div>
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="edgeBidirectional" formControlName="isBidirectional">
-                <label class="form-check-label" for="edgeBidirectional">Bidirectionnel</label>
-              </div>
-              <div class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" id="edgeAccessible" formControlName="accessible">
-                <label class="form-check-label" for="edgeAccessible">Accessible (PMR)</label>
-              </div>
-              <div class="d-flex gap-1">
-                <button type="submit" class="btn btn-success btn-sm" [disabled]="edgeForm.invalid || savingEdge">{{ savingEdge ? 'Enregistrement...' : 'Enregistrer' }}</button>
-                <button *ngIf="selectedNavigationEdge && !addingEdge" type="button" class="btn btn-outline-danger btn-sm" (click)="deleteEdge()">Supprimer</button>
+              <div class="pf-field"><label>Coût (auto si 0)</label><input type="number" formControlName="cost" min="0.1" step="0.1" /></div>
+              <label class="pf-checkbox"><input type="checkbox" formControlName="isBidirectional"><span>Bidirectionnel</span></label>
+              <label class="pf-checkbox"><input type="checkbox" formControlName="accessible"><span>Accessible (PMR)</span></label>
+              <div class="pf-actions">
+                <button type="submit" class="editor-btn editor-btn-success editor-btn-sm" [disabled]="edgeForm.invalid || savingEdge">{{ savingEdge ? 'Enregistrement...' : 'Enregistrer' }}</button>
+                <button *ngIf="selectedNavigationEdge && !addingEdge" type="button" class="editor-btn editor-btn-danger editor-btn-sm" (click)="deleteEdge()">Supprimer</button>
               </div>
             </form>
           </div>
 
-          <!-- Liste des noeuds -->
-          <div class="mb-3">
-            <h6 class="small mb-2">Noeuds ({{ navigationNodes.length }})</h6>
-            <div class="list-group list-group-sm">
-              <a *ngFor="let n of navigationNodes" href="#" class="list-group-item list-group-item-action" [class.active]="selectedNavigationNode?._id === n._id" (click)="onNavigationNodeClick(n); $event.preventDefault()">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <strong>{{ n.label || n.type }}</strong>
-                    <small class="d-block text-muted">{{ n.type }} - ({{ n.x }}, {{ n.y }})</small>
-                  </div>
-                  <span class="badge badge-sm" [ngClass]="n.accessible ? 'badge-success' : 'badge-danger'">{{ n.accessible ? 'PMR' : 'Non PMR' }}</span>
+          <!-- Nodes List -->
+          <div class="panel-list-section">
+            <h6 class="panel-list-title">Noeuds ({{ navigationNodes.length }})</h6>
+            <div class="panel-list">
+              <button *ngFor="let n of navigationNodes" class="panel-list-item" [class.active]="selectedNavigationNode?._id === n._id" (click)="onNavigationNodeClick(n)">
+                <div class="list-item-info">
+                  <strong>{{ n.label || n.type }}</strong>
+                  <small>{{ n.type }} · ({{ n.x }}, {{ n.y }})</small>
                 </div>
-              </a>
+                <span class="list-item-badge" [ngClass]="n.accessible ? 'badge-ok' : 'badge-no'">{{ n.accessible ? 'PMR' : 'Non' }}</span>
+              </button>
             </div>
           </div>
 
-          <!-- Liste des arêtes -->
-          <div>
-            <h6 class="small mb-2">Arêtes ({{ navigationEdges.length }})</h6>
-            <div class="list-group list-group-sm">
-              <a *ngFor="let e of navigationEdges" href="#" class="list-group-item list-group-item-action" [class.active]="selectedNavigationEdge?._id === e._id" (click)="onEdgeClick(e); $event.preventDefault()">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <small>{{ getNodeLabel(e.fromNode) }} → {{ getNodeLabel(e.toNode) }}</small>
-                    <small class="d-block text-muted">Coût: {{ e.cost.toFixed(1) }} {{ e.isBidirectional ? '↔' : '→' }}</small>
-                  </div>
-                  <span class="badge badge-sm" [ngClass]="e.accessible ? 'badge-success' : 'badge-danger'">{{ e.accessible ? 'PMR' : 'Non PMR' }}</span>
+          <!-- Edges List -->
+          <div class="panel-list-section">
+            <h6 class="panel-list-title">Arêtes ({{ navigationEdges.length }})</h6>
+            <div class="panel-list">
+              <button *ngFor="let e of navigationEdges" class="panel-list-item" [class.active]="selectedNavigationEdge?._id === e._id" (click)="onEdgeClick(e)">
+                <div class="list-item-info">
+                  <strong>{{ getNodeLabel(e.fromNode) }} → {{ getNodeLabel(e.toNode) }}</strong>
+                  <small>Coût: {{ e.cost.toFixed(1) }} {{ e.isBidirectional ? '↔' : '→' }}</small>
                 </div>
-              </a>
+                <span class="list-item-badge" [ngClass]="e.accessible ? 'badge-ok' : 'badge-no'">{{ e.accessible ? 'PMR' : 'Non' }}</span>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div *ngIf="!loading && !data && floorId" class="alert alert-warning">Aucune donnée pour cet étage.</div>
-  </app-card>
+  <div *ngIf="!loading && !data && floorId" class="editor-alert editor-alert-warning">
+    <i class="feather icon-alert-triangle"></i> Aucune donnée pour cet étage.
+  </div>
 </div>

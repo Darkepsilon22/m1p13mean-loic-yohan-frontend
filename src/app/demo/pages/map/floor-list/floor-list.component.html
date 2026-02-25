@@ -1,100 +1,121 @@
-<div class="floor-list-page">
-  <app-card cardTitle="Étages – Modélisation" [options]="false">
-    <div class="mb-3 d-flex flex-wrap align-items-center gap-2">
-      <a routerLink="/map/view" class="btn btn-outline-secondary btn-sm">Voir le plan</a>
-      <button type="button" class="btn btn-primary btn-sm" (click)="toggleCreateForm()">
+<div class="floor-page">
+  <!-- Header -->
+  <div class="floor-header">
+    <div class="floor-brand">
+      <i class="feather icon-layers"></i>
+      <div>
+        <h4 class="floor-title">Étages</h4>
+        <p class="floor-subtitle">Modélisation des niveaux du centre</p>
+      </div>
+    </div>
+    <div class="floor-header-actions">
+      <a routerLink="/map/view" class="floor-btn floor-btn-outline">
+        <i class="feather icon-layout"></i> Voir le plan
+      </a>
+      <button class="floor-btn floor-btn-primary" (click)="toggleCreateForm()">
+        <i class="feather" [ngClass]="showCreateForm ? 'icon-x' : 'icon-plus'"></i>
         {{ showCreateForm ? 'Annuler' : 'Créer un étage' }}
       </button>
-      <span class="text-muted small">Liste des étages. Cliquez sur « Éditer le plan » pour modifier zones, espaces et boutiques.</span>
     </div>
+  </div>
 
-    <div *ngIf="showCreateForm" class="card card-body mb-3 bg-light">
-      <h6 class="mb-2">Nouvel étage</h6>
-      <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()" class="row g-2 align-items-end">
-        <div class="col-md-2">
-          <label class="form-label mb-0">Nom</label>
-          <input type="text" class="form-control form-control-sm" formControlName="name" placeholder="ex. RDC" />
-        </div>
-        <div class="col-md-2">
-          <label class="form-label mb-0">Largeur</label>
-          <input type="number" class="form-control form-control-sm" formControlName="width" min="10" />
-        </div>
-        <div class="col-md-2">
-          <label class="form-label mb-0">Hauteur</label>
-          <input type="number" class="form-control form-control-sm" formControlName="height" min="10" />
-        </div>
-        <div class="col-md-2">
-          <button type="submit" class="btn btn-success btn-sm" [disabled]="createForm.invalid || creating">
-            {{ creating ? 'Création...' : 'Créer' }}
-          </button>
-        </div>
-      </form>
-    </div>
+  <!-- Create Form -->
+  <div *ngIf="showCreateForm" class="floor-create-card">
+    <h6 class="create-title"><i class="feather icon-plus-circle"></i> Nouvel étage</h6>
+    <form [formGroup]="createForm" (ngSubmit)="onSubmitCreate()" class="create-form">
+      <div class="form-field">
+        <label>Nom</label>
+        <input type="text" formControlName="name" placeholder="ex. RDC" />
+      </div>
+      <div class="form-field">
+        <label>Largeur</label>
+        <input type="number" formControlName="width" min="10" />
+      </div>
+      <div class="form-field">
+        <label>Hauteur</label>
+        <input type="number" formControlName="height" min="10" />
+      </div>
+      <button type="submit" class="floor-btn floor-btn-success" [disabled]="createForm.invalid || creating">
+        {{ creating ? 'Création...' : 'Créer' }}
+      </button>
+    </form>
+  </div>
 
-    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-    <div *ngIf="loading" class="text-center py-4">Chargement...</div>
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="floor-alert floor-alert-danger">
+    <i class="feather icon-alert-triangle"></i> {{ errorMessage }}
+  </div>
 
-    <div *ngIf="!loading && floors.length === 0" class="alert alert-info">
-      Aucun étage. Créez-en un depuis l'éditeur de plan en sélectionnant un étage après en avoir créé un via l'API ou un outil admin.
-    </div>
+  <!-- Loading -->
+  <div *ngIf="loading" class="floor-loading">
+    <div class="floor-spinner"></div>
+    <p>Chargement...</p>
+  </div>
 
-    <div *ngIf="!loading && floors.length" class="table-responsive">
-      <table class="table table-sm table-hover">
-        <thead>
-          <tr>
-            <th>Ordre</th>
-            <th>Nom</th>
-            <th>Dimensions (L × H)</th>
-            <th>Actions</th>
+  <!-- Empty -->
+  <div *ngIf="!loading && floors.length === 0 && !errorMessage" class="floor-empty">
+    <div class="floor-empty-icon"><i class="feather icon-layers"></i></div>
+    <h5>Aucun étage</h5>
+    <p>Créez votre premier étage pour commencer à modéliser le plan.</p>
+  </div>
+
+  <!-- Table -->
+  <div class="floor-table-card" *ngIf="!loading && floors.length > 0">
+    <table class="floor-table">
+      <thead>
+        <tr>
+          <th>Ordre</th>
+          <th>Nom</th>
+          <th>Dimensions</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let f of floors">
+          <tr *ngIf="editingFloorId !== f._id">
+            <td class="td-mono">{{ f.order ?? 0 }}</td>
+            <td class="td-name">{{ f.name }}</td>
+            <td class="td-dim">{{ f.width }} × {{ f.height }}</td>
+            <td class="td-actions">
+              <button class="action-btn action-primary" (click)="goToEditor(f._id)" title="Éditer le plan">
+                <i class="feather icon-edit-3"></i>
+              </button>
+              <button class="action-btn action-default" (click)="startEdit(f)" title="Modifier">
+                <i class="feather icon-settings"></i>
+              </button>
+              <button class="action-btn action-danger" (click)="deleteFloor(f)" [disabled]="deleteId === f._id" title="Supprimer">
+                <i class="feather icon-trash-2"></i>
+              </button>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          <ng-container *ngFor="let f of floors">
-            <tr *ngIf="editingFloorId !== f._id">
-              <td>{{ f.order ?? 0 }}</td>
-              <td>{{ f.name }}</td>
-              <td>{{ f.width }} × {{ f.height }}</td>
-              <td>
-                <button type="button" class="btn btn-primary btn-sm me-1" (click)="goToEditor(f._id)">
-                  Éditer le plan
-                </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm me-1" (click)="startEdit(f)">
-                  Modifier
-                </button>
-                <button type="button" class="btn btn-outline-danger btn-sm" (click)="deleteFloor(f)" [disabled]="deleteId === f._id">
-                  {{ deleteId === f._id ? 'Suppression...' : 'Supprimer' }}
-                </button>
-              </td>
-            </tr>
-            <tr *ngIf="editingFloorId === f._id" class="table-light">
-              <td colspan="4">
-                <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()" class="row g-2 align-items-center flex-nowrap">
-                  <div class="col-auto">
-                    <label class="form-label mb-0 small">Nom</label>
-                    <input type="text" class="form-control form-control-sm" formControlName="name" style="width: 100px;" />
-                  </div>
-                  <div class="col-auto">
-                    <label class="form-label mb-0 small">Largeur</label>
-                    <input type="number" class="form-control form-control-sm" formControlName="width" min="10" style="width: 70px;" />
-                  </div>
-                  <div class="col-auto">
-                    <label class="form-label mb-0 small">Hauteur</label>
-                    <input type="number" class="form-control form-control-sm" formControlName="height" min="10" style="width: 70px;" />
-                  </div>
-                  <div class="col-auto">
-                    <label class="form-label mb-0 small">Ordre</label>
-                    <input type="number" class="form-control form-control-sm" formControlName="order" min="0" style="width: 60px;" />
-                  </div>
-                  <div class="col-auto pt-4">
-                    <button type="submit" class="btn btn-success btn-sm" [disabled]="editForm.invalid || updating">Enregistrer</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelEdit()">Annuler</button>
-                  </div>
-                </form>
-              </td>
-            </tr>
-          </ng-container>
-        </tbody>
-      </table>
-    </div>
-  </app-card>
+          <tr *ngIf="editingFloorId === f._id" class="editing-row">
+            <td colspan="4">
+              <form [formGroup]="editForm" (ngSubmit)="onSubmitEdit()" class="edit-inline-form">
+                <div class="form-field compact">
+                  <label>Nom</label>
+                  <input type="text" formControlName="name" />
+                </div>
+                <div class="form-field compact">
+                  <label>Largeur</label>
+                  <input type="number" formControlName="width" min="10" />
+                </div>
+                <div class="form-field compact">
+                  <label>Hauteur</label>
+                  <input type="number" formControlName="height" min="10" />
+                </div>
+                <div class="form-field compact">
+                  <label>Ordre</label>
+                  <input type="number" formControlName="order" min="0" />
+                </div>
+                <div class="edit-actions">
+                  <button type="submit" class="floor-btn floor-btn-success floor-btn-sm" [disabled]="editForm.invalid || updating">Enregistrer</button>
+                  <button type="button" class="floor-btn floor-btn-outline floor-btn-sm" (click)="cancelEdit()">Annuler</button>
+                </div>
+              </form>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
 </div>
