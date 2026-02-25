@@ -29,6 +29,7 @@ export interface LoginResponse {
   data?: {
     email: string;
     otpRequired: boolean;
+    otp?: string;
   };
 }
 
