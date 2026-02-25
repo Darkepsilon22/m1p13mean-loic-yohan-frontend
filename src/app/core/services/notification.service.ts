@@ -34,6 +34,16 @@ const SOCKET_EVENTS: { event: string; message: (d: any) => string }[] = [
   { event: 'reservation:validated', message: () => 'Votre réservation a été validée' },
   { event: 'reservation:rejected', message: d => `Votre réservation a été refusée${d.reason ? ' : ' + d.reason : ''}` },
 
+  { event: 'contract:created', message: d => `Nouveau contrat créé : ${d.reference}` },
+  { event: 'contract:sentForSignature', message: d => `Contrat ${d.reference} en attente de votre signature` },
+  { event: 'contract:signed', message: d => `Contrat ${d.reference} signé` },
+  { event: 'contract:depositPaid', message: d => `Dépôt de garantie payé pour le contrat ${d.reference}` },
+  { event: 'contract:depositConfirmed', message: d => `Dépôt confirmé pour le contrat ${d.reference}` },
+  { event: 'contract:activated', message: d => `Contrat ${d.reference} activé` },
+  { event: 'contract:suspended', message: d => `Contrat ${d.reference} suspendu${d.reason ? ' : ' + d.reason : ''}` },
+  { event: 'contract:reactivated', message: d => `Contrat ${d.reference} réactivé` },
+  { event: 'contract:terminated', message: d => `Contrat ${d.reference} résilié${d.reason ? ' : ' + d.reason : ''}` },
+
   { event: 'category:created', message: d => `Nouvelle catégorie : ${d.name}` },
   { event: 'category:updated', message: d => `Catégorie mise à jour : ${d.name}` },
   { event: 'category:statusChanged', message: d => `Catégorie ${d.isActive ? 'activée' : 'désactivée'} : ${d.name}` },
@@ -70,6 +80,11 @@ const SOCKET_EVENTS: { event: string; message: (d: any) => string }[] = [
     return `Commande ${d.reference} : ${label}`;
   }},
   { event: 'order:receptionConfirmed', message: d => `${d.customerName} a confirmé la réception de la commande ${d.reference}` },
+
+  { event: 'invoice:created', message: d => `Nouvelle facture : ${d.reference}` },
+  { event: 'invoice:paymentRecorded', message: d => `Paiement enregistré sur la facture ${d.reference}` },
+  { event: 'invoice:paid', message: d => `Facture ${d.reference} entièrement payée` },
+  { event: 'invoice:cancelled', message: d => `Facture ${d.reference} annulée` },
 
   { event: 'payment:initialized', message: d => `Paiement initialisé : ${d.paymentRef}` },
   { event: 'payment:confirmed', message: d => `Paiement confirmé : ${d.paymentRef}` },
