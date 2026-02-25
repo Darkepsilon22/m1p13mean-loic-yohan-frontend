@@ -27,6 +27,13 @@ export class ReviewManagementComponent implements OnInit {
   responseMessage = '';
   responseMessageType: 'success' | 'error' = 'success';
 
+  // Modal suppression
+  showDeleteModal = false;
+  reviewToDelete: Review | null = null;
+  deleting = false;
+  deleteMessage = '';
+  deleteMessageType: 'success' | 'error' = 'success';
+
   constructor(private reviewService: ReviewService) {}
 
   ngOnInit(): void {
@@ -122,6 +129,56 @@ export class ReviewManagementComponent implements OnInit {
     this.showResponseModal = false;
     this.selectedReview = null;
     this.responseMessage = '';
+  }
+
+  // ========== Masquer / Republier ==========
+
+  toggleVisibility(review: Review): void {
+    const newStatus = review.status === 'hidden' ? 'published' : 'hidden';
+    this.reviewService.updateStatus(review._id, newStatus).subscribe({
+      next: () => {
+        this.loadReviews();
+      },
+      error: (err) => {
+        this.errorMessage = err.message || 'Erreur lors du changement de statut.';
+      }
+    });
+  }
+
+  // ========== Modal Suppression ==========
+
+  openDeleteModal(review: Review): void {
+    this.reviewToDelete = review;
+    this.deleteMessage = '';
+    this.showDeleteModal = true;
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.reviewToDelete = null;
+    this.deleteMessage = '';
+  }
+
+  confirmDelete(): void {
+    if (!this.reviewToDelete) return;
+
+    this.deleting = true;
+    this.deleteMessage = '';
+
+    this.reviewService.delete(this.reviewToDelete._id).subscribe({
+      next: () => {
+        this.deleting = false;
+        this.deleteMessage = 'Avis supprimé avec succès.';
+        this.deleteMessageType = 'success';
+        this.loadReviews();
+        setTimeout(() => this.closeDeleteModal(), 1200);
+      },
+      error: (err) => {
+        this.deleting = false;
+        this.deleteMessage = err.message || 'Erreur lors de la suppression.';
+        this.deleteMessageType = 'error';
+      }
+    });
   }
 
   submitResponse(): void {

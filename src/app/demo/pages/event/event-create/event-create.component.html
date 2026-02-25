@@ -15,20 +15,11 @@
       </div>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <!-- Informations principales -->
-        <div class="af-section">
-          <h6 class="af-section-title">Informations principales</h6>
+        <!-- Row 1: Titre + Image URL -->
+        <div class="af-form-row af-row-2">
           <div class="af-field">
             <label class="af-label">Titre <span class="af-required">*</span></label>
             <input type="text" class="af-input" formControlName="title" placeholder="Ex: Journée portes ouvertes">
-          </div>
-          <div class="af-field">
-            <label class="af-label">Description courte</label>
-            <input type="text" class="af-input" formControlName="shortDescription" placeholder="Résumé optionnel">
-          </div>
-          <div class="af-field">
-            <label class="af-label">Description <span class="af-required">*</span></label>
-            <textarea class="af-textarea" formControlName="description" rows="4" placeholder="Description de l'événement"></textarea>
           </div>
           <div class="af-field">
             <label class="af-label">Image (URL) <span class="af-required">*</span></label>
@@ -36,41 +27,48 @@
           </div>
         </div>
 
-        <div class="af-divider"></div>
-
-        <!-- Dates & Paramètres -->
-        <div class="af-section">
-          <h6 class="af-section-title">Dates & Paramètres</h6>
-          <div class="af-form-grid af-grid-2">
-            <div class="af-field">
-              <label class="af-label">Date de début <span class="af-required">*</span></label>
-              <input type="datetime-local" class="af-input" formControlName="startDate">
-            </div>
-            <div class="af-field">
-              <label class="af-label">Date de fin <span class="af-required">*</span></label>
-              <input type="datetime-local" class="af-input" formControlName="endDate">
-            </div>
-          </div>
-          <div class="af-form-grid af-grid-2">
-            <div class="af-field">
-              <label class="af-label">Visibilité</label>
-              <select class="af-select" formControlName="visibility">
-                <option value="public">Public</option>
-                <option value="boutiques">Boutiques uniquement</option>
-              </select>
-            </div>
-            <div class="af-field af-checkbox-wrap">
-              <label class="af-checkbox-label">
-                <input type="checkbox" class="af-checkbox" formControlName="isFeatured">
-                <span>Mettre en vedette</span>
-              </label>
-            </div>
+        <!-- Row 2: Description courte (full) -->
+        <div class="af-form-row">
+          <div class="af-field af-field-full">
+            <label class="af-label">Description courte</label>
+            <input type="text" class="af-input" formControlName="shortDescription" placeholder="Résumé optionnel">
           </div>
         </div>
 
-        <div class="af-divider"></div>
+        <!-- Row 3: Description (full) -->
+        <div class="af-form-row">
+          <div class="af-field af-field-full">
+            <label class="af-label">Description <span class="af-required">*</span></label>
+            <textarea class="af-textarea" formControlName="description" rows="3" placeholder="Description de l'événement"></textarea>
+          </div>
+        </div>
 
-        <!-- Actions -->
+        <!-- Row 4: Date début + Date fin + Visibilité + Vedette -->
+        <div class="af-form-row af-row-4">
+          <div class="af-field">
+            <label class="af-label">Date de début <span class="af-required">*</span></label>
+            <input type="datetime-local" class="af-input" formControlName="startDate">
+          </div>
+          <div class="af-field">
+            <label class="af-label">Date de fin <span class="af-required">*</span></label>
+            <input type="datetime-local" class="af-input" formControlName="endDate">
+          </div>
+          <div class="af-field">
+            <label class="af-label">Visibilité</label>
+            <select class="af-select" formControlName="visibility">
+              <option value="public">Public</option>
+              <option value="boutiques">Boutiques uniquement</option>
+            </select>
+          </div>
+          <div class="af-field af-field-check">
+            <label class="af-label">&nbsp;</label>
+            <label class="af-checkbox-label">
+              <input type="checkbox" class="af-checkbox" formControlName="isFeatured">
+              <span>En vedette</span>
+            </label>
+          </div>
+        </div>
+
         <div class="af-actions">
           <button type="submit" class="af-btn af-btn-primary" [disabled]="form.invalid || loading">
             <i class="feather icon-check"></i>

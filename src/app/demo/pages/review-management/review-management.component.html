@@ -105,10 +105,18 @@
               </span>
               <span *ngIf="!review.response?.text" class="response-indicator">—</span>
             </td>
-            <td class="text-center">
+            <td class="text-center td-actions">
               <button class="reply-btn" [class.reply-edit]="review.response?.text" (click)="openResponseModal(review)">
                 <i class="feather icon-message-circle"></i>
                 <span>{{ review.response?.text ? 'Modifier' : 'Répondre' }}</span>
+              </button>
+              <button class="hide-btn" (click)="toggleVisibility(review)"
+                      [title]="review.status === 'hidden' ? 'Republier cet avis' : 'Masquer cet avis'"
+                      [class.is-hidden]="review.status === 'hidden'">
+                <i class="feather" [ngClass]="review.status === 'hidden' ? 'icon-eye' : 'icon-eye-off'"></i>
+              </button>
+              <button class="delete-btn" (click)="openDeleteModal(review)" title="Supprimer cet avis">
+                <i class="feather icon-trash-2"></i>
               </button>
             </td>
           </tr>
@@ -175,6 +183,45 @@
       <button class="rv-btn-submit" (click)="submitResponse()" [disabled]="submittingResponse">
         <i class="feather icon-send" *ngIf="!submittingResponse"></i>
         {{ submittingResponse ? 'Envoi...' : (selectedReview?.response?.text ? 'Mettre à jour' : 'Publier') }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="showDeleteModal" class="rv-modal-overlay" (click)="closeDeleteModal()">
+  <div class="rv-modal rv-modal-sm" (click)="$event.stopPropagation()">
+    <div class="rv-modal-header rv-modal-header-danger">
+      <h5>
+        <i class="feather icon-trash-2"></i>
+        Supprimer l'avis
+      </h5>
+      <button class="rv-modal-close" (click)="closeDeleteModal()"><i class="feather icon-x"></i></button>
+    </div>
+
+    <div class="rv-modal-body" *ngIf="reviewToDelete">
+      <p class="rv-delete-warning">Êtes-vous sûr de vouloir supprimer cet avis ? Cette action est irréversible.</p>
+      <div class="rv-original-review">
+        <div class="rv-review-header">
+          <span class="rv-reviewer">{{ getReviewerName(reviewToDelete) }}</span>
+          <div class="star-rating">
+            <i *ngFor="let s of [1,2,3,4,5]" class="fa"
+               [ngClass]="s <= reviewToDelete.rating ? 'fa-star star-filled' : 'fa-star-o star-empty'"></i>
+          </div>
+        </div>
+        <p class="rv-review-comment">{{ reviewToDelete.comment }}</p>
+      </div>
+
+      <div *ngIf="deleteMessage" class="rv-response-msg" [class.success]="deleteMessageType === 'success'" [class.error]="deleteMessageType !== 'success'">
+        {{ deleteMessage }}
+      </div>
+    </div>
+
+    <div class="rv-modal-footer">
+      <button class="rv-btn-cancel" (click)="closeDeleteModal()">Annuler</button>
+      <button class="rv-btn-danger" (click)="confirmDelete()" [disabled]="deleting">
+        <i class="feather icon-trash-2" *ngIf="!deleting"></i>
+        {{ deleting ? 'Suppression...' : 'Supprimer' }}
       </button>
     </div>
   </div>

@@ -1,155 +1,176 @@
-<div class="row">
-  <div class="col-sm-12">
-    <app-card cardTitle="Modifier le produit" [options]="false">
-      <div *ngIf="loadProduct" class="text-center py-4">Chargement...</div>
-      <div *ngIf="!loadProduct && errorMessage && !product" class="alert alert-danger">{{ errorMessage }}</div>
+<div class="admin-form-page">
+  <div class="af-header">
+    <a routerLink="/products/my" class="af-back"><i class="feather icon-arrow-left"></i></a>
+    <div>
+      <h4 class="af-title"><i class="feather icon-edit-3"></i> Modifier le produit</h4>
+      <p class="af-subtitle">Mettre à jour les informations du produit</p>
+    </div>
+  </div>
+
+  <div class="af-card">
+    <div class="af-card-body">
+      <div *ngIf="loadProduct" class="af-loading">Chargement...</div>
+      <div *ngIf="!loadProduct && errorMessage && !product" class="af-error">
+        <i class="feather icon-alert-triangle"></i>
+        <span>{{ errorMessage }}</span>
+      </div>
 
       <form *ngIf="product" [formGroup]="form" (ngSubmit)="onSubmit()">
-        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
-
-        <div class="form-group">
-          <label class="form-label">Nom <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" formControlName="name" placeholder="Nom du produit">
+        <div *ngIf="errorMessage" class="af-error">
+          <i class="feather icon-alert-triangle"></i>
+          <span>{{ errorMessage }}</span>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea class="form-control" formControlName="description" rows="3"></textarea>
+        <!-- Row 1: Nom + Catégorie interne + Disponibilité -->
+        <div class="af-form-row af-row-3">
+          <div class="af-field af-flex-2">
+            <label class="af-label">Nom <span class="af-required">*</span></label>
+            <input type="text" class="af-input" formControlName="name" placeholder="Nom du produit">
+          </div>
+          <div class="af-field">
+            <label class="af-label">Catégorie interne</label>
+            <input type="text" class="af-input" formControlName="categoryInternal">
+          </div>
+          <div class="af-field">
+            <label class="af-label">Disponibilité</label>
+            <select class="af-input" formControlName="availability">
+              <option value="available">Disponible</option>
+              <option value="outOfStock">Rupture</option>
+              <option value="onOrder">Sur commande</option>
+            </select>
+          </div>
         </div>
 
-        <!-- Photo du produit -->
-        <div class="form-group">
-          <label class="form-label">Photo du produit (URL)</label>
-          <input type="url" class="form-control" formControlName="photoUrl" placeholder="https://exemple.com/image.jpg">
-          <small class="form-text text-muted">Entrez l'URL complète de l'image du produit</small>
-          
-          <!-- Aperçu de l'image -->
-          <div *ngIf="form.get('photoUrl')?.value" class="mt-2">
-            <img [src]="form.get('photoUrl')?.value" 
-                 alt="Aperçu" 
-                 class="img-thumbnail" 
-                 style="max-width: 200px; max-height: 200px;"
+        <!-- Row 2: Prix + Prix barré + Stock + Seuil alerte -->
+        <div class="af-form-row af-row-4">
+          <div class="af-field">
+            <label class="af-label">Prix (Ar) <span class="af-required">*</span></label>
+            <input type="number" step="0.01" min="0" class="af-input" formControlName="price">
+          </div>
+          <div class="af-field">
+            <label class="af-label">Prix barré (Ar)</label>
+            <input type="number" step="0.01" min="0" class="af-input" formControlName="originalPrice">
+          </div>
+          <div class="af-field">
+            <label class="af-label">Stock actuel</label>
+            <input type="number" min="0" class="af-input af-input-readonly" formControlName="stock" readonly>
+          </div>
+          <div class="af-field">
+            <label class="af-label">Seuil alerte</label>
+            <input type="number" min="0" class="af-input" formControlName="lowStockThreshold">
+          </div>
+        </div>
+
+        <!-- Row 3: Photo URL + Vedette -->
+        <div class="af-form-row af-row-photo">
+          <div class="af-field af-flex-2">
+            <label class="af-label">Photo du produit (URL)</label>
+            <input type="url" class="af-input" formControlName="photoUrl" placeholder="https://exemple.com/image.jpg">
+            <small class="af-hint">Entrez l'URL complète de l'image du produit</small>
+          </div>
+          <div class="af-field af-field-check">
+            <label class="af-label">&nbsp;</label>
+            <label class="af-checkbox">
+              <input type="checkbox" formControlName="isFeatured">
+              Mettre en vedette
+            </label>
+          </div>
+        </div>
+
+        <!-- Image previews -->
+        <div class="af-preview-row" *ngIf="form.get('photoUrl')?.value || (product.mainPhoto && product.mainPhoto !== form.get('photoUrl')?.value)">
+          <div class="af-img-preview" *ngIf="form.get('photoUrl')?.value">
+            <small class="af-preview-label">Aperçu</small>
+            <img [src]="form.get('photoUrl')?.value"
+                 alt="Aperçu"
+                 class="af-preview-img"
                  (error)="onImageError()">
-            <div *ngIf="imageError" class="text-danger mt-1">
-              <small>⚠️ Impossible de charger l'image. Vérifiez l'URL.</small>
+            <div *ngIf="imageError" class="af-preview-error">
+              <small>Impossible de charger l'image. Vérifiez l'URL.</small>
             </div>
           </div>
-
-          <!-- Afficher la photo actuelle si elle existe -->
-          <div *ngIf="product.mainPhoto && product.mainPhoto !== form.get('photoUrl')?.value" class="mt-2">
-            <small class="text-muted">Photo actuelle :</small>
-            <div class="mt-1">
-              <img [src]="product.mainPhoto" 
-                   alt="Photo actuelle" 
-                   class="img-thumbnail" 
-                   style="max-width: 150px; max-height: 150px;">
-            </div>
+          <div class="af-img-preview" *ngIf="product.mainPhoto && product.mainPhoto !== form.get('photoUrl')?.value">
+            <small class="af-preview-label">Photo actuelle</small>
+            <img [src]="product.mainPhoto" alt="Photo actuelle" class="af-preview-img">
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Prix (Ar) <span class="text-danger">*</span></label>
-              <input type="number" step="0.01" min="0" class="form-control" formControlName="price">
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Prix barré (Ar)</label>
-              <input type="number" step="0.01" min="0" class="form-control" formControlName="originalPrice">
-            </div>
+        <!-- Row 4: Description (full width) -->
+        <div class="af-form-row">
+          <div class="af-field af-field-full">
+            <label class="af-label">Description</label>
+            <textarea class="af-input af-textarea" formControlName="description" rows="3"></textarea>
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Catégorie interne</label>
-          <input type="text" class="form-control" formControlName="categoryInternal">
-        </div>
-
-        <div class="row">
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Stock actuel (lecture mise à jour par mouvements)</label>
-              <input type="number" min="0" class="form-control" formControlName="stock" readonly>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label class="form-label">Seuil alerte stock</label>
-              <input type="number" min="0" class="form-control" formControlName="lowStockThreshold">
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Disponibilité</label>
-          <select class="form-control" formControlName="availability">
-            <option value="available">Disponible</option>
-            <option value="outOfStock">Rupture</option>
-            <option value="onOrder">Sur commande</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="d-flex align-items-center">
-            <input type="checkbox" formControlName="isFeatured" class="mr-2">
-            Mettre en vedette
-          </label>
-        </div>
-
-        <div class="form-group mb-4">
-          <button type="submit" class="btn btn-primary" [disabled]="loading">{{ loading ? 'Enregistrement...' : 'Enregistrer' }}</button>
-          <a routerLink="/products/my" class="btn btn-secondary ml-2">Retour à la liste</a>
+        <div class="af-actions">
+          <button type="submit" class="af-btn af-btn-primary" [disabled]="loading">
+            <i class="feather icon-save"></i>
+            {{ loading ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+          <a routerLink="/products/my" class="af-btn af-btn-outline">
+            <i class="feather icon-x"></i>
+            Retour
+          </a>
         </div>
       </form>
-    </app-card>
+    </div>
   </div>
 </div>
 
 <!-- Bloc Stock -->
-<div class="row" *ngIf="product">
-  <div class="col-sm-12">
-    <app-card cardTitle="Gestion du stock" [options]="false">
-      <p class="mb-2">Stock actuel : <strong>{{ product.stock ?? 0 }}</strong></p>
-      <div class="mb-3">
-        <button type="button" class="btn btn-sm btn-success mr-1" (click)="openStockAction('add')">Entrée</button>
-        <button type="button" class="btn btn-sm btn-warning mr-1" (click)="openStockAction('remove')">Sortie</button>
-        <button type="button" class="btn btn-sm btn-info mr-1" (click)="openStockAction('adjust')">Ajuster</button>
-        <button type="button" class="btn btn-sm btn-secondary" (click)="openStockAction('initial')">Stock initial</button>
+<div class="admin-form-page" *ngIf="product">
+  <div class="af-card af-card-stock">
+    <div class="af-card-body">
+      <div class="af-stock-header">
+        <h6 class="af-section-title"><i class="feather icon-package"></i> Gestion du stock</h6>
+        <span class="af-stock-badge">Stock: <strong>{{ product.stock ?? 0 }}</strong></span>
+      </div>
+
+      <div class="af-stock-actions">
+        <button type="button" class="af-btn-stock af-btn-stock-add" (click)="openStockAction('add')"><i class="feather icon-plus"></i> Entrée</button>
+        <button type="button" class="af-btn-stock af-btn-stock-remove" (click)="openStockAction('remove')"><i class="feather icon-minus"></i> Sortie</button>
+        <button type="button" class="af-btn-stock af-btn-stock-adjust" (click)="openStockAction('adjust')"><i class="feather icon-refresh-cw"></i> Ajuster</button>
+        <button type="button" class="af-btn-stock af-btn-stock-initial" (click)="openStockAction('initial')"><i class="feather icon-database"></i> Stock initial</button>
       </div>
 
       <!-- Modal mouvement -->
-      <div *ngIf="stockActionType" class="border rounded p-3 mb-3 bg-light">
-        <h6>{{ stockActionType === 'add' ? 'Entrée' : stockActionType === 'remove' ? 'Sortie' : stockActionType === 'adjust' ? 'Ajuster le stock' : 'Stock initial' }}</h6>
-        <div class="form-group">
-          <label class="form-label">Quantité</label>
-          <input type="number" min="0" class="form-control" [(ngModel)]="stockQuantity" [ngModelOptions]="{standalone: true}">
+      <div *ngIf="stockActionType" class="af-stock-form">
+        <h6 class="af-stock-form-title">{{ stockActionType === 'add' ? 'Entrée' : stockActionType === 'remove' ? 'Sortie' : stockActionType === 'adjust' ? 'Ajuster le stock' : 'Stock initial' }}</h6>
+        <div class="af-form-row af-row-2">
+          <div class="af-field">
+            <label class="af-label">Quantité</label>
+            <input type="number" min="0" class="af-input" [(ngModel)]="stockQuantity" [ngModelOptions]="{standalone: true}">
+          </div>
+          <div class="af-field">
+            <label class="af-label">Motif (optionnel)</label>
+            <input type="text" class="af-input" [(ngModel)]="stockReason" [ngModelOptions]="{standalone: true}" placeholder="Raison ou référence">
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Motif (optionnel)</label>
-          <input type="text" class="form-control" [(ngModel)]="stockReason" [ngModelOptions]="{standalone: true}" placeholder="Raison ou référence">
+        <div *ngIf="stockError" class="af-error">{{ stockError }}</div>
+        <div class="af-stock-form-actions">
+          <button type="button" class="af-btn af-btn-primary af-btn-sm" [disabled]="stockActionLoading" (click)="confirmStockAction()">{{ stockActionLoading ? 'Enregistrement...' : 'Valider' }}</button>
+          <button type="button" class="af-btn af-btn-outline af-btn-sm" (click)="cancelStockAction()">Annuler</button>
         </div>
-        <div *ngIf="stockError" class="alert alert-danger">{{ stockError }}</div>
-        <button type="button" class="btn btn-primary btn-sm" [disabled]="stockActionLoading" (click)="confirmStockAction()">{{ stockActionLoading ? 'Enregistrement...' : 'Valider' }}</button>
-        <button type="button" class="btn btn-secondary btn-sm ml-2" (click)="cancelStockAction()">Annuler</button>
       </div>
 
-      <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
-        <h6 class="mb-0">Historique des mouvements (5 derniers)</h6>
-        <button type="button" class="btn btn-sm btn-outline-primary" (click)="goToFullHistory()">Voir tout l'historique</button>
+      <div class="af-stock-history-header">
+        <h6 class="af-stock-history-title">Historique des mouvements (5 derniers)</h6>
+        <button type="button" class="af-btn af-btn-outline af-btn-sm" (click)="goToFullHistory()">Voir tout</button>
       </div>
-      <div *ngIf="stockLoading" class="text-center py-2">Chargement...</div>
-      <div *ngIf="!stockLoading && movements.length === 0" class="text-muted">Aucun mouvement.</div>
-      <div *ngIf="!stockLoading && movements.length > 0" class="table-responsive">
-        <table class="table table-sm table-hover">
+
+      <div *ngIf="stockLoading" class="af-loading">Chargement...</div>
+      <div *ngIf="!stockLoading && movements.length === 0" class="af-empty">Aucun mouvement.</div>
+
+      <div *ngIf="!stockLoading && movements.length > 0" class="af-table-wrap">
+        <table class="af-table">
           <thead>
             <tr>
               <th>Date</th>
               <th>Type</th>
               <th>Quantité</th>
-              <th>Stock avant</th>
-              <th>Stock après</th>
+              <th>Avant</th>
+              <th>Après</th>
               <th>Motif</th>
             </tr>
           </thead>
@@ -165,6 +186,6 @@
           </tbody>
         </table>
       </div>
-    </app-card>
+    </div>
   </div>
 </div>

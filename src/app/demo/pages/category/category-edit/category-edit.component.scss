@@ -19,14 +19,12 @@ $radius: 14px; $radius-sm: 10px; $transition: 0.25s ease;
 .af-card { background: $surface; border: 1px solid $border-light; border-radius: $radius; overflow: hidden; animation: fadeInUp 0.4s ease both; animation-delay: 0.1s; }
 .af-card-body { padding: 28px 32px; }
 .af-error { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: rgba($red, 0.06); color: $red; border-radius: $radius-sm; font-size: 14px; font-weight: 500; margin-bottom: 24px; border: 1px solid rgba($red, 0.12); i { flex-shrink: 0; font-size: 18px; } }
-.af-success { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: rgba($green, 0.06); color: darken($green, 10%); border-radius: $radius-sm; font-size: 14px; font-weight: 500; margin-bottom: 24px; border: 1px solid rgba($green, 0.12); }
 .af-loading { text-align: center; padding: 32px 0; color: $ink-faint; font-size: 14px; }
-.af-section { margin-bottom: 28px; }
-.af-section-title { font-size: 14px; font-weight: 700; color: $ink; margin: 0 0 18px; display: flex; align-items: center; gap: 8px; i { font-size: 15px; color: $ink-muted; } }
-.af-divider { height: 1px; background: $border-light; margin: 28px 0; }
-.af-form-grid { display: flex; flex-direction: column; gap: 18px; }
-.af-form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+.af-form-row { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 18px; }
+.af-row-3 { grid-template-columns: 2fr 1fr 1fr; }
 .af-field { display: flex; flex-direction: column; }
+.af-field-full { grid-column: 1 / -1; }
+.af-field-check { display: flex; flex-direction: column; justify-content: flex-end; }
 .af-label { font-size: 12px; font-weight: 600; color: $ink-muted; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
 .af-required { color: $red; }
 .af-input, .af-select, .af-textarea {
@@ -36,11 +34,11 @@ $radius: 14px; $radius-sm: 10px; $transition: 0.25s ease;
   &::placeholder { color: $ink-faint; }
   &.is-invalid, &.ng-invalid.ng-touched { border-color: $red; }
 }
-.af-textarea { min-height: 100px; resize: vertical; }
+.af-textarea { min-height: 80px; resize: vertical; }
 .af-hint { font-size: 12px; color: $ink-faint; margin-top: 4px; }
 .af-field-error { font-size: 12px; color: $red; margin-top: 4px; }
-.af-checkbox { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: $ink-soft; cursor: pointer; margin: 0; input { accent-color: $blue; width: 16px; height: 16px; cursor: pointer; } }
-.af-actions { display: flex; gap: 12px; margin-top: 28px; }
+.af-checkbox { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: $ink-soft; cursor: pointer; margin: 0; padding: 10px 0; input { accent-color: $blue; width: 16px; height: 16px; cursor: pointer; } }
+.af-actions { display: flex; gap: 12px; margin-top: 28px; padding-top: 24px; border-top: 1px solid $border-light; }
 .af-btn {
   display: inline-flex; align-items: center; gap: 6px; padding: 11px 24px;
   border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none;
@@ -53,5 +51,5 @@ $radius: 14px; $radius-sm: 10px; $transition: 0.25s ease;
 
 @media (max-width: 768px) {
   .af-card-body { padding: 20px; }
-  .af-form-row { grid-template-columns: 1fr; }
+  .af-form-row.af-row-3 { grid-template-columns: 1fr; }
 }

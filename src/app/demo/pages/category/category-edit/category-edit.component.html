@@ -17,71 +17,58 @@
       <div *ngIf="loadingCategory" class="af-loading">Chargement...</div>
 
       <form *ngIf="!loadingCategory" [formGroup]="form" (ngSubmit)="onSubmit()">
-        <div class="af-section">
-          <h6 class="af-section-title"><i class="feather icon-tag"></i> Informations générales</h6>
-          <div class="af-form-grid">
-            <div class="af-field">
-              <label class="af-label">Nom <span class="af-required">*</span></label>
-              <input type="text" class="af-input" formControlName="name" placeholder="Nom de la catégorie">
-              <small class="af-field-error" *ngIf="getError('name')">{{ getError('name') }}</small>
-              <small class="af-field-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched && !getError('name')">Le nom est requis (max 100 caractères).</small>
-            </div>
-
-            <div class="af-field">
-              <label class="af-label">Description (optionnel)</label>
-              <textarea class="af-textarea" formControlName="description" rows="2" placeholder="Description (max 500 caractères)"></textarea>
-              <small class="af-field-error" *ngIf="getError('description')">{{ getError('description') }}</small>
-            </div>
+        <!-- Row 1: Nom + Icône + Couleur -->
+        <div class="af-form-row af-row-3">
+          <div class="af-field af-flex-2">
+            <label class="af-label">Nom <span class="af-required">*</span></label>
+            <input type="text" class="af-input" formControlName="name" placeholder="Nom de la catégorie">
+            <small class="af-field-error" *ngIf="getError('name')">{{ getError('name') }}</small>
+            <small class="af-field-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched && !getError('name')">Le nom est requis (max 100 caractères).</small>
+          </div>
+          <div class="af-field">
+            <label class="af-label">Icône</label>
+            <input type="text" class="af-input" formControlName="icon" placeholder="ex: shopping-bag">
+            <small class="af-field-error" *ngIf="getError('icon')">{{ getError('icon') }}</small>
+          </div>
+          <div class="af-field">
+            <label class="af-label">Couleur</label>
+            <input type="text" class="af-input" formControlName="color" placeholder="#FF5733">
+            <small class="af-field-error" *ngIf="getError('color')">{{ getError('color') }}</small>
           </div>
         </div>
 
-        <div class="af-divider"></div>
-
-        <div class="af-section">
-          <h6 class="af-section-title"><i class="feather icon-sliders"></i> Apparence</h6>
-          <div class="af-form-row">
-            <div class="af-field">
-              <label class="af-label">Icône (optionnel)</label>
-              <input type="text" class="af-input" formControlName="icon" placeholder="ex: shopping-bag">
-              <small class="af-field-error" *ngIf="getError('icon')">{{ getError('icon') }}</small>
-            </div>
-            <div class="af-field">
-              <label class="af-label">Couleur (optionnel)</label>
-              <input type="text" class="af-input" formControlName="color" placeholder="#FF5733">
-              <small class="af-field-error" *ngIf="getError('color')">{{ getError('color') }}</small>
-            </div>
+        <!-- Row 2: Parent + Ordre + Active -->
+        <div class="af-form-row af-row-3">
+          <div class="af-field af-flex-2">
+            <label class="af-label">Catégorie parente</label>
+            <select class="af-select" formControlName="parentId">
+              <option [ngValue]="null">Aucune (catégorie racine)</option>
+              <option *ngFor="let p of parentCategories" [ngValue]="p._id">{{ p.name }}</option>
+            </select>
+            <small class="af-hint" *ngIf="loadingParent">Chargement...</small>
           </div>
-        </div>
-
-        <div class="af-divider"></div>
-
-        <div class="af-section">
-          <h6 class="af-section-title"><i class="feather icon-settings"></i> Organisation</h6>
-          <div class="af-form-row">
-            <div class="af-field">
-              <label class="af-label">Catégorie parente (optionnel)</label>
-              <select class="af-select" formControlName="parentId">
-                <option [ngValue]="null">Aucune (catégorie racine)</option>
-                <option *ngFor="let p of parentCategories" [ngValue]="p._id">{{ p.name }}</option>
-              </select>
-              <small class="af-hint" *ngIf="loadingParent">Chargement...</small>
-            </div>
-            <div class="af-field">
-              <label class="af-label">Ordre d'affichage</label>
-              <input type="number" class="af-input" formControlName="order" min="0">
-              <small class="af-field-error" *ngIf="getError('order')">{{ getError('order') }}</small>
-            </div>
+          <div class="af-field">
+            <label class="af-label">Ordre d'affichage</label>
+            <input type="number" class="af-input" formControlName="order" min="0">
+            <small class="af-field-error" *ngIf="getError('order')">{{ getError('order') }}</small>
           </div>
-
-          <div class="af-form-grid" style="margin-top: 18px;">
+          <div class="af-field af-field-check">
+            <label class="af-label">&nbsp;</label>
             <label class="af-checkbox">
-              <input type="checkbox" id="isActive" formControlName="isActive">
+              <input type="checkbox" formControlName="isActive">
               Catégorie active
             </label>
           </div>
         </div>
 
-        <div class="af-divider"></div>
+        <!-- Row 3: Description (full width) -->
+        <div class="af-form-row">
+          <div class="af-field af-field-full">
+            <label class="af-label">Description</label>
+            <textarea class="af-textarea" formControlName="description" rows="2" placeholder="Description (max 500 caractères)"></textarea>
+            <small class="af-field-error" *ngIf="getError('description')">{{ getError('description') }}</small>
+          </div>
+        </div>
 
         <div class="af-actions">
           <button type="submit" class="af-btn af-btn-primary" [disabled]="loading || loadingParent">
