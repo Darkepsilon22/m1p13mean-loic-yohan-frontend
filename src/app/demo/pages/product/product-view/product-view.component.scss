@@ -727,11 +727,44 @@ $transition: all 0.25s ease;
   }
 }
 
+.review-stars-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .review-stars {
   color: $star-color;
   font-size: 14px;
   display: flex;
   gap: 2px;
+}
+
+.btn-report {
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s;
+  opacity: 0.5;
+
+  &:hover {
+    color: $danger;
+    background: rgba($danger, 0.08);
+    opacity: 1;
+  }
+}
+
+.btn-report-submit {
+  background: $danger !important;
+  border-color: $danger !important;
+
+  &:hover {
+    background: darken($danger, 8%) !important;
+  }
 }
 
 .review-comment {
@@ -1030,6 +1063,60 @@ $transition: all 0.25s ease;
   }
 }
 
+.review-field {
+  margin-bottom: 16px;
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-muted;
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid $border;
+    border-radius: $radius-sm;
+    font-size: 14px;
+    color: $text-dark;
+    background: $bg-card;
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+    line-height: 1.5;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.15);
+    }
+
+    &::placeholder { color: $text-muted; }
+  }
+}
+
+.review-msg {
+  padding: 10px 14px;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  font-weight: 500;
+
+  &.success {
+    background: rgba($success, 0.1);
+    color: darken($success, 15%);
+    border: 1px solid rgba($success, 0.2);
+  }
+
+  &.error {
+    background: rgba($danger, 0.1);
+    color: $danger;
+    border: 1px solid rgba($danger, 0.15);
+  }
+}
+
 .review-modal-footer {
   display: flex;
   justify-content: space-between;
@@ -1038,6 +1125,7 @@ $transition: all 0.25s ease;
   border-top: 1px solid $border;
 }
 
+.footer-right,
 .modal-footer-right {
   display: flex;
   gap: 8px;

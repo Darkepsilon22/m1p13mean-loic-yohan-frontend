@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { ReviewManagementComponent } from './review-management.component';
+import { ReviewReportsComponent } from './review-reports/review-reports.component';
 
 const routes: Routes = [
-  { path: 'manage', component: ReviewManagementComponent }
+  { path: 'manage', component: ReviewManagementComponent },
+  { path: 'reports', component: ReviewReportsComponent }
 ];
 
 @NgModule({
-  declarations: [ReviewManagementComponent],
+  declarations: [ReviewManagementComponent, ReviewReportsComponent],
   imports: [
     CommonModule,
     FormsModule,

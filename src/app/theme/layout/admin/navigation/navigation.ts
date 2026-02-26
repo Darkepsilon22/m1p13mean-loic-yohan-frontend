@@ -177,6 +177,21 @@ const AdminNavigationItems: NavigationItem[] = [
         icon: 'feather icon-clock'
       }
     ]
+  },
+  {
+    id: 'admin-reviews',
+    title: 'Avis',
+    type: 'group',
+    icon: 'feather icon-flag',
+    children: [
+      {
+        id: 'admin-reports',
+        title: 'Signalements',
+        type: 'item',
+        url: '/reviews/reports',
+        icon: 'feather icon-flag'
+      }
+    ]
   }
 ];
 
@@ -286,6 +301,13 @@ const BoutiqueNavigationItems: NavigationItem[] = [
         type: 'item',
         url: '/reviews/manage',
         icon: 'feather icon-message-square'
+      },
+      {
+        id: 'reviews-reports',
+        title: 'Signalements',
+        type: 'item',
+        url: '/reviews/reports',
+        icon: 'feather icon-flag'
       }
     ]
   },

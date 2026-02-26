@@ -897,6 +897,38 @@ $shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
   margin-bottom: 10px;
 }
 
+.review-stars-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-report {
+  background: none;
+  border: none;
+  color: $ink-muted;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.2s;
+  opacity: 0.5;
+
+  &:hover {
+    color: #e53e3e;
+    background: rgba(229, 62, 62, 0.08);
+    opacity: 1;
+  }
+}
+
+.btn-report-submit {
+  background: #e53e3e !important;
+
+  &:hover {
+    background: #c53030 !important;
+  }
+}
+
 .reviewer-info {
   display: flex;
   align-items: center;
