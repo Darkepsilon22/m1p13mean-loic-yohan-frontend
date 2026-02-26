@@ -62,3 +62,109 @@ L'application est une **Single Page Application** (SPA) Angular : tout se passe 
 Le projet utilise un template Angular (next-v8.1.2-lite) comme base, avec un layout admin (sidebar + navbar) et un layout auth (pages de connexion, inscription…). Les modules métier sont **lazy-loadés** pour de meilleures performances : chaque page n'est chargée que quand l'utilisateur y accède.
 
 ### L'arborescence
+
+
+
+---
+
+## 3. Installation et configuration
+
+### Prérequis
+
+- **Node.js** version 18+
+- **npm** version 9+
+- **Angular CLI** version 15 : `npm install -g @angular/cli@15`
+- Le backend doit tourner sur `http://localhost:5000`
+
+### Installation
+
+```bash
+cd m1p13mean-loic-yohan-frontend
+npm install
+```
+
+### Lancer l'application
+
+```bash
+ng serve
+# ou
+npm start
+```
+
+L'application est accessible sur `http://localhost:4200`.
+
+### Configuration des environnements
+
+**Développement** (`src/environments/environment.ts`) :
+
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:5000/api',
+  wsUrl: 'http://localhost:5000',
+  frontendUrl: 'http://localhost:4200',
+  socket: {
+    transports: ['websocket', 'polling'],
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 10000,
+    timeout: 20000
+  }
+};
+```
+
+**Production** (`src/environments/environment.prod.ts`) :
+
+```typescript
+export const environment = {
+  production: true,
+  apiUrl: '/api',
+  wsUrl: '',
+  frontendUrl: '',
+  socket: {
+    transports: ['websocket', 'polling'],
+    reconnectionDelay: 2000,
+    reconnectionDelayMax: 30000,
+    timeout: 30000
+  }
+};
+```
+
+En production, les URLs sont relatives car le frontend est servi par le même serveur que le backend.
+
+---
+
+## 4. Le routing et la navigation
+
+### Les routes principales
+
+L'application a trois grands blocs de routes :
+
+1. **Les pages publiques** (pas besoin d'être connecté) :
+   - `/landing` — la page d'accueil
+   - `/home` — la page d'accueil avec le layout admin
+   - `/boutiques` — la liste et le détail des boutiques
+
+2. **Les pages protégées** (il faut être connecté, `AuthGuard` active) :
+   - `/dashboard/analytics` — le tableau de bord
+   - `/boutique/*` — gestion des boutiques
+   - `/category/*` — gestion des catégories
+   - `/products/*` — gestion des produits et du stock
+   - `/promotions/*` — gestion des promotions
+   - `/events/*` — gestion des événements
+   - `/reviews` — gestion des avis
+   - `/cart` — le panier
+   - `/map/*` — le plan et la navigation
+   - `/emplacement/*` — réservations, contrats, factures
+   - `/users/*` — gestion des utilisateurs (admin)
+   - `/my-profile` — le profil
+   - `/boutique-stats` — statistiques boutique
+   - `/admin-contracts` — contrats (admin)
+   - `/admin-invoices` — factures (admin)
+
+3. **Les pages d'authentification** (layout dédié) :
+   - `/auth/signin` et `/auth/signin/boutique` et `/auth/signin/admin` — connexion
+   - `/auth/signup` et `/auth/signup/boutique` et `/auth/signup/admin` — inscription
+   - `/auth/reset-password` — mot de passe oublié
+   - `/auth/change-password` — changement de mot de passe
+   - `/auth/verify-email` — vérification d'email
