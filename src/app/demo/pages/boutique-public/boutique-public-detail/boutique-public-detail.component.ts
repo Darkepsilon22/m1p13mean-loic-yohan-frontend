@@ -47,6 +47,15 @@ export class BoutiquePublicDetailComponent implements OnInit {
   reviewMessage = '';
   reviewMessageType: 'success' | 'error' = 'success';
 
+  // Report modal
+  showReportModal = false;
+  reportingReview: Review | null = null;
+  reportReason = '';
+  reportLoading = false;
+  reportMessage = '';
+  reportMessageType: 'success' | 'error' = 'success';
+  currentUserId = '';
+
   private boutiqueId = '';
 
   constructor(
@@ -64,6 +73,7 @@ export class BoutiquePublicDetailComponent implements OnInit {
     const user = this.auth.getStoredUser();
     this.isLoggedIn = this.auth.isLoggedIn();
     this.isAcheteur = this.isLoggedIn && user?.role === 'acheteur';
+    this.currentUserId = user?._id || user?.id || '';
 
     if (this.boutiqueId) {
       this.loadBoutique();
@@ -302,5 +312,43 @@ export class BoutiquePublicDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/boutiques']);
+  }
+
+  // === Report methods ===
+  openReportModal(review: Review): void {
+    this.reportingReview = review;
+    this.reportReason = '';
+    this.reportMessage = '';
+    this.showReportModal = true;
+  }
+
+  closeReportModal(): void {
+    this.showReportModal = false;
+    this.reportingReview = null;
+    this.reportReason = '';
+    this.reportMessage = '';
+  }
+
+  submitReport(): void {
+    if (!this.reportingReview || this.reportReason.trim().length < 5) {
+      this.reportMessage = 'Veuillez décrire la raison (min. 5 caractères).';
+      this.reportMessageType = 'error';
+      return;
+    }
+    this.reportLoading = true;
+    this.reportMessage = '';
+    this.reviewService.report(this.reportingReview._id, this.reportReason.trim()).subscribe({
+      next: () => {
+        this.reportLoading = false;
+        this.reportMessage = 'Avis signalé avec succès.';
+        this.reportMessageType = 'success';
+        setTimeout(() => this.closeReportModal(), 1500);
+      },
+      error: (err) => {
+        this.reportLoading = false;
+        this.reportMessage = err.message || 'Erreur lors du signalement.';
+        this.reportMessageType = 'error';
+      }
+    });
   }
 }

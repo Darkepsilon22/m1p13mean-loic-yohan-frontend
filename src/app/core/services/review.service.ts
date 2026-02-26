@@ -9,8 +9,8 @@ const API = environment.apiUrl;
 
 export interface Review {
   _id: string;
-  boutiqueId: string;
-  productId?: string;
+  boutiqueId: string | { _id: string; name?: string; slug?: string };
+  productId?: string | { _id: string; name?: string };
   userId: {
     _id: string;
     firstName?: string;
@@ -24,6 +24,8 @@ export interface Review {
     respondedAt: Date;
   };
   status: 'published' | 'hidden' | 'reported' | 'deleted';
+  reportCount?: number;
+  reportReasons?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -116,9 +118,9 @@ export class ReviewService {
   }
 
   /** Signale un avis */
-  report(id: string, reason: string): Observable<Review> {
-    return this.http.post<ReviewApiResponse>(`${API}/reviews/${id}/report`, { reason }).pipe(
-      map(res => res.data.review),
+  report(id: string, reason: string): Observable<{ reportCount: number; status: string }> {
+    return this.http.post<any>(`${API}/reviews/${id}/report`, { reason }).pipe(
+      map(res => res.data),
       catchError(handleError)
     );
   }

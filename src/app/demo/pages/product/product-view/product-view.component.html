@@ -269,8 +269,16 @@
             <strong class="reviewer-name">{{ getReviewerName(review) }}</strong>
             <span class="review-date">{{ formatDate(review.createdAt) }}</span>
           </div>
-          <div class="review-stars">
-            <i *ngFor="let s of [1,2,3,4,5]" class="fa" [ngClass]="s <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
+          <div class="review-stars-actions">
+            <div class="review-stars">
+              <i *ngFor="let s of [1,2,3,4,5]" class="fa" [ngClass]="s <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
+            </div>
+            <button class="btn-report"
+                    *ngIf="currentUser"
+                    (click)="openReportModal(review)"
+                    title="Signaler cet avis">
+              <i class="feather icon-flag"></i>
+            </button>
           </div>
         </div>
         <p class="review-comment">{{ review.comment }}</p>
@@ -382,6 +390,38 @@
         <button class="btn-submit-review" (click)="submitReview()" [disabled]="submittingReview">
           <span *ngIf="!submittingReview">{{ userReview ? 'Mettre à jour' : 'Publier' }}</span>
           <span *ngIf="submittingReview"><div class="spinner-border spinner-border-sm mr-1"></div> Envoi...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL SIGNALEMENT ============ -->
+<div class="review-modal-overlay" *ngIf="showReportModal" (click)="closeReportModal()">
+  <div class="review-modal" (click)="$event.stopPropagation()" style="max-width: 480px;">
+    <div class="review-modal-header">
+      <h5><i class="feather icon-flag"></i> Signaler cet avis</h5>
+      <button class="modal-close" (click)="closeReportModal()"><i class="feather icon-x"></i></button>
+    </div>
+    <div class="review-modal-body">
+      <div class="review-field">
+        <label>Raison du signalement</label>
+        <textarea rows="3" [(ngModel)]="reportReason"
+                  placeholder="Expliquez pourquoi cet avis est inapproprié..."
+                  maxlength="500"></textarea>
+      </div>
+      <div *ngIf="reportMessage" class="review-msg"
+           [class.success]="reportMessageType === 'success'"
+           [class.error]="reportMessageType === 'error'">
+        {{ reportMessage }}
+      </div>
+    </div>
+    <div class="review-modal-footer">
+      <div class="footer-right">
+        <button class="btn-cancel" (click)="closeReportModal()">Annuler</button>
+        <button class="btn-submit-review btn-report-submit" (click)="submitReport()" [disabled]="reportLoading">
+          <span *ngIf="!reportLoading">Signaler</span>
+          <span *ngIf="reportLoading">Envoi...</span>
         </button>
       </div>
     </div>

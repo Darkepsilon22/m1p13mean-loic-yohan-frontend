@@ -1,0 +1,164 @@
+<div class="reports-page">
+  <!-- Header -->
+  <div class="reports-header">
+    <div class="reports-header-left">
+      <h4><i class="feather icon-flag"></i> Signalements d'avis</h4>
+      <span class="reports-count" *ngIf="!loading">{{ pagination.total }} signalement{{ pagination.total > 1 ? 's' : '' }}</span>
+    </div>
+    <div class="reports-filters">
+      <select [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
+        <option value="">Tous les statuts</option>
+        <option value="reported">Signalé</option>
+        <option value="published">Publié</option>
+        <option value="hidden">Masqué</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div class="reports-alert reports-alert--error" *ngIf="errorMessage">
+    <i class="feather icon-alert-circle"></i> {{ errorMessage }}
+  </div>
+
+  <!-- Loading -->
+  <div class="reports-loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
+
+  <!-- Empty -->
+  <div class="reports-empty" *ngIf="!loading && reviews.length === 0">
+    <i class="feather icon-check-circle"></i>
+    <p>Aucun signalement trouvé.</p>
+  </div>
+
+  <!-- Table -->
+  <div class="reports-table-wrap" *ngIf="!loading && reviews.length > 0">
+    <table class="reports-table">
+      <thead>
+        <tr>
+          <th *ngIf="isAdmin">Boutique</th>
+          <th>Auteur</th>
+          <th>Note</th>
+          <th>Commentaire</th>
+          <th>Signalements</th>
+          <th>Statut</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let review of reviews">
+          <td *ngIf="isAdmin">{{ getBoutiqueName(review) }}</td>
+          <td>
+            <strong>{{ getReviewerName(review) }}</strong>
+            <br><small class="text-muted">{{ getProductName(review) !== '—' ? getProductName(review) : 'Avis boutique' }}</small>
+          </td>
+          <td>
+            <span class="stars">
+              <i *ngFor="let s of [1,2,3,4,5]" class="fa" [ngClass]="s <= review.rating ? 'fa-star' : 'fa-star-o'"></i>
+            </span>
+          </td>
+          <td class="td-comment">{{ review.comment | slice:0:80 }}{{ (review.comment?.length || 0) > 80 ? '...' : '' }}</td>
+          <td>
+            <span class="report-count-badge" (click)="openDetailModal(review)" title="Voir les raisons">
+              <i class="feather icon-flag"></i> {{ review.reportCount || 0 }}
+            </span>
+          </td>
+          <td><span class="badge" [ngClass]="getStatusClass(review.status)">{{ getStatusLabel(review.status) }}</span></td>
+          <td>{{ formatDate(review.createdAt) }}</td>
+          <td>
+            <div class="action-btns">
+              <button class="btn-action btn-detail" (click)="openDetailModal(review)" title="Voir les raisons">
+                <i class="feather icon-eye"></i>
+              </button>
+              <button class="btn-action btn-publish" *ngIf="review.status !== 'published'" (click)="publishReview(review)" title="Publier (rejeter signalement)">
+                <i class="feather icon-check"></i>
+              </button>
+              <button class="btn-action btn-hide" *ngIf="review.status !== 'hidden'" (click)="hideReview(review)" title="Masquer">
+                <i class="feather icon-eye-off"></i>
+              </button>
+              <button class="btn-action btn-delete" (click)="openDeleteModal(review)" title="Supprimer">
+                <i class="feather icon-trash-2"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="reports-pagination" *ngIf="pagination.pages > 1">
+    <button (click)="goToPage(pagination.page - 1)" [disabled]="pagination.page <= 1">
+      <i class="feather icon-chevron-left"></i>
+    </button>
+    <span class="page-info">{{ pagination.page }} / {{ pagination.pages }}</span>
+    <button (click)="goToPage(pagination.page + 1)" [disabled]="pagination.page >= pagination.pages">
+      <i class="feather icon-chevron-right"></i>
+    </button>
+  </div>
+</div>
+
+<!-- ============ MODAL DETAIL ============ -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5><i class="feather icon-flag"></i> Détails du signalement</h5>
+      <button class="modal-close" (click)="closeDetailModal()"><i class="feather icon-x"></i></button>
+    </div>
+    <div class="modal-body" *ngIf="selectedReview">
+      <!-- Review info -->
+      <div class="detail-section">
+        <h6>Avis</h6>
+        <p><strong>{{ getReviewerName(selectedReview) }}</strong> — {{ formatDate(selectedReview.createdAt) }}</p>
+        <div class="stars">
+          <i *ngFor="let s of [1,2,3,4,5]" class="fa" [ngClass]="s <= selectedReview.rating ? 'fa-star' : 'fa-star-o'"></i>
+        </div>
+        <p class="detail-comment">{{ selectedReview.comment }}</p>
+      </div>
+
+      <!-- Report reasons -->
+      <div class="detail-section">
+        <h6>Raisons des signalements ({{ selectedReview.reportCount || 0 }})</h6>
+        <ul class="reason-list">
+          <li *ngFor="let r of parseReportReasons(selectedReview.reportReasons || [])">
+            <i class="feather icon-alert-triangle"></i>
+            <span>{{ r.reason }}</span>
+          </li>
+        </ul>
+        <p *ngIf="!selectedReview.reportReasons?.length" class="text-muted">Aucune raison enregistrée.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal btn-modal-publish" *ngIf="selectedReview?.status !== 'published'" (click)="publishReview(selectedReview!); closeDetailModal()">
+        <i class="feather icon-check"></i> Publier
+      </button>
+      <button class="btn-modal btn-modal-hide" *ngIf="selectedReview?.status !== 'hidden'" (click)="hideReview(selectedReview!); closeDetailModal()">
+        <i class="feather icon-eye-off"></i> Masquer
+      </button>
+      <button class="btn-modal btn-modal-delete" (click)="closeDetailModal(); openDeleteModal(selectedReview!)">
+        <i class="feather icon-trash-2"></i> Supprimer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL SUPPRESSION ============ -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+  <div class="modal-content modal-sm" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h5><i class="feather icon-trash-2"></i> Confirmer la suppression</h5>
+      <button class="modal-close" (click)="closeDeleteModal()"><i class="feather icon-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <p>Êtes-vous sûr de vouloir supprimer cet avis ? Cette action est irréversible.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal btn-modal-cancel" (click)="closeDeleteModal()">Annuler</button>
+      <button class="btn-modal btn-modal-delete" (click)="confirmDelete()" [disabled]="deleting">
+        {{ deleting ? 'Suppression...' : 'Supprimer' }}
+      </button>
+    </div>
+  </div>
+</div>

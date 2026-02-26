@@ -1,0 +1,446 @@
+// ============================================
+// Review Reports — Signalements
+// ============================================
+
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+
+$blue: #4680ff;
+$green: #2ed8a3;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+$star: #f5a623;
+
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
+
+// === Page ===
+
+.reports-page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.reports-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  h4 {
+    font-size: 20px;
+    font-weight: 700;
+    color: $ink;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    i { color: $red; }
+  }
+}
+
+.reports-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reports-count {
+  font-size: 13px;
+  color: $ink-muted;
+  background: $surface-dim;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.reports-filters select {
+  padding: 8px 12px;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  color: $ink-soft;
+  background: $surface;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: $blue;
+  }
+}
+
+// === Alert ===
+
+.reports-alert {
+  padding: 12px 16px;
+  border-radius: $radius-sm;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+
+  &--error {
+    background: rgba($red, 0.08);
+    color: $red;
+  }
+}
+
+// === Loading ===
+
+.reports-loading {
+  text-align: center;
+  padding: 48px 0;
+  color: $ink-muted;
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid $border;
+    border-top-color: $blue;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// === Empty ===
+
+.reports-empty {
+  text-align: center;
+  padding: 48px 0;
+  color: $ink-muted;
+
+  i {
+    font-size: 40px;
+    color: $green;
+    margin-bottom: 12px;
+    display: block;
+  }
+}
+
+// === Table ===
+
+.reports-table-wrap {
+  overflow-x: auto;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  background: $surface;
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 12px 14px;
+    text-align: left;
+    font-size: 13px;
+    border-bottom: 1px solid $border-light;
+  }
+
+  th {
+    font-weight: 600;
+    color: $ink-muted;
+    background: $surface-warm;
+    white-space: nowrap;
+  }
+
+  td {
+    color: $ink-soft;
+    vertical-align: middle;
+  }
+
+  tbody tr:hover {
+    background: $surface-warm;
+  }
+}
+
+.td-comment {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-muted {
+  color: $ink-faint;
+  font-size: 12px;
+}
+
+// === Stars ===
+
+.stars {
+  display: inline-flex;
+  gap: 2px;
+
+  .fa-star { color: $star; font-size: 12px; }
+  .fa-star-o { color: $border; font-size: 12px; }
+}
+
+// === Report count badge ===
+
+.report-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba($red, 0.1);
+  color: $red;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $transition;
+
+  &:hover {
+    background: rgba($red, 0.18);
+  }
+}
+
+// === Status badge ===
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-success { background: rgba($green, 0.12); color: darken($green, 15%); }
+.badge-secondary { background: $surface-dim; color: $ink-muted; }
+.badge-warning { background: rgba($orange, 0.12); color: darken($orange, 20%); }
+.badge-danger { background: rgba($red, 0.12); color: $red; }
+
+// === Action buttons ===
+
+.action-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-action {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: $transition;
+  background: $surface-dim;
+  color: $ink-muted;
+
+  &:hover { transform: translateY(-1px); }
+}
+
+.btn-detail:hover { background: rgba($blue, 0.12); color: $blue; }
+.btn-publish:hover { background: rgba($green, 0.12); color: darken($green, 10%); }
+.btn-hide:hover { background: rgba($orange, 0.12); color: darken($orange, 20%); }
+.btn-delete:hover { background: rgba($red, 0.12); color: $red; }
+
+// === Pagination ===
+
+.reports-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+
+  button {
+    width: 36px;
+    height: 36px;
+    border: 1px solid $border;
+    border-radius: 8px;
+    background: $surface;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $ink-soft;
+    transition: $transition;
+
+    &:hover:not(:disabled) { background: $surface-dim; }
+    &:disabled { opacity: 0.4; cursor: default; }
+  }
+
+  .page-info {
+    font-size: 13px;
+    color: $ink-muted;
+  }
+}
+
+// === Modal overlay ===
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: $surface;
+  border-radius: $radius;
+  width: 90%;
+  max-width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.modal-sm {
+  max-width: 420px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid $border-light;
+
+  h5 {
+    font-size: 16px;
+    font-weight: 700;
+    color: $ink;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: $ink-muted;
+  cursor: pointer;
+  font-size: 18px;
+
+  &:hover { color: $ink; }
+}
+
+.modal-body {
+  padding: 20px 24px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  border-top: 1px solid $border-light;
+}
+
+// === Detail sections ===
+
+.detail-section {
+  margin-bottom: 20px;
+
+  &:last-child { margin-bottom: 0; }
+
+  h6 {
+    font-size: 13px;
+    font-weight: 600;
+    color: $ink-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+}
+
+.detail-comment {
+  background: $surface-warm;
+  padding: 12px;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  color: $ink-soft;
+  margin-top: 8px;
+}
+
+.reason-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba($red, 0.04);
+    border-radius: $radius-sm;
+    border-left: 3px solid $red;
+    font-size: 13px;
+    color: $ink-soft;
+
+    i {
+      color: $red;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+  }
+}
+
+// === Modal buttons ===
+
+.btn-modal {
+  padding: 8px 16px;
+  border: none;
+  border-radius: $radius-sm;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: $transition;
+
+  &:disabled { opacity: 0.5; cursor: default; }
+}
+
+.btn-modal-publish { background: rgba($green, 0.12); color: darken($green, 15%); &:hover { background: rgba($green, 0.2); } }
+.btn-modal-hide { background: rgba($orange, 0.12); color: darken($orange, 20%); &:hover { background: rgba($orange, 0.2); } }
+.btn-modal-delete { background: rgba($red, 0.12); color: $red; &:hover { background: rgba($red, 0.2); } }
+.btn-modal-cancel { background: $surface-dim; color: $ink-muted; &:hover { background: $border; } }
+
+// === Responsive ===
+
+@media (max-width: 768px) {
+  .reports-page { padding: 16px; }
+  .reports-header { flex-direction: column; align-items: flex-start; }
+  .reports-table th, .reports-table td { padding: 10px 8px; font-size: 12px; }
+  .td-comment { max-width: 140px; }
+}

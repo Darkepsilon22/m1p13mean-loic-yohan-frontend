@@ -51,6 +51,14 @@ export class ProductViewComponent implements OnInit {
   similarProducts: any[] = [];
   loadingSimilar = false;
 
+  // Signalement
+  showReportModal = false;
+  reportingReview: Review | null = null;
+  reportReason = '';
+  reportLoading = false;
+  reportMessage = '';
+  reportMessageType: 'success' | 'error' = 'success';
+
   // Galerie photo
   selectedPhoto = '';
 
@@ -391,6 +399,44 @@ export class ProductViewComponent implements OnInit {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
+    });
+  }
+
+  // === Report methods ===
+  openReportModal(review: Review): void {
+    this.reportingReview = review;
+    this.reportReason = '';
+    this.reportMessage = '';
+    this.showReportModal = true;
+  }
+
+  closeReportModal(): void {
+    this.showReportModal = false;
+    this.reportingReview = null;
+    this.reportReason = '';
+    this.reportMessage = '';
+  }
+
+  submitReport(): void {
+    if (!this.reportingReview || this.reportReason.trim().length < 5) {
+      this.reportMessage = 'Veuillez décrire la raison (min. 5 caractères).';
+      this.reportMessageType = 'error';
+      return;
+    }
+    this.reportLoading = true;
+    this.reportMessage = '';
+    this.reviewService.report(this.reportingReview._id, this.reportReason.trim()).subscribe({
+      next: () => {
+        this.reportLoading = false;
+        this.reportMessage = 'Avis signalé avec succès.';
+        this.reportMessageType = 'success';
+        setTimeout(() => this.closeReportModal(), 1500);
+      },
+      error: (err: ApiErrorBody) => {
+        this.reportLoading = false;
+        this.reportMessage = err.message || 'Erreur lors du signalement.';
+        this.reportMessageType = 'error';
+      }
     });
   }
 }
