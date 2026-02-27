@@ -39,6 +39,10 @@ Le frontend est l'interface que voient et utilisent les trois types d'utilisateu
 
 L'application est une **Single Page Application** (SPA) Angular : tout se passe dans le navigateur, et seules les données transitent entre le client et le serveur via l'API REST et les WebSockets.
 
+> ![Page d'accueil](screenshots/landing-page.png)
+>
+> *La landing page publique du site*
+
 ### Les technologies
 
 | Brique | Technologie | Version |
@@ -736,45 +740,46 @@ Les messages sont tous traduits en français pour une meilleure expérience util
 
 ## Annexe — Les captures d'écran à fournir
 
-Pour illustrer cette documentation, placez les captures d'écran dans le dossier `screenshots/` :
+Pour illustrer cette documentation, placez les captures d'écran dans le dossier `screenshots/`.
+Le tableau ci-dessous indique aussi l'emplacement (section/script) où chaque capture doit apparaître :
 
-| Nom du fichier | Ce qu'il faut capturer |
-|----------------|------------------------|
-| `landing-page.png` | La page d'accueil du site |
-| `auth-register.png` | Le formulaire d'inscription |
-| `auth-login.png` | La page de connexion |
-| `auth-otp.png` | La saisie du code OTP |
-| `auth-reset-password.png` | La réinitialisation du mot de passe |
-| `admin-users-list.png` | La liste des utilisateurs (vue admin) |
-| `admin-pending-boutiques.png` | Les boutiques en attente d'approbation |
-| `boutique-list.png` | La liste des boutiques |
-| `boutique-create.png` | Le formulaire de création d'une boutique |
-| `boutique-public-detail.png` | La page publique d'une boutique |
-| `emplacement-available.png` | Les emplacements disponibles sur le plan |
-| `emplacement-my-reservation.png` | La page "Ma réservation" |
-| `category-list.png` | La liste des catégories |
-| `product-list.png` | La liste des produits |
-| `product-create.png` | Le formulaire de création d'un produit |
-| `product-view.png` | La fiche produit côté acheteur |
-| `stock-management.png` | La gestion du stock |
-| `stock-movements-history.png` | L'historique des mouvements de stock |
-| `stock-export.png` | L'export PDF ou Excel du stock |
-| `promotion-list.png` | La liste des promotions |
-| `promotion-create.png` | Le formulaire de création d'une promotion |
-| `event-list.png` | La liste des événements |
-| `event-create.png` | Le formulaire de création d'un événement |
-| `cart.png` | Le panier d'achat |
-| `order-tracking.png` | Le suivi d'une commande |
-| `order-history.png` | L'historique des commandes |
-| `payment-stripe.png` | La page de paiement Stripe |
-| `payment-confirmation.png` | La confirmation après paiement |
-| `review-boutique.png` | Les avis d'une boutique |
-| `review-response.png` | La réponse du propriétaire à un avis |
-| `map-view.png` | Le plan du centre commercial |
-| `map-editor.png` | L'éditeur de carte (admin) |
-| `map-navigation.png` | Le calcul d'itinéraire |
-| `contracts.png` | La gestion des contrats |
-| `invoices.png` | La page des factures |
-| `dashboard-admin.png` | Le tableau de bord administrateur |
-| `dashboard-boutique.png` | Le tableau de bord boutique |
-| `notifications.png` | Les notifications en temps réel |
+| Nom du fichier | Ce qu'il faut capturer | Emplacement dans la documentation (script) |
+|----------------|------------------------|--------------------------------------------|
+| `landing-page.png` | La page d'accueil du site | `## 1. Présentation` |
+| `auth-register.png` | Le formulaire d'inscription | `## 7. L'authentification` |
+| `auth-login.png` | La page de connexion | `## 7. L'authentification` |
+| `auth-otp.png` | La saisie du code OTP | `## 7. L'authentification` |
+| `auth-reset-password.png` | La réinitialisation du mot de passe | `## 7. L'authentification` |
+| `admin-users-list.png` | La liste des utilisateurs (vue admin) | `## 8. La gestion des utilisateurs` |
+| `admin-pending-boutiques.png` | Les boutiques en attente d'approbation | `## 8. La gestion des utilisateurs` |
+| `boutique-list.png` | La liste des boutiques | `## 9. Les boutiques` |
+| `boutique-create.png` | Le formulaire de création d'une boutique | `## 9. Les boutiques` |
+| `boutique-public-detail.png` | La page publique d'une boutique | `## 9. Les boutiques` |
+| `emplacement-available.png` | Les emplacements disponibles sur le plan | `## 9. Les boutiques` > `### La réservation d'emplacement` |
+| `emplacement-my-reservation.png` | La page "Ma réservation" | `## 9. Les boutiques` > `### La réservation d'emplacement` |
+| `category-list.png` | La liste des catégories | `## 10. Les catégories` |
+| `product-list.png` | La liste des produits | `## 11. Les produits` |
+| `product-create.png` | Le formulaire de création d'un produit | `## 11. Les produits` |
+| `product-view.png` | La fiche produit côté acheteur | `## 11. Les produits` |
+| `stock-management.png` | La gestion du stock | `## 12. La gestion du stock` |
+| `stock-movements-history.png` | L'historique des mouvements de stock | `## 12. La gestion du stock` |
+| `stock-export.png` | L'export PDF ou Excel du stock | `## 12. La gestion du stock` |
+| `promotion-list.png` | La liste des promotions | `## 13. Les promotions` |
+| `promotion-create.png` | Le formulaire de création d'une promotion | `## 13. Les promotions` |
+| `event-list.png` | La liste des événements | `## 14. Les événements` |
+| `event-create.png` | Le formulaire de création d'un événement | `## 14. Les événements` |
+| `cart.png` | Le panier d'achat | `## 15. Le panier et les commandes` |
+| `order-tracking.png` | Le suivi d'une commande | `## 15. Le panier et les commandes` > `### Le suivi des commandes` |
+| `order-history.png` | L'historique des commandes | `## 15. Le panier et les commandes` > `### Le suivi des commandes` |
+| `payment-stripe.png` | La page de paiement Stripe | `## 16. Le paiement Stripe` |
+| `payment-confirmation.png` | La confirmation après paiement | `## 16. Le paiement Stripe` |
+| `review-boutique.png` | Les avis d'une boutique | `## 17. Les avis clients` |
+| `review-response.png` | La réponse du propriétaire à un avis | `## 17. Les avis clients` |
+| `map-view.png` | Le plan du centre commercial | `## 18. Le plan interactif et la navigation` |
+| `map-editor.png` | L'éditeur de carte (admin) | `## 18. Le plan interactif et la navigation` |
+| `map-navigation.png` | Le calcul d'itinéraire | `## 18. Le plan interactif et la navigation` |
+| `contracts.png` | La gestion des contrats | `## 19. Les contrats et la facturation` |
+| `invoices.png` | La page des factures | `## 19. Les contrats et la facturation` |
+| `dashboard-admin.png` | Le tableau de bord administrateur | `## 20. Les tableaux de bord` |
+| `dashboard-boutique.png` | Le tableau de bord boutique | `## 20. Les tableaux de bord` |
+| `notifications.png` | Les notifications en temps réel | `## 21. Les notifications en temps réel` |
