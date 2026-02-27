@@ -6,6 +6,7 @@ import { BoutiqueService } from '../../../core/services/boutique.service';
 import { PromotionService } from '../../../core/services/promotion.service';
 import { EventService, EventItem } from '../../../core/services/event.service';
 import { StatsService } from '../../../core/services/stats.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { ApiErrorBody } from '../../../core/services/auth.service';
 
 /**
@@ -63,10 +64,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     private boutiqueService: BoutiqueService,
     private promotionService: PromotionService,
     private eventService: EventService,
-    private statsService: StatsService
+    private statsService: StatsService,
+    private seo: SeoService
   ) {}
 
   ngOnInit(): void {
+    this.seo.setMeta({
+      title: 'Accueil',
+      description: 'Parcourez les produits, boutiques et promotions du centre commercial Smar\'ket.',
+      keywords: 'produits, boutiques, promotions, centre commercial, Smar\'ket'
+    });
+
     this.isLoggedIn = this.auth.isLoggedIn();
     this.currentUser = this.auth.getStoredUser();
 

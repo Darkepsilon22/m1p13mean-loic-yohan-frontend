@@ -5,6 +5,7 @@ import { ReviewService, Review } from '../../../../core/services/review.service'
 import { ProductService } from '../../../../core/services/product.service';
 import { PromotionService } from '../../../../core/services/promotion.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { SeoService } from '../../../../core/services/seo.service';
 
 @Component({
   selector: 'app-boutique-public-detail',
@@ -65,7 +66,8 @@ export class BoutiquePublicDetailComponent implements OnInit {
     private reviewService: ReviewService,
     private productService: ProductService,
     private promotionService: PromotionService,
-    private auth: AuthService
+    private auth: AuthService,
+    private seo: SeoService
   ) {}
 
   ngOnInit(): void {
@@ -89,6 +91,26 @@ export class BoutiquePublicDetailComponent implements OnInit {
       next: (res) => {
         this.boutique = res.data?.boutique;
         this.loading = false;
+
+        // SEO dynamique
+        if (this.boutique) {
+          const name = this.boutique.name || 'Boutique';
+          const desc = this.boutique.description?.substring(0, 160) || `Découvrez ${name} sur Smar'ket`;
+          this.seo.setMeta({ title: name, description: desc, type: 'business.business' });
+          this.seo.setJsonLd({
+            '@context': 'https://schema.org',
+            '@type': 'Store',
+            name,
+            description: desc,
+            ...(this.boutique.rating?.average && {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: this.boutique.rating.average,
+                reviewCount: this.boutique.rating.count || 0
+              }
+            })
+          });
+        }
       },
       error: (err) => {
         this.loading = false;

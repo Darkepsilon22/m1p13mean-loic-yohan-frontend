@@ -5,6 +5,7 @@ import { CartService } from '../../../../core/services/cart.service';
 import { ReviewService, Review } from '../../../../core/services/review.service';
 import { PromotionService } from '../../../../core/services/promotion.service';
 import { AuthService, ApiErrorBody } from '../../../../core/services/auth.service';
+import { SeoService } from '../../../../core/services/seo.service';
 
 @Component({
   selector: 'app-product-view',
@@ -69,7 +70,8 @@ export class ProductViewComponent implements OnInit {
     private cartService: CartService,
     private reviewService: ReviewService,
     private promotionService: PromotionService,
-    private auth: AuthService
+    private auth: AuthService,
+    private seo: SeoService
   ) {}
 
   ngOnInit(): void {
@@ -89,6 +91,28 @@ export class ProductViewComponent implements OnInit {
       next: (res) => {
         this.product = res.data;
         this.loading = false;
+
+        // SEO dynamique
+        if (this.product) {
+          const name = this.product.name || 'Produit';
+          const desc = this.product.description?.substring(0, 160) || `${name} disponible sur Smar'ket`;
+          const image = this.product.photos?.[0] || '';
+          this.seo.setMeta({ title: name, description: desc, image, type: 'product' });
+          this.seo.setJsonLd({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name,
+            description: desc,
+            image,
+            offers: {
+              '@type': 'Offer',
+              price: this.product.price,
+              priceCurrency: 'MGA',
+              availability: this.product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
+            }
+          });
+        }
+
         this.loadActivePromotion();
         this.loadSimilarProducts();
         // Charger les avis si le produit a une boutique
