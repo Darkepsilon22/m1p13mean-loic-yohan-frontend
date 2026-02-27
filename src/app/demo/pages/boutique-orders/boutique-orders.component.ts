@@ -21,7 +21,7 @@ export class BoutiqueOrdersComponent implements OnInit {
 
   // Pagination
   page = 1;
-  limit = 15;
+  limit = 5;
   totalPages = 1;
   total = 0;
 
@@ -123,6 +123,11 @@ export class BoutiqueOrdersComponent implements OnInit {
   }
 
   onSearch(): void {
+    this.page = 1;
+    this.loadOrders();
+  }
+
+  onPageSizeChange(): void {
     this.page = 1;
     this.loadOrders();
   }

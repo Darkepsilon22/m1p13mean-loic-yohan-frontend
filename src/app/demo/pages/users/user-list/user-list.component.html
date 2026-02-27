@@ -1,0 +1,116 @@
+<div class="admin-list-page">
+
+  <!-- Header -->
+  <div class="al-header">
+    <div>
+      <h2 class="al-title"><i class="feather icon-users"></i>Liste des utilisateurs</h2>
+      <p class="al-subtitle">{{ pagination.total }} utilisateur{{ pagination.total > 1 ? 's' : '' }} enregistré{{ pagination.total > 1 ? 's' : '' }}</p>
+    </div>
+    <div class="al-header-actions">
+      <button class="al-export-btn excel" (click)="exportExcel()" [disabled]="exportingExcel">
+        <i class="feather icon-file-text"></i>
+        {{ exportingExcel ? 'Export...' : 'Excel' }}
+      </button>
+      <button class="al-export-btn pdf" (click)="exportPDF()" [disabled]="exportingPDF">
+        <i class="feather icon-file"></i>
+        {{ exportingPDF ? 'Export...' : 'PDF' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="al-filters">
+    <div class="al-filter-row">
+      <div class="al-search">
+        <i class="feather icon-search"></i>
+        <input type="text" placeholder="Rechercher par nom ou email..." [(ngModel)]="search" (keyup.enter)="onFilterChange()">
+      </div>
+      <select class="al-select" [(ngModel)]="roleFilter" (ngModelChange)="onFilterChange()">
+        <option value="">Tous les rôles</option>
+        <option value="admin">Admin</option>
+        <option value="boutique">Boutique</option>
+        <option value="acheteur">Acheteur</option>
+      </select>
+      <select class="al-select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+        <option value="">Tous les statuts</option>
+        <option value="active">Actif</option>
+        <option value="pending">En attente</option>
+        <option value="blocked">Bloqué</option>
+      </select>
+      <select class="al-select al-select-sm" [(ngModel)]="pagination.limit" (ngModelChange)="onPageSizeChange()">
+        <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }} / page</option>
+      </select>
+      <button class="al-filter-btn" (click)="onFilterChange()">
+        <i class="feather icon-search"></i> Filtrer
+      </button>
+    </div>
+  </div>
+
+  <!-- Erreur -->
+  <div class="al-error" *ngIf="errorMessage">
+    <i class="feather icon-alert-circle"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Loading -->
+  <div class="al-loading" *ngIf="loading">
+    <div class="al-loader-track"><div class="al-loader-fill"></div></div>
+    <p>Chargement des utilisateurs...</p>
+  </div>
+
+  <!-- Vide -->
+  <div class="al-empty" *ngIf="!loading && users.length === 0 && !errorMessage">
+    <div class="al-empty-icon"><i class="feather icon-users"></i></div>
+    <h5>Aucun utilisateur trouvé</h5>
+    <p>Essayez de modifier vos filtres.</p>
+  </div>
+
+  <!-- Tableau -->
+  <div class="al-table-card" *ngIf="!loading && users.length > 0">
+    <table class="al-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th>Inscription</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td class="td-name">{{ user.firstName }} {{ user.lastName }}</td>
+          <td class="td-muted">{{ user.email }}</td>
+          <td class="td-muted">{{ user.phone || '—' }}</td>
+          <td><span class="role-pill" [ngClass]="getRoleBadge(user.role)">{{ getRoleLabel(user.role) }}</span></td>
+          <td><span class="status-pill" [ngClass]="getStatusBadge(user.status)">{{ getStatusLabel(user.status) }}</span></td>
+          <td class="td-muted">{{ formatDate(user.createdAt) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="al-pagination" *ngIf="!loading && pagination.pages > 1">
+    <div class="al-page-info">
+      Page {{ pagination.page }} / {{ pagination.pages }}
+      <span class="al-page-total">({{ pagination.total }} résultats)</span>
+    </div>
+    <div class="al-page-controls">
+      <button class="page-btn" [disabled]="pagination.page <= 1" (click)="goToPage(1)" title="Première page">
+        <i class="feather icon-chevrons-left"></i>
+      </button>
+      <button class="page-btn" [disabled]="pagination.page <= 1" (click)="goToPage(pagination.page - 1)">
+        <i class="feather icon-chevron-left"></i>
+      </button>
+      <button class="page-btn" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.page + 1)">
+        <i class="feather icon-chevron-right"></i>
+      </button>
+      <button class="page-btn" [disabled]="pagination.page >= pagination.pages" (click)="goToPage(pagination.pages)" title="Dernière page">
+        <i class="feather icon-chevrons-right"></i>
+      </button>
+    </div>
+  </div>
+
+</div>

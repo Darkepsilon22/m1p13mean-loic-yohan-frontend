@@ -1,0 +1,716 @@
+// ============================================
+// Stock Movements History — Premium Design
+// ============================================
+
+$ink: #0f0f12;
+$ink-soft: #2d2d35;
+$ink-muted: #6b6e7a;
+$ink-faint: #9ca0ab;
+$surface: #ffffff;
+$surface-warm: #faf9f7;
+$surface-dim: #f3f2ef;
+$border: #e6e4df;
+$border-light: #f0eee9;
+$blue: #4680ff;
+$green: #2ed8a3;
+$green-deep: #1ba97e;
+$orange: #ffba57;
+$red: #ff5370;
+$purple: #6c5ce7;
+$radius: 14px;
+$radius-sm: 10px;
+$transition: 0.25s ease;
+
+// ── Animations ──
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideLoader {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+@keyframes fadeRow {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// ── Page ──
+.smh-page {
+  padding-bottom: 2rem;
+  animation: fadeInUp 0.35s ease;
+}
+
+// ── Header ──
+.smh-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.smh-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.smh-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, $blue, $purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba($blue, 0.25);
+  i {
+    color: #fff;
+    font-size: 22px;
+  }
+}
+.smh-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $ink;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.smh-subtitle {
+  font-size: 13px;
+  color: $ink-faint;
+  margin: 2px 0 0;
+}
+.smh-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: none;
+  background: $ink;
+  color: #fff;
+  border-radius: $radius-sm;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition;
+  font-family: inherit;
+  i { font-size: 15px; }
+  &:hover:not(:disabled) {
+    background: $blue;
+    box-shadow: 0 4px 16px rgba($blue, 0.3);
+    transform: translateY(-1px);
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// ── Filters ──
+.smh-filters {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.smh-filter-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.smh-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 150px;
+  &.smh-filter-grow { flex: 1; min-width: 180px; }
+}
+.smh-filter-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $ink-faint;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  i { font-size: 12px; }
+}
+.smh-input, .smh-select {
+  padding: 9px 14px;
+  border: 1.5px solid $border;
+  border-radius: 8px;
+  font-size: 13px;
+  color: $ink;
+  background: $surface;
+  font-family: inherit;
+  transition: border-color $transition, box-shadow $transition;
+  &:focus {
+    outline: none;
+    border-color: $blue;
+    box-shadow: 0 0 0 3px rgba($blue, 0.08);
+  }
+}
+.smh-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239ca0ab' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.smh-reset-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1.5px solid $border;
+  background: $surface;
+  border-radius: 8px;
+  color: $ink-muted;
+  cursor: pointer;
+  transition: all $transition;
+  flex-shrink: 0;
+  i { font-size: 14px; }
+  &:hover {
+    border-color: $red;
+    color: $red;
+    background: rgba($red, 0.04);
+  }
+}
+
+// ── Error ──
+.smh-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: rgba($red, 0.06);
+  color: $red;
+  border-radius: $radius-sm;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  border: 1px solid rgba($red, 0.12);
+  i { flex-shrink: 0; font-size: 18px; }
+}
+
+// ── Loading ──
+.smh-loading {
+  text-align: center;
+  padding: 80px 20px;
+}
+.smh-loader {
+  p { color: $ink-faint; font-size: 14px; margin-top: 20px; }
+}
+.smh-loader-track {
+  width: 200px;
+  height: 4px;
+  border-radius: 4px;
+  background: $surface-dim;
+  overflow: hidden;
+  margin: 0 auto;
+}
+.smh-loader-fill {
+  width: 60%;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, $blue, $purple);
+  animation: slideLoader 1.2s ease-in-out infinite;
+}
+
+// ── Empty ──
+.smh-empty {
+  text-align: center;
+  padding: 80px 20px;
+  animation: fadeInUp 0.4s ease;
+}
+.smh-empty-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: $surface-dim;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  i { font-size: 2rem; color: $ink-faint; }
+}
+.smh-empty h4 {
+  font-weight: 700;
+  color: $ink;
+  margin-bottom: 6px;
+}
+.smh-empty p {
+  color: $ink-muted;
+  font-size: 14px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+// ── Table ──
+.smh-table-card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease both;
+  animation-delay: 0.05s;
+}
+.smh-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    tr { background: $surface-warm; }
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: $ink-faint;
+      font-weight: 600;
+      padding: 13px 18px;
+      border-bottom: 1px solid $border-light;
+      white-space: nowrap;
+    }
+  }
+
+  tbody .smh-row {
+    animation: fadeRow 0.3s ease both;
+    transition: background $transition;
+    &:hover { background: rgba($blue, 0.02); }
+    &:not(:last-child) td { border-bottom: 1px solid $border-light; }
+  }
+
+  td {
+    padding: 14px 18px;
+    font-size: 14px;
+    color: $ink-soft;
+    vertical-align: middle;
+  }
+}
+.smh-td-date {
+  white-space: nowrap;
+}
+.smh-date-main {
+  display: block;
+  font-weight: 600;
+  color: $ink;
+  font-size: 13px;
+}
+.smh-date-time {
+  display: block;
+  font-size: 11px;
+  color: $ink-faint;
+  margin-top: 1px;
+}
+.smh-td-product {
+  font-weight: 600;
+  color: $ink;
+}
+.smh-td-reason {
+  max-width: 280px;
+  font-size: 13px;
+  color: $ink-muted;
+  line-height: 1.4;
+}
+.smh-td-stock {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+// Type pills
+.smh-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  i { font-size: 12px; }
+}
+.smh-type-in {
+  background: rgba($green, 0.1);
+  color: $green-deep;
+}
+.smh-type-out {
+  background: rgba($red, 0.08);
+  color: $red;
+}
+.smh-type-adjustment {
+  background: rgba($orange, 0.1);
+  color: darken($orange, 22%);
+}
+.smh-type-initial {
+  background: rgba($blue, 0.08);
+  color: $blue;
+}
+
+// Quantity
+.smh-qty {
+  font-weight: 700;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.smh-qty-positive { color: $green-deep; }
+.smh-qty-negative { color: $red; }
+
+// Stock after
+.smh-stock-after {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.smh-stock-up { color: $green-deep; }
+.smh-stock-down { color: $red; }
+
+// ── Pagination ──
+.smh-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 4px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.smh-page-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.smh-page-current {
+  font-size: 13px;
+  font-weight: 600;
+  color: $ink;
+}
+.smh-page-total {
+  font-size: 13px;
+  color: $ink-faint;
+}
+.smh-page-size {
+  padding: 5px 10px;
+  border: 1.5px solid $border;
+  border-radius: 6px;
+  font-size: 12px;
+  color: $ink-soft;
+  background: $surface;
+  cursor: pointer;
+  font-family: inherit;
+  &:focus { outline: none; border-color: $blue; }
+}
+.smh-page-controls {
+  display: flex;
+  gap: 6px;
+}
+.smh-page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid $border;
+  background: $surface;
+  border-radius: 8px;
+  cursor: pointer;
+  color: $ink-soft;
+  transition: all $transition;
+  i { font-size: 15px; }
+  &:hover:not(:disabled) {
+    border-color: $ink;
+    background: $ink;
+    color: #fff;
+  }
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+// ══════════════════════════════════════
+// EXPORT MODAL
+// ══════════════════════════════════════
+.smh-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba($ink, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  animation: overlayIn 0.2s ease;
+  padding: 20px;
+}
+.smh-modal {
+  background: $surface;
+  border-radius: $radius;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
+  animation: modalIn 0.3s ease;
+}
+.smh-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px;
+  border-bottom: 1px solid $border-light;
+}
+.smh-modal-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, $blue, $purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  i { color: #fff; font-size: 18px; }
+}
+.smh-modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: $ink;
+  margin: 0;
+}
+.smh-modal-subtitle {
+  font-size: 13px;
+  color: $ink-faint;
+  margin: 0;
+}
+.smh-modal-close {
+  margin-left: auto;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: $surface-dim;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: $ink-muted;
+  transition: all $transition;
+  i { font-size: 16px; }
+  &:hover { background: rgba($red, 0.08); color: $red; }
+}
+.smh-modal-body {
+  padding: 20px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+// Modal sections
+.smh-modal-section {
+  margin-bottom: 22px;
+  &:last-child { margin-bottom: 0; }
+}
+.smh-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: $ink;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  i { font-size: 14px; color: $blue; }
+}
+.smh-hint {
+  font-size: 11px;
+  font-weight: 400;
+  color: $ink-faint;
+  margin-left: auto;
+}
+.smh-date-row {
+  display: flex;
+  gap: 12px;
+  > .smh-field { flex: 1; }
+}
+.smh-field {
+  margin-bottom: 12px;
+  &:last-child { margin-bottom: 0; }
+}
+.smh-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: $ink-soft;
+  margin-bottom: 5px;
+}
+.smh-required { color: $red; }
+
+// Products list in modal
+.smh-product-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.smh-chip-btn {
+  padding: 4px 14px;
+  border: 1.5px solid $border;
+  background: $surface;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: $ink-muted;
+  cursor: pointer;
+  transition: all $transition;
+  font-family: inherit;
+  &:hover { border-color: $blue; color: $blue; background: rgba($blue, 0.04); }
+}
+.smh-product-list {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1.5px solid $border-light;
+  border-radius: 8px;
+  padding: 8px;
+}
+.smh-product-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background $transition;
+  margin-bottom: 2px;
+  &:last-child { margin-bottom: 0; }
+  &:hover { background: $surface-dim; }
+  input[type="checkbox"] {
+    display: none;
+  }
+}
+.smh-checkbox-visual {
+  width: 18px;
+  height: 18px;
+  border: 2px solid $border;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all $transition;
+  &::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: $blue;
+    transform: scale(0);
+    transition: transform 0.15s ease;
+  }
+}
+.smh-product-selected {
+  background: rgba($blue, 0.04);
+  .smh-checkbox-visual {
+    border-color: $blue;
+    &::after { transform: scale(1); }
+  }
+  .smh-product-name { color: $ink; font-weight: 500; }
+}
+.smh-product-name {
+  font-size: 13px;
+  color: $ink-soft;
+}
+.smh-product-loading {
+  text-align: center;
+  padding: 12px;
+  color: $ink-faint;
+  font-size: 13px;
+  i { animation: spin 1s linear infinite; margin-right: 6px; }
+}
+
+// Modal error
+.smh-modal-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba($red, 0.06);
+  color: $red;
+  border: 1px solid rgba($red, 0.12);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 16px;
+  i { flex-shrink: 0; }
+}
+
+// Modal footer
+.smh-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-top: 1px solid $border-light;
+  background: $surface-warm;
+}
+.smh-modal-footer-right {
+  display: flex;
+  gap: 8px;
+}
+.smh-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all $transition;
+  border: none;
+  font-family: inherit;
+  i { font-size: 14px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+.smh-btn-ghost {
+  background: transparent;
+  color: $ink-muted;
+  border: 1.5px solid $border;
+  &:hover:not(:disabled) { border-color: $ink; color: $ink; }
+}
+.smh-btn-pdf {
+  background: $red;
+  color: #fff;
+  &:hover:not(:disabled) { background: darken($red, 8%); box-shadow: 0 3px 12px rgba($red, 0.3); }
+}
+.smh-btn-excel {
+  background: $green-deep;
+  color: #fff;
+  &:hover:not(:disabled) { background: darken($green-deep, 8%); box-shadow: 0 3px 12px rgba($green-deep, 0.3); }
+}
+
+// ── Responsive ──
+@media (max-width: 768px) {
+  .smh-header { flex-direction: column; align-items: flex-start; }
+  .smh-filter-row { flex-direction: column; align-items: stretch; }
+  .smh-filter-group { min-width: auto; }
+  .smh-pagination { flex-direction: column; align-items: flex-start; }
+  .smh-table-card { overflow-x: auto; }
+  .smh-date-row { flex-direction: column; }
+  .smh-modal { max-width: 100%; }
+}

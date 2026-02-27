@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 
 import { UsersRoutingModule } from './users-routing.module';
 import { PendingBoutiquesComponent } from './pending-boutiques/pending-boutiques.component';
+import { UserListComponent } from './user-list/user-list.component';
 import { SharedModule } from '../../../theme/shared/shared.module';
 
 @NgModule({
   declarations: [
-    PendingBoutiquesComponent
+    PendingBoutiquesComponent,
+    UserListComponent
   ],
   imports: [
     CommonModule,

@@ -170,6 +170,13 @@ const AdminNavigationItems: NavigationItem[] = [
     icon: 'feather icon-users',
     children: [
       {
+        id: 'user-list',
+        title: 'Liste des utilisateurs',
+        type: 'item',
+        url: '/users/list',
+        icon: 'feather icon-users'
+      },
+      {
         id: 'pending-boutiques',
         title: 'Boutiques en attente',
         type: 'item',
