@@ -15,12 +15,6 @@ export class DashAnalyticsComponent implements OnInit, OnDestroy {
   // Rental dashboard data
   rental: any = null;
 
-  // Users list
-  users: any[] = [];
-  usersPagination: any = { page: 1, limit: 10, total: 0, pages: 0 };
-  usersSearch = '';
-  usersRoleFilter = '';
-
   // Charts
   private monthlyRevenueChart: any = null;
   private revenueByZoneBarChart: any = null;
@@ -58,35 +52,6 @@ export class DashAnalyticsComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.loadUsers();
-  }
-
-  loadUsers(): void {
-    const params: any = {
-      page: this.usersPagination.page,
-      limit: this.usersPagination.limit
-    };
-    if (this.usersRoleFilter) params.role = this.usersRoleFilter;
-    if (this.usersSearch) params.search = this.usersSearch;
-
-    this.statsService.getAllUsers(params).subscribe({
-      next: (res) => {
-        this.users = res.data?.users ?? [];
-        this.usersPagination = res.data?.pagination ?? this.usersPagination;
-      },
-      error: () => {}
-    });
-  }
-
-  onUsersFilterChange(): void {
-    this.usersPagination.page = 1;
-    this.loadUsers();
-  }
-
-  goToUsersPage(p: number): void {
-    if (p < 1 || p > this.usersPagination.pages) return;
-    this.usersPagination.page = p;
-    this.loadUsers();
   }
 
   // ===== Charts =====
@@ -188,30 +153,4 @@ export class DashAnalyticsComponent implements OnInit, OnDestroy {
     }
   }
 
-  getRoleLabel(role: string): string {
-    switch (role) {
-      case 'admin': return 'Admin';
-      case 'boutique': return 'Boutique';
-      case 'acheteur': return 'Acheteur';
-      default: return role;
-    }
-  }
-
-  getRoleBadge(role: string): string {
-    switch (role) {
-      case 'admin': return 'badge-dark';
-      case 'boutique': return 'badge-success';
-      case 'acheteur': return 'badge-primary';
-      default: return 'badge-secondary';
-    }
-  }
-
-  getStatusBadge(status: string): string {
-    switch (status) {
-      case 'active': return 'badge-success';
-      case 'pending': return 'badge-warning';
-      case 'blocked': return 'badge-danger';
-      default: return 'badge-secondary';
-    }
-  }
 }

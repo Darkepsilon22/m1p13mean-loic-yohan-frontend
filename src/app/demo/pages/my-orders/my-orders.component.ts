@@ -15,7 +15,7 @@ export class MyOrdersComponent implements OnInit {
   searchTerm = '';
   startDate = '';
   endDate = '';
-  pagination = { page: 1, limit: 10, total: 0, pages: 0 };
+  pagination = { page: 1, limit: 5, total: 0, pages: 0 };
 
   // Cancel order
   cancellingOrderId: string | null = null;
@@ -68,6 +68,11 @@ export class MyOrdersComponent implements OnInit {
     this.startDate = '';
     this.endDate = '';
     this.onFilterChange();
+  }
+
+  onPageSizeChange(): void {
+    this.pagination.page = 1;
+    this.loadOrders();
   }
 
   goToPage(p: number): void {

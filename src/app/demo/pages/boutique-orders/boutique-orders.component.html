@@ -197,15 +197,34 @@
   </div>
 
   <!-- Pagination -->
-  <div *ngIf="totalPages > 1" class="orders-pagination">
-    <button class="page-btn" [disabled]="page === 1" (click)="goToPage(page - 1)">
-      <i class="feather icon-chevron-left"></i>
-    </button>
-    <ng-container *ngFor="let p of pages">
-      <button class="page-num" [class.active]="p === page" (click)="goToPage(p)">{{ p }}</button>
-    </ng-container>
-    <button class="page-btn" [disabled]="page === totalPages" (click)="goToPage(page + 1)">
-      <i class="feather icon-chevron-right"></i>
-    </button>
+  <div *ngIf="!loading && orders.length > 0" class="orders-pagination">
+    <div class="pagination-info">
+      <span class="pagination-current">Page {{ page }} / {{ totalPages }}</span>
+      <span class="pagination-total">· {{ total }} commande{{ total > 1 ? 's' : '' }}</span>
+      <select class="pagination-size" [(ngModel)]="limit" (ngModelChange)="onPageSizeChange()">
+        <option [ngValue]="5">5 / page</option>
+        <option [ngValue]="10">10 / page</option>
+        <option [ngValue]="15">15 / page</option>
+        <option [ngValue]="25">25 / page</option>
+        <option [ngValue]="50">50 / page</option>
+      </select>
+    </div>
+    <div class="pagination-controls">
+      <button class="page-btn" [disabled]="page <= 1" (click)="goToPage(1)" title="Première page">
+        <i class="feather icon-chevrons-left"></i>
+      </button>
+      <button class="page-btn" [disabled]="page <= 1" (click)="goToPage(page - 1)">
+        <i class="feather icon-chevron-left"></i>
+      </button>
+      <ng-container *ngFor="let p of pages">
+        <button class="page-num" [class.active]="p === page" (click)="goToPage(p)">{{ p }}</button>
+      </ng-container>
+      <button class="page-btn" [disabled]="page >= totalPages" (click)="goToPage(page + 1)">
+        <i class="feather icon-chevron-right"></i>
+      </button>
+      <button class="page-btn" [disabled]="page >= totalPages" (click)="goToPage(totalPages)" title="Dernière page">
+        <i class="feather icon-chevrons-right"></i>
+      </button>
+    </div>
   </div>
 </div>

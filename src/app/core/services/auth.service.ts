@@ -224,6 +224,26 @@ export class AuthService {
     );
   }
 
+  /** Admin: export users as Excel */
+  exportUsersExcel(params: { role?: string; status?: string; search?: string } = {}): Observable<Blob> {
+    const p = new URLSearchParams();
+    if (params.role) p.set('role', params.role);
+    if (params.status) p.set('status', params.status);
+    if (params.search) p.set('search', params.search);
+    const qs = p.toString();
+    return this.http.get(`${this.base}/auth/users/export/excel${qs ? '?' + qs : ''}`, { responseType: 'blob' });
+  }
+
+  /** Admin: export users as PDF */
+  exportUsersPDF(params: { role?: string; status?: string; search?: string } = {}): Observable<Blob> {
+    const p = new URLSearchParams();
+    if (params.role) p.set('role', params.role);
+    if (params.status) p.set('status', params.status);
+    if (params.search) p.set('search', params.search);
+    const qs = p.toString();
+    return this.http.get(`${this.base}/auth/users/export/pdf${qs ? '?' + qs : ''}`, { responseType: 'blob' });
+  }
+
   private handleError = (err: any): Observable<never> => {
     if (err.error && typeof err.error === 'object' && 'message' in err.error) {
       return throwError(() => err.error as ApiErrorBody);
