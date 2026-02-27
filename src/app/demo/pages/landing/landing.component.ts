@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-landing',
@@ -82,10 +83,17 @@ export class LandingComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private auth: AuthService
+    private auth: AuthService,
+    private seo: SeoService
   ) {}
 
   ngOnInit(): void {
+    this.seo.setMeta({
+      title: 'Bienvenue',
+      description: 'Smar\'ket est un centre commercial en ligne. Découvrez des boutiques, produits, promotions et événements.',
+      keywords: 'centre commercial, boutique en ligne, e-commerce, Smar\'ket, Madagascar'
+    });
+
     this.isLoggedIn = this.auth.isLoggedIn();
     if (this.isLoggedIn) {
       this.currentUser = this.auth.getStoredUser();
