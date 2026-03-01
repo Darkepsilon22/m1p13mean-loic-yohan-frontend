@@ -422,9 +422,12 @@
       </div>
 
       <div class="filter-pills">
-        <div class="filter-pill">
+        <div class="filter-pill filter-select">
           <i class="feather icon-tag"></i>
-          <input type="text" placeholder="Catégorie" [(ngModel)]="filters.category" (keyup.enter)="onFilterChange()">
+          <select [(ngModel)]="filters.category" (change)="onFilterChange()">
+            <option [ngValue]="''">Catégorie</option>
+            <option *ngFor="let cat of categories" [ngValue]="cat">{{ cat }}</option>
+          </select>
         </div>
 
         <div class="filter-pill filter-select">

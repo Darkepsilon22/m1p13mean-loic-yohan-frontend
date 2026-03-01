@@ -176,15 +176,88 @@ $transition: 0.25s ease;
   }
 }
 
+.mi-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .mi-filter-count {
   font-size: 14px;
   color: $ink-muted;
-  padding-bottom: 10px;
 }
 
 .mi-count-number {
   font-weight: 700;
   color: $ink;
+}
+
+.mi-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: $surface;
+  color: $ink-soft;
+  border: 1.5px solid $border;
+  cursor: pointer;
+  transition: all $transition;
+  font-family: inherit;
+  white-space: nowrap;
+
+  i { font-size: 13px; }
+
+  &:hover {
+    border-color: $green;
+    color: darken($green, 10%);
+    background: rgba($green, 0.04);
+  }
+}
+
+.mi-export-pdf {
+  &:hover {
+    border-color: $red;
+    color: $red;
+    background: rgba($red, 0.04);
+  }
+}
+
+.mi-page-size-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mi-page-size-label {
+  font-size: 13px;
+  color: $ink-muted;
+  white-space: nowrap;
+}
+
+.mi-page-size-select {
+  padding: 6px 28px 6px 10px;
+  border: 1.5px solid $border;
+  border-radius: 8px;
+  font-size: 13px;
+  color: $ink;
+  background: $surface;
+  font-family: inherit;
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+  transition: border-color $transition;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6e7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+
+  &:focus {
+    border-color: $blue;
+    box-shadow: 0 0 0 3px rgba($blue, 0.1);
+  }
 }
 
 // Loading
