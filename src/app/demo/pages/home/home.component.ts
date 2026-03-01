@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProductService, ProductListParams } from '../../../core/services/product.service';
 import { BoutiqueService } from '../../../core/services/boutique.service';
@@ -59,6 +60,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
+    private sanitizer: DomSanitizer,
     private auth: AuthService,
     private productService: ProductService,
     private boutiqueService: BoutiqueService,
@@ -67,6 +69,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     private statsService: StatsService,
     private seo: SeoService
   ) {}
+
+  getBannerBg(url: string): SafeStyle {
+    return this.sanitizer.bypassSecurityTrustStyle(`url(${url})`);
+  }
 
   ngOnInit(): void {
     this.seo.setMeta({

@@ -2,7 +2,8 @@
 <div class="event-banner-container" *ngIf="eventBanners.length > 0">
   <div class="event-banner" *ngFor="let event of eventBanners; let i = index"
        [class.active]="i === currentBannerIndex">
-    <img [src]="event.image" [alt]="event.title" class="event-banner-img">
+    <img [src]="event.image" [alt]="event.title" class="event-banner-bg" referrerpolicy="no-referrer">
+    <div class="event-banner-overlay"></div>
     <div class="event-banner-info">
       <div class="event-banner-badges">
         <span class="event-banner-badge" *ngIf="event.isFeatured">
@@ -15,7 +16,7 @@
       <h4 class="event-banner-title">{{ event.title }}</h4>
       <p class="event-banner-desc" *ngIf="event.shortDescription">{{ event.shortDescription }}</p>
       <p class="event-banner-desc" *ngIf="!event.shortDescription && event.description">
-        {{ event.description.length > 120 ? (event.description | slice:0:120) + '...' : event.description }}
+        {{ event.description.length > 150 ? (event.description | slice:0:150) + '...' : event.description }}
       </p>
       <div class="event-banner-meta">
         <span>
@@ -28,7 +29,7 @@
         </span>
       </div>
     </div>
-    <button class="event-banner-close" (click)="dismissBanner(event._id)" title="Fermer">
+    <button class="event-banner-close" (click)="dismissBanner(event._id); $event.stopPropagation()" title="Fermer">
       <i class="feather icon-x"></i>
     </button>
   </div>
