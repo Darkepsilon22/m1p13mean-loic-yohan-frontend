@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
-  apiUrl: '/api',
-  wsUrl: '',
-  frontendUrl: '',
+  apiUrl: 'https://backendcommercial.onrender.com/api',
+  wsUrl: 'https://backendcommercial.onrender.com',
+  frontendUrl: 'https://smarket.qzz.io',
   socket: {
     transports: ['websocket', 'polling'] as string[],
     reconnectionAttempts: Infinity,
