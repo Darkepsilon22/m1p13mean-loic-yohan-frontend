@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5000/api',
-  wsUrl: 'http://localhost:5000',
+  apiUrl: 'https://backendcommercial.onrender.com/api',
+  wsUrl: 'https://backendcommercial.onrender.com',
   frontendUrl: 'http://localhost:4200',
   socket: {
     transports: ['websocket', 'polling'] as string[],
