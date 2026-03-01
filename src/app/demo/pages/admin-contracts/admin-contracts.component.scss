@@ -132,13 +132,19 @@ $transition: 0.25s ease;
   background: $surface; border: 1px solid $border-light; border-radius: $radius;
   padding: 14px 20px; margin-bottom: 20px;
 }
-.al-filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.al-filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
 .al-select {
   padding: 9px 14px; border: 1.5px solid $border; border-radius: 8px;
   font-size: 13px; color: $ink; background: $surface; font-family: inherit;
   cursor: pointer; transition: border-color $transition;
   &:focus { outline: none; border-color: $blue; }
 }
+
+.al-page-size-wrap {
+  display: flex; align-items: center; gap: 8px; margin-left: auto;
+}
+.al-page-size-label { font-size: 13px; color: $ink-muted; font-weight: 500; white-space: nowrap; }
+.al-page-size-select { width: auto; min-width: 60px; }
 
 // Loading
 .al-loading {

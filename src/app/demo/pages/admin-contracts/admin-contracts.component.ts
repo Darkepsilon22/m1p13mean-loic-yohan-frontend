@@ -13,6 +13,7 @@ export class AdminContractsComponent implements OnInit {
 
   contracts: any[] = [];
   pagination: any = { page: 1, limit: 10, total: 0, pages: 0 };
+  pageSizeOptions = [5, 10, 20, 50];
   loading = true;
   errorMessage = '';
   successMessage = '';
@@ -126,6 +127,11 @@ export class AdminContractsComponent implements OnInit {
   }
 
   onFilterChange(): void {
+    this.pagination.page = 1;
+    this.loadContracts();
+  }
+
+  onPageSizeChange(): void {
     this.pagination.page = 1;
     this.loadContracts();
   }

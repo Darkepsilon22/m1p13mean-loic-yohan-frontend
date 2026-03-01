@@ -98,6 +98,13 @@
       <select class="al-select" [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
         <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
       </select>
+      <div class="al-page-size-wrap">
+        <label class="al-page-size-label">Afficher</label>
+        <select class="al-select al-page-size-select" [(ngModel)]="pagination.limit" (ngModelChange)="onPageSizeChange()">
+          <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+        </select>
+        <label class="al-page-size-label">par page</label>
+      </div>
     </div>
   </div>
 
@@ -201,9 +208,9 @@
   </div>
 
   <!-- Pagination -->
-  <div *ngIf="pagination.pages > 1" class="al-pagination">
-    <span class="al-page-info">Page {{ pagination.page }} / {{ pagination.pages }}</span>
-    <div class="al-page-controls">
+  <div *ngIf="!loading && pagination.pages >= 1" class="al-pagination">
+    <span class="al-page-info">Page {{ pagination.page }} / {{ pagination.pages }} — {{ pagination.total }} contrat(s)</span>
+    <div *ngIf="pagination.pages > 1" class="al-page-controls">
       <button class="page-btn" [disabled]="pagination.page === 1" (click)="goToPage(pagination.page - 1)">
         <i class="feather icon-chevron-left"></i>
       </button>
