@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   apiUrl: 'https://backendcommercial.onrender.com/api',
   wsUrl: 'https://backendcommercial.onrender.com',
-  frontendUrl: 'http://localhost:4200',
+  frontendUrl: 'https://smarketm1.netlify.app/',
   socket: {
     transports: ['websocket', 'polling'] as string[],
     reconnectionAttempts: Infinity,
