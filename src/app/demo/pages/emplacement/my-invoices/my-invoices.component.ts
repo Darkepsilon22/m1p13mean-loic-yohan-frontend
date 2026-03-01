@@ -21,6 +21,7 @@ export class MyInvoicesComponent implements OnInit {
   totalPages = 1;
   total = 0;
   limit = 10;
+  pageSizeOptions = [5, 10, 20, 50];
 
   // Payment modal
   showPaymentModal = false;
@@ -191,6 +192,47 @@ export class MyInvoicesComponent implements OnInit {
       error: (err: ApiErrorBody) => {
         this.errorMessage = err.message || 'Erreur lors du paiement.';
         this.paymentLoading = false;
+        this.clearMessages();
+      }
+    });
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.loadInvoices();
+  }
+
+  exportExcel(): void {
+    const params: any = {};
+    if (this.filterStatus) params.status = this.filterStatus;
+    this.invoiceService.exportMyInvoicesExcel(params).subscribe({
+      next: (blob) => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `mes-factures-${new Date().toISOString().slice(0, 10)}.xlsx`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      },
+      error: () => {
+        this.errorMessage = 'Erreur lors de l\'export Excel.';
+        this.clearMessages();
+      }
+    });
+  }
+
+  exportPdf(): void {
+    const params: any = {};
+    if (this.filterStatus) params.status = this.filterStatus;
+    this.invoiceService.exportMyInvoicesPdf(params).subscribe({
+      next: (blob) => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `mes-factures-${new Date().toISOString().slice(0, 10)}.pdf`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      },
+      error: () => {
+        this.errorMessage = 'Erreur lors de l\'export PDF.';
         this.clearMessages();
       }
     });

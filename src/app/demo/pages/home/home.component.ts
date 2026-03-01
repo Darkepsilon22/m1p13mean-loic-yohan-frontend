@@ -32,6 +32,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Catalogue (acheteur)
   products: any[] = [];
   boutiques: any[] = [];
+  categories: string[] = [];
   loadingProducts = false;
   productError = '';
   filters: ProductListParams = {
@@ -107,6 +108,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.loadBoutiques();
       this.loadProducts();
       this.loadPromotionProducts();
+      this.loadCategories();
     }
   }
 
@@ -226,6 +228,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (promotion.type === 'percentage' && promotion.value != null) return `-${promotion.value}%`;
     if (promotion.type === 'fixed' && promotion.value != null) return `-${promotion.value} Ar`;
     return 'Offre';
+  }
+
+  loadCategories(): void {
+    // Extraire les categoryInternal distinctes depuis l'API produits (max 100 par le backend)
+    this.productService.getAll({ limit: 100, page: 1 }).subscribe({
+      next: (res) => {
+        const products: any[] = res.data ?? [];
+        const catSet = new Set<string>();
+        for (const p of products) {
+          if (p.categoryInternal) catSet.add(p.categoryInternal);
+        }
+        this.categories = Array.from(catSet).sort();
+      },
+      error: () => {}
+    });
   }
 
   loadBoutiques(): void {

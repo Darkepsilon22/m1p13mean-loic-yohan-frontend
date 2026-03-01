@@ -67,4 +67,18 @@ export class InvoiceService {
   payMyInvoice(id: string, data: { amount: number; method: string; reference?: string; notes?: string }): Observable<any> {
     return this.http.post<any>(`${API}/invoices/my/${id}/pay`, data).pipe(catchError(handleError));
   }
+
+  exportMyInvoicesExcel(params?: { status?: string }): Observable<Blob> {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    const query = q.toString() ? '?' + q.toString() : '';
+    return this.http.get(`${API}/invoices/my/export/excel${query}`, { responseType: 'blob' });
+  }
+
+  exportMyInvoicesPdf(params?: { status?: string }): Observable<Blob> {
+    const q = new URLSearchParams();
+    if (params?.status) q.set('status', params.status);
+    const query = q.toString() ? '?' + q.toString() : '';
+    return this.http.get(`${API}/invoices/my/export/pdf${query}`, { responseType: 'blob' });
+  }
 }

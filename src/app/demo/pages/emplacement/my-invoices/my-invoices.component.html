@@ -39,8 +39,22 @@
         </select>
       </div>
     </div>
-    <div class="mi-filter-count" *ngIf="!loading">
-      <span class="mi-count-number">{{ total }}</span> facture(s)
+    <div class="mi-toolbar-right">
+      <div class="mi-filter-count" *ngIf="!loading">
+        <span class="mi-count-number">{{ total }}</span> facture(s)
+      </div>
+      <button class="mi-export-btn" (click)="exportExcel()" title="Exporter en Excel">
+        <i class="feather icon-download"></i> Excel
+      </button>
+      <button class="mi-export-btn mi-export-pdf" (click)="exportPdf()" title="Exporter en PDF">
+        <i class="feather icon-printer"></i> PDF
+      </button>
+      <div class="mi-page-size-wrap">
+        <span class="mi-page-size-label">Afficher :</span>
+        <select class="mi-page-size-select" [(ngModel)]="limit" (ngModelChange)="onPageSizeChange()">
+          <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}</option>
+        </select>
+      </div>
     </div>
   </div>
 
