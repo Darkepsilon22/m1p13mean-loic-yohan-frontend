@@ -990,12 +990,69 @@ $card-shadow-hover: 8px 8px 0 0 $blue;
 }
 
 @media (max-width: 768px) {
-  .landing-header-inner { padding: 0 1rem; }
+  .landing-header {
+    padding: 0.75rem 0;
+  }
 
-  .nav-link-custom:not(:last-of-type) { display: none; }
+  .landing-header-inner {
+    padding: 0 1rem;
+  }
 
-  .hero-section { padding: 120px 20px 50px; }
-  .hero-title { font-size: 2.2rem; }
+  // Hide text nav links on mobile, keep login dropdown + CTA
+  .nav-link-custom {
+    display: none;
+  }
+
+  .login-dropdown-wrap {
+    display: block;
+
+    .nav-link-custom {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+  }
+
+  .login-dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
+    animation: slideUpMobile 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes slideUpMobile {
+    from { opacity: 0; transform: translateY(100%); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .btn-cta {
+    padding: 8px 16px;
+    font-size: 0.82rem;
+  }
+
+  .landing-nav {
+    gap: 4px;
+  }
+
+  .hero-section {
+    padding: 100px 20px 50px;
+    min-height: auto;
+  }
+
+  .hero-title { font-size: 2rem; }
+
+  .hero-desc {
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+  }
 
   .hero-buttons {
     flex-direction: column;
@@ -1006,22 +1063,42 @@ $card-shadow-hover: 8px 8px 0 0 $blue;
   .btn-secondary-cta {
     width: 100%;
     justify-content: center;
+    padding: 12px 24px;
+    font-size: 0.95rem;
   }
 
   .hero-stats-row {
-    gap: 12px;
-    margin-top: 40px;
+    gap: 10px;
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
-  .stat-card { padding: 14px 20px; }
+  .stat-card {
+    padding: 14px 16px;
+    box-shadow: 3px 3px 0 0 $black;
+  }
+
+  .stat-value { font-size: 1.3rem; }
+  .stat-label { font-size: 0.72rem; letter-spacing: 0.8px; }
 
   .features-grid { grid-template-columns: 1fr; }
 
   .features-section,
   .steps-section,
-  .trust-section { padding: 64px 0; }
+  .trust-section { padding: 56px 0; }
 
-  .cta-section { padding: 64px 20px; }
+  .section-header { margin-bottom: 36px; }
+
+  .feature-card {
+    padding: 24px 22px 32px;
+  }
+
+  .step-item { gap: 16px; }
+  .step-num { width: 40px; height: 40px; font-size: 1rem; }
+  .step-body { padding-bottom: 28px; }
+
+  .cta-section { padding: 56px 20px; }
 
   .cta-buttons {
     flex-direction: column;
@@ -1032,6 +1109,7 @@ $card-shadow-hover: 8px 8px 0 0 $blue;
   .btn-cta-outline-white {
     width: 100%;
     justify-content: center;
+    padding: 12px 24px;
   }
 
   .footer-top {
@@ -1040,16 +1118,59 @@ $card-shadow-hover: 8px 8px 0 0 $blue;
     text-align: center;
   }
 
-  .footer-links { flex-wrap: wrap; justify-content: center; }
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  // Decorative blobs: smaller on mobile
+  .hero-decoration {
+    &.hero-deco-1 { width: 250px; height: 250px; top: -60px; right: -60px; }
+    &.hero-deco-2 { width: 180px; height: 180px; }
+    &.hero-deco-3 { width: 120px; height: 120px; }
+  }
+
+  .trust-grid { gap: 32px; }
+
+  .trust-card {
+    padding: 22px;
+  }
 }
 
 @media (max-width: 480px) {
-  .logo-text { font-size: 1.25rem; }
-  .hero-title { font-size: 1.9rem; }
-  .section-title { font-size: 1.6rem; }
+  .landing-header-inner {
+    padding: 0 0.75rem;
+  }
+
+  .logo-icon { height: 32px; width: 32px; }
+  .logo-text { font-size: 1.15rem; }
+
+  .hero-section { padding: 90px 16px 40px; }
+  .hero-title { font-size: 1.75rem; }
+  .hero-desc { font-size: 0.88rem; }
+
+  .section-title { font-size: 1.45rem; }
+
+  .hero-tag {
+    font-size: 0.78rem;
+    padding: 6px 14px;
+    margin-bottom: 20px;
+  }
 
   .hero-stats-row {
-    display: grid;
     grid-template-columns: 1fr 1fr;
+    gap: 8px;
   }
+
+  .stat-card { padding: 12px 14px; }
+  .stat-value { font-size: 1.15rem; }
+
+  .cta-logo { width: 48px; height: 48px; }
+  .cta-title { font-size: 1.5rem; }
+  .cta-desc { font-size: 0.9rem; }
+
+  .feature-card { padding: 20px 18px 28px; }
+  .feature-title { font-size: 1.1rem; }
+  .feature-desc { font-size: 0.85rem; }
 }

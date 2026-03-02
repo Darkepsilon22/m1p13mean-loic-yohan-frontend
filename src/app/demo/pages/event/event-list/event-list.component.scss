@@ -487,3 +487,22 @@ $transition: 0.25s ease;
     box-shadow: 0 4px 16px rgba($blue, 0.3);
   }
 }
+
+// ============================================
+// RESPONSIVE
+// ============================================
+@media (max-width: 768px) {
+  .al-header { flex-direction: column; align-items: flex-start; }
+  .al-filter-row { flex-direction: column; align-items: stretch; }
+  .al-search { width: 100%; }
+  .al-table-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .al-table { min-width: 600px; }
+  .al-pagination { flex-direction: column; align-items: center; }
+  .af-btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .al-title { font-size: 1.2rem; }
+  .al-filters { padding: 12px 14px; }
+  .al-select { min-width: 100%; }
+}

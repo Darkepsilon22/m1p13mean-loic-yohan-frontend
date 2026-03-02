@@ -225,4 +225,12 @@ $transition: 0.25s ease;
 
 @media (max-width: 768px) {
   .promo-header { flex-direction: column; align-items: flex-start; }
+  .promo-header-actions { width: 100%; }
+  .promo-table-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .promo-table { min-width: 600px; }
+  .promo-pagination { flex-direction: column; gap: 12px; align-items: center; }
+}
+
+@media (max-width: 480px) {
+  .promo-title { font-size: 1.2rem; }
 }

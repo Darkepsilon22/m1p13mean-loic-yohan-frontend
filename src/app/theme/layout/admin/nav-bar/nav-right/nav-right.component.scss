@@ -586,7 +586,70 @@ $transition: 0.25s ease;
 // ============================================
 
 @media (max-width: 768px) {
-  .nr-notif-dropdown { width: 300px; }
-  .nr-profile-dropdown { width: 240px; }
-  .nr-user-btn { padding: 3px !important; gap: 0; }
+  .nr-notif-dropdown {
+    width: calc(100vw - 24px);
+    max-width: 360px;
+    position: fixed !important;
+    right: 12px !important;
+    left: auto !important;
+    top: 60px !important;
+  }
+
+  .nr-profile-dropdown {
+    width: calc(100vw - 24px);
+    max-width: 280px;
+    position: fixed !important;
+    right: 12px !important;
+    left: auto !important;
+    top: 60px !important;
+  }
+
+  .nr-user-btn {
+    padding: 3px !important;
+    gap: 0;
+  }
+
+  .nr-actions {
+    gap: 0;
+
+    > li {
+      padding: 0 1px !important;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .nr-notif-dropdown {
+    width: calc(100vw - 16px);
+    right: 8px !important;
+  }
+
+  .nr-profile-dropdown {
+    width: calc(100vw - 16px);
+    max-width: 260px;
+    right: 8px !important;
+  }
+
+  .nr-bell-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+  }
+
+  .nr-user-avatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .nr-avatar-img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .nr-avatar-initial span { font-size: 11px; }
+
+  .nr-status-dot {
+    width: 8px;
+    height: 8px;
+  }
 }

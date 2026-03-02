@@ -835,4 +835,13 @@ $shadow-lg: 0 8px 40px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.03);
   .ea-filters-bar { flex-direction: column; gap: 10px; }
   .ea-filter { min-width: 100%; }
   .ea-cards-grid { grid-template-columns: 1fr; }
+  .ea-detail-sidebar { width: 100%; }
+  .ea-pagination { flex-direction: column; gap: 10px; align-items: center; }
+}
+
+@media (max-width: 480px) {
+  .ea-title { font-size: 1.2rem; }
+  .ea-header { padding: 12px 14px; }
+  .ea-card { padding: 14px; }
+  .ea-card-header { flex-direction: column; gap: 8px; }
 }

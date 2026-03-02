@@ -305,3 +305,12 @@ select.af-input {
     }
   }
 }
+
+@media (max-width: 480px) {
+  .admin-form-page { max-width: 100%; }
+  .af-card-body { padding: 16px; }
+  .af-header .af-title { font-size: 18px; }
+  .af-amenities-grid { grid-template-columns: 1fr; }
+  .af-input { padding: 9px 12px; font-size: 13px; }
+  .af-btn { padding: 10px 18px; font-size: 13px; }
+}

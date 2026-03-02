@@ -129,4 +129,12 @@ select.af-input {
   .af-form-row.af-row-2, .af-form-row.af-row-3, .af-form-row.af-row-4, .af-form-row.af-row-photo { grid-template-columns: 1fr; }
   .af-preview-row { flex-direction: column; }
   .af-stock-actions { flex-direction: column; }
+  .af-table { overflow-x: auto; display: block; -webkit-overflow-scrolling: touch; }
+}
+
+@media (max-width: 480px) {
+  .admin-form-page { max-width: 100%; }
+  .af-card-body { padding: 16px; }
+  .af-header .af-title { font-size: 18px; }
+  .af-input { padding: 9px 12px; font-size: 13px; }
 }

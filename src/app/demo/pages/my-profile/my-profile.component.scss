@@ -888,3 +888,15 @@ $transition: 0.25s ease;
     font-size: 22px;
   }
 }
+
+@media (max-width: 480px) {
+  .mp-hero-content { padding: 0 14px 14px; }
+  .mp-hero-name { font-size: 1rem; }
+  .mp-section { padding: 14px; }
+  .mp-section-title { font-size: 14px; }
+  .mp-input { font-size: 13px; padding: 9px 12px; }
+  .mp-order-row { padding: 10px 12px; font-size: 13px; }
+  .mp-hero-action { font-size: 13px; padding: 9px 16px; }
+  .mp-avatar-img, .mp-avatar-placeholder { width: 56px; height: 56px; }
+  .mp-avatar-placeholder span { font-size: 18px; }
+}

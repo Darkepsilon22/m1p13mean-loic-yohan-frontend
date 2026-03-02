@@ -1,5 +1,4 @@
 .header-center {
-  display: flex !important;
   flex: 1;
   min-width: 0;
   justify-content: center;
@@ -13,8 +12,7 @@
 }
 
 .header-right-wrap {
-  display: flex !important;
-  flex: 1;
+  flex: 0 0 auto;
   min-width: 0;
   justify-content: flex-end;
   align-items: center;
@@ -25,4 +23,39 @@
   display: flex;
   align-items: center;
   height: 100%;
+}
+
+// ── Desktop: always show center + right ──
+@media (min-width: 992px) {
+  .header-center {
+    display: flex !important;
+  }
+
+  .header-right-wrap {
+    display: flex !important;
+  }
+}
+
+// ── Mobile: hide role badge, always show right actions ──
+@media (max-width: 991px) {
+  .header-center {
+    display: none !important;
+  }
+
+  // Always show right nav actions (search, bell, avatar)
+  // Override the inline display:none from collapseStyle
+  .header-right-wrap {
+    display: flex !important;
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    padding-right: 8px;
+  }
+}
+
+@media (max-width: 575px) {
+  .header-right-wrap {
+    padding-right: 4px;
+  }
 }

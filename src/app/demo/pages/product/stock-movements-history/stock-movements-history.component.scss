@@ -710,7 +710,14 @@ $transition: 0.25s ease;
   .smh-filter-row { flex-direction: column; align-items: stretch; }
   .smh-filter-group { min-width: auto; }
   .smh-pagination { flex-direction: column; align-items: flex-start; }
-  .smh-table-card { overflow-x: auto; }
+  .smh-table-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .smh-date-row { flex-direction: column; }
   .smh-modal { max-width: 100%; }
+  .smh-table { min-width: 600px; }
+}
+
+@media (max-width: 480px) {
+  .smh-title { font-size: 1.2rem; }
+  .smh-filter-card { padding: 12px 14px; }
+  .smh-btn { font-size: 12px; padding: 8px 14px; }
 }

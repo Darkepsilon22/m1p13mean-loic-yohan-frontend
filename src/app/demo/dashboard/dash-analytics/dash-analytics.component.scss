@@ -667,4 +667,19 @@ $transition: 0.25s ease;
   .dash-kpi-grid {
     grid-template-columns: 1fr;
   }
+
+  .dash-kpi-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+
+    i { font-size: 17px; }
+  }
+
+  .dash-data-table {
+    font-size: 12px;
+
+    th { font-size: 10px; padding: 8px 10px; }
+    td { padding: 8px 10px; font-size: 12px; }
+  }
 }
