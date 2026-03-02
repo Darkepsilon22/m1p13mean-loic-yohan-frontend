@@ -431,3 +431,112 @@ $shadow-lg: 0 8px 40px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.03);
     i { font-size: 13px; }
   }
 }
+
+// ============================================
+// MOBILE RESPONSIVE
+// ============================================
+
+@media (max-width: 768px) {
+  .nav-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .nav-header-center {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .floor-switcher {
+    flex-wrap: nowrap;
+    min-width: max-content;
+  }
+
+  .floor-chip {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .nav-header-right {
+    width: 100%;
+
+    .nav-link-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .nav-route-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .route-inputs {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .route-field {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .route-arrow {
+    display: flex;
+    justify-content: center;
+    padding: 4px 0;
+    transform: rotate(90deg);
+  }
+
+  .route-options {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .nav-canvas {
+    min-height: 300px;
+  }
+
+  .nav-zoom-controls {
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .nav-route-info {
+    bottom: 10px;
+    left: 10px;
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-brand {
+    gap: 10px;
+
+    > i {
+      font-size: 18px;
+      padding: 8px;
+    }
+  }
+
+  .nav-title { font-size: 15px; }
+  .nav-subtitle { font-size: 11px; }
+
+  .route-toggle {
+    font-size: 11px;
+  }
+
+  .debug-toggle {
+    width: 30px;
+    height: 30px;
+  }
+}

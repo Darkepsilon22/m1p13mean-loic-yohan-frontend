@@ -350,4 +350,18 @@ $transition: 0.25s ease;
   .al-action-btn { width: 100%; justify-content: center; }
   .al-filter-row { flex-direction: column; align-items: stretch; }
   .al-search { min-width: auto; }
+  .al-table-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .al-table { min-width: 640px; }
+  .al-pagination { flex-direction: column; gap: 12px; align-items: center; }
+  .import-modal { width: 95vw; }
+  .import-modal-header { padding: 16px 18px; }
+  .import-modal-body { padding: 18px; }
+}
+
+@media (max-width: 480px) {
+  .al-title { font-size: 1.2rem; }
+  .al-filters { padding: 12px 14px; }
+  .al-select-sm { width: 100%; }
+  .al-filter-btn { width: 100%; justify-content: center; }
+  .page-btn { width: 32px; height: 32px; }
 }

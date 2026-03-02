@@ -9,3 +9,23 @@
     margin-left: 0.35rem;
   }
 }
+
+@media (max-width: 991px) {
+  .main-search .input-group {
+    .form-control {
+      width: 100px !important;
+      font-size: 13px;
+      padding: 4px 8px;
+    }
+
+    .search-btn {
+      padding: 4px 8px;
+    }
+  }
+}
+
+@media (max-width: 575px) {
+  .main-search {
+    display: none;
+  }
+}

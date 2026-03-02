@@ -285,4 +285,11 @@ $transition: 0.25s ease;
 @media (max-width: 768px) {
   .pc-form-card { padding: 18px; }
   .pc-row { flex-direction: column; gap: 0; .pc-field { margin-bottom: 14px; } }
+  .pc-actions { flex-direction: column; button { width: 100%; } }
+}
+
+@media (max-width: 480px) {
+  .pc-form-card { padding: 14px; }
+  .pc-title { font-size: 18px; }
+  .pc-input, .pc-textarea, select.pc-input { font-size: 13px; }
 }

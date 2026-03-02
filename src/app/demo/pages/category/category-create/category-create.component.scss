@@ -51,4 +51,10 @@ $radius: 14px; $radius-sm: 10px; $transition: 0.25s ease;
 @media (max-width: 768px) {
   .af-card-body { padding: 20px; }
   .af-form-row.af-row-3 { grid-template-columns: 1fr; }
+  .af-actions { flex-direction: column; .af-btn { width: 100%; justify-content: center; } }
+}
+
+@media (max-width: 480px) {
+  .af-card-body { padding: 16px; }
+  .af-input { font-size: 13px; }
 }

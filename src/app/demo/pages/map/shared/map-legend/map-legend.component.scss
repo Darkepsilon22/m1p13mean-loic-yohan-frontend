@@ -64,3 +64,14 @@
   &.lg-exit { background: #ccfbf1; border: 2px solid #2dd4bf; }
   &.lg-parking { background: #f1f5f9; border: 2px solid #94a3b8; }
 }
+
+// RESPONSIVE
+@media (max-width: 480px) {
+  .legend-entries {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .legend-entry { font-size: 11px; }
+  .lg-dot { width: 10px; height: 10px; }
+}

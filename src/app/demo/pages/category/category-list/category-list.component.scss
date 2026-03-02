@@ -247,4 +247,13 @@ $transition: 0.25s ease;
   .al-header-actions { width: 100%; }
   .al-filter-row { flex-direction: column; align-items: stretch; }
   .al-search { min-width: auto; }
+  .al-table-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .al-table { min-width: 500px; }
+  .al-pagination { flex-direction: column; gap: 12px; align-items: center; }
+}
+
+@media (max-width: 480px) {
+  .al-title { font-size: 1.2rem; }
+  .al-filters { padding: 12px 14px; }
+  .al-action-btn { font-size: 12px; padding: 8px 16px; }
 }

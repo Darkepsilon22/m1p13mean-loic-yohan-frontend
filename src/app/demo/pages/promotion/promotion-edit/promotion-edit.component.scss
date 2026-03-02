@@ -212,4 +212,11 @@ $transition: 0.25s ease;
 @media (max-width: 768px) {
   .pe-form-card { padding: 18px; }
   .pe-row { flex-direction: column; gap: 0; .pe-field { margin-bottom: 14px; } }
+  .pe-actions { flex-direction: column; button { width: 100%; } }
+}
+
+@media (max-width: 480px) {
+  .pe-form-card { padding: 14px; }
+  .pe-title { font-size: 18px; }
+  .pe-input, .pe-textarea, select.pe-input { font-size: 13px; }
 }

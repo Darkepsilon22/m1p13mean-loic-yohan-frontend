@@ -219,3 +219,12 @@ select.af-input {
   .af-info-row { flex-direction: column; gap: 14px; }
   .af-actions { flex-direction: column; .af-btn { width: 100%; justify-content: center; } }
 }
+
+@media (max-width: 480px) {
+  .admin-form-page { max-width: 100%; }
+  .af-card-body { padding: 16px; }
+  .af-header .af-title { font-size: 18px; }
+  .af-input { padding: 9px 12px; font-size: 13px; }
+  .af-label { font-size: 11px; }
+  .af-btn { padding: 10px 18px; font-size: 13px; }
+}

@@ -160,4 +160,12 @@ $transition: 0.25s ease;
   .al-header { flex-direction: column; align-items: flex-start; }
   .al-filter-row { flex-direction: column; align-items: stretch; }
   .al-search { min-width: auto; }
+  .al-table-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .al-table { min-width: 600px; }
+  .al-pagination { flex-direction: column; gap: 12px; align-items: center; }
+}
+
+@media (max-width: 480px) {
+  .al-title { font-size: 1.2rem; }
+  .al-filters { padding: 12px 14px; }
 }
