@@ -5,6 +5,13 @@
       <h4 class="orders-title"><i class="feather icon-clipboard"></i> Commandes</h4>
       <p class="orders-subtitle">Gérez les commandes de votre boutique</p>
     </div>
+    <div *ngIf="boutiques.length > 1" class="boutique-pill">
+      <i class="feather icon-map-pin"></i>
+      <select [(ngModel)]="boutiqueId" (ngModelChange)="onBoutiqueChange()">
+        <option value="">Toutes les boutiques</option>
+        <option *ngFor="let b of boutiques" [value]="b.id">{{ b.name }}</option>
+      </select>
+    </div>
   </div>
 
   <!-- Stats Cards -->
@@ -60,6 +67,10 @@
         <span>Rapport mensuel</span>
       </div>
       <div class="toolbar-controls">
+        <select *ngIf="boutiques.length > 1" class="toolbar-select export-boutique-select" [(ngModel)]="reportBoutiqueId">
+          <option value="">Toutes les boutiques</option>
+          <option *ngFor="let b of boutiques" [value]="b.id">{{ b.name }}</option>
+        </select>
         <select class="toolbar-select" [(ngModel)]="reportMonth">
           <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
         </select>
@@ -110,13 +121,23 @@
         <div class="filter-count">
           <span class="count-badge">{{ total }} commande{{ total > 1 ? 's' : '' }}</span>
         </div>
-        <div class="filter-exports">
-          <button class="export-btn export-excel" (click)="exportOrdersExcel()" [disabled]="exportingOrders" title="Export Excel">
-            <i class="feather icon-download"></i> Excel
-          </button>
-          <button class="export-btn export-pdf" (click)="exportOrdersPDF()" [disabled]="exportingOrders" title="Export PDF">
-            <i class="feather icon-file"></i> PDF
-          </button>
+        <div class="filter-exports-wrap">
+          <div class="filter-exports">
+            <select *ngIf="boutiques.length > 1" class="toolbar-select export-boutique-select" [(ngModel)]="exportOrdersBoutiqueId">
+              <option value="">Toutes les boutiques</option>
+              <option *ngFor="let b of boutiques" [value]="b.id">{{ b.name }}</option>
+            </select>
+            <button class="export-btn export-excel" (click)="exportOrdersExcel()" [disabled]="exportingOrders" title="Export Excel">
+              <i class="feather icon-download"></i> Excel
+            </button>
+            <button class="export-btn export-pdf" (click)="exportOrdersPDF()" [disabled]="exportingOrders" title="Export PDF">
+              <i class="feather icon-file"></i> PDF
+            </button>
+          </div>
+          <p class="export-hint">
+            <i class="feather icon-info"></i>
+            L'export tient compte des filtres : statut, paiement, date début et date fin.
+          </p>
         </div>
       </div>
     </div>

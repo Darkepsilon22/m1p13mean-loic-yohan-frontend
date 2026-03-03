@@ -14,10 +14,18 @@
         <p class="smh-subtitle" *ngIf="loading">Chargement en cours…</p>
       </div>
     </div>
-    <button class="smh-export-btn" (click)="openExportModal()" [disabled]="loading || movements.length === 0">
-      <i class="feather icon-download"></i>
-      Exporter
-    </button>
+    <div class="smh-header-right">
+      <div *ngIf="boutiques.length > 1" class="boutique-pill">
+        <i class="feather icon-map-pin"></i>
+        <select [(ngModel)]="boutiqueId" (ngModelChange)="onBoutiqueChange()">
+          <option *ngFor="let b of boutiques" [value]="b.id">{{ b.name }}</option>
+        </select>
+      </div>
+      <button class="smh-export-btn" (click)="openExportModal()" [disabled]="loading || movements.length === 0">
+        <i class="feather icon-download"></i>
+        Exporter
+      </button>
+    </div>
   </div>
 
   <!-- ═══ Filters ═══ -->

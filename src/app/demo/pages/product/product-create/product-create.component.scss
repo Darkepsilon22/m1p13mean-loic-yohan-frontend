@@ -147,6 +147,34 @@ $transition: 0.25s ease;
   gap: 16px;
 }
 
+// Boutique selector
+.pc-boutique-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: $surface;
+  border: 1.5px solid $blue;
+  border-radius: $radius;
+  padding: 12px 20px;
+  box-shadow: 0 2px 8px rgba($blue, 0.08);
+}
+
+.pc-boutique-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: $ink;
+  white-space: nowrap;
+  margin: 0;
+  i { color: $blue; margin-right: 4px; }
+}
+
+.pc-boutique-select {
+  flex: 1;
+  min-width: 200px;
+  font-weight: 600;
+  color: $ink !important;
+}
+
 // Card (single)
 .pc-card {
   background: $surface;

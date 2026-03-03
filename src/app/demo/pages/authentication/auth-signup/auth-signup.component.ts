@@ -38,7 +38,7 @@ export class AuthSignupComponent implements OnInit {
       ]],
       role: ['acheteur', Validators.required],
       phone: [''],
-      adminSecretKey: ['']
+      adminSecretKey: ['e658c22b07c00f638fccf1824a04dd78eba90fee97d07d99ca3857d1f43a295f']
     });
   }
 

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProductService, CreateProductBody } from '../../../../core/services/product.service';
+import { ContractService } from '../../../../core/services/contract.service';
 import { AuthService, ApiErrorBody } from '../../../../core/services/auth.service';
 
 @Component({
@@ -17,9 +18,13 @@ export class ProductCreateComponent implements OnInit {
   loadingBoutique = true;
   imageError = false;
 
+  // Multi-boutique support
+  boutiques: { id: string; name: string }[] = [];
+
   constructor(
     private fb: FormBuilder,
     private productService: ProductService,
+    private contractService: ContractService,
     private auth: AuthService,
     private router: Router
   ) {
@@ -43,38 +48,67 @@ export class ProductCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('🔄 Initialisation ProductCreateComponent');
     this.resolveBoutiqueId();
   }
 
   resolveBoutiqueId(): void {
     this.loadingBoutique = true;
-    console.log('📦 Chargement des produits pour obtenir boutiqueId...');
-    
+
+    // First try contracts to get boutiques
+    this.contractService.getMyContracts().subscribe({
+      next: (res) => {
+        const contracts = res.data || [];
+        const uniqueBoutiques = new Map<string, string>();
+        for (const c of contracts) {
+          if (c.boutique) {
+            const id = typeof c.boutique === 'string' ? c.boutique : c.boutique._id;
+            if (id && !uniqueBoutiques.has(id)) {
+              const loc = c.boutique.location;
+              const name = loc
+                ? `Étage ${loc.floor}, Zone ${loc.zone}, N°${loc.number}`
+                : (c.boutique.name || 'Boutique');
+              uniqueBoutiques.set(id, name);
+            }
+          }
+        }
+
+        if (uniqueBoutiques.size > 0) {
+          this.boutiques = Array.from(uniqueBoutiques.entries()).map(([id, name]) => ({ id, name }));
+          this.boutiqueId = this.boutiques[0].id;
+          this.loadingBoutique = false;
+        } else {
+          // Fallback: resolve from products
+          this.resolveBoutiqueFromProducts();
+        }
+      },
+      error: () => {
+        this.resolveBoutiqueFromProducts();
+      }
+    });
+  }
+
+  private resolveBoutiqueFromProducts(): void {
     this.productService.getMyProducts({ limit: 1 }).subscribe({
       next: (res) => {
-        console.log('✅ Réponse getMyProducts:', res);
         const list = res.data ?? [];
-        
         if (list.length > 0 && list[0].boutiqueId) {
           const b = list[0].boutiqueId;
           this.boutiqueId = typeof b === 'string' ? b : (b as any)._id ?? b;
-          console.log('✅ boutiqueId trouvé:', this.boutiqueId);
         }
-        
         this.loadingBoutique = false;
-        
         if (!this.boutiqueId) {
-          this.errorMessage = 'Aucune boutique trouvée. Créez d\'abord des produits ou réservez un emplacement.';
-          console.warn('⚠️ Aucun boutiqueId trouvé');
+          this.errorMessage = 'Aucune boutique trouvée. Réservez un emplacement d\'abord.';
         }
       },
       error: (err: ApiErrorBody) => {
         this.loadingBoutique = false;
         this.errorMessage = err.message || 'Erreur lors du chargement.';
-        console.error('❌ Erreur getMyProducts:', err);
       }
     });
+  }
+
+  onBoutiqueChange(): void {
+    // boutiqueId is updated via ngModel
   }
 
   onImageError(): void {

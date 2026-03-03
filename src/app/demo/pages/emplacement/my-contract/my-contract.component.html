@@ -6,8 +6,8 @@
       <i class="feather icon-file-text"></i>
     </div>
     <div>
-      <h4 class="mc-title">Mon Contrat</h4>
-      <p class="mc-subtitle">Gérez votre contrat de location d'emplacement</p>
+      <h4 class="mc-title">Mes Contrats</h4>
+      <p class="mc-subtitle">Gérez vos contrats de location d'emplacement</p>
     </div>
   </div>
 
@@ -25,11 +25,11 @@
   <!-- Loading -->
   <div *ngIf="loading" class="mc-loading-card">
     <div class="mc-spinner"></div>
-    <p>Chargement du contrat...</p>
+    <p>Chargement des contrats...</p>
   </div>
 
   <!-- No contract -->
-  <div *ngIf="!loading && !contract && !errorMessage" class="mc-empty">
+  <div *ngIf="!loading && contracts.length === 0 && !errorMessage" class="mc-empty">
     <div class="mc-empty-icon">
       <i class="feather icon-file-text"></i>
     </div>
@@ -37,8 +37,43 @@
     <p class="mc-empty-text">Vous n'avez pas encore de contrat de location.</p>
   </div>
 
-  <!-- Contract content -->
-  <div *ngIf="!loading && contract">
+  <!-- Contract list (when multiple contracts and none selected) -->
+  <div *ngIf="!loading && contracts.length > 1 && !selectedContract" class="mc-contract-list">
+    <div class="mc-list-header">{{ contracts.length }} contrats actifs</div>
+    <div *ngFor="let c of contracts" class="mc-contract-card" (click)="selectContract(c)">
+      <div class="mc-contract-card-header">
+        <span class="mc-mono">{{ c.reference }}</span>
+        <span class="mc-status" [ngClass]="'mc-status-' + c.status">
+          {{ getStatusLabel(c.status) }}
+        </span>
+      </div>
+      <div class="mc-contract-card-body">
+        <div class="mc-contract-card-info">
+          <i class="feather icon-map-pin"></i>
+          <span *ngIf="c.boutique?.location">
+            Étage {{ c.boutique.location.floor }}, Zone {{ c.boutique.location.zone }}, N° {{ c.boutique.location.number }}
+          </span>
+          <span *ngIf="!c.boutique?.location">{{ c.boutique?.name || 'Boutique' }}</span>
+        </div>
+        <div class="mc-contract-card-info">
+          <i class="feather icon-dollar-sign"></i>
+          <span>{{ formatMoney(c.monthlyRent) }} / mois</span>
+        </div>
+      </div>
+      <div class="mc-contract-card-footer">
+        <span>{{ formatDate(c.startDate) }} - {{ formatDate(c.endDate) }}</span>
+        <i class="feather icon-chevron-right"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contract detail -->
+  <div *ngIf="!loading && selectedContract">
+
+    <!-- Back button (only when multiple contracts) -->
+    <button *ngIf="contracts.length > 1" class="mc-back-btn" (click)="backToList()">
+      <i class="feather icon-arrow-left"></i> Retour à la liste
+    </button>
 
     <!-- Sign banner -->
     <div *ngIf="contract.status === 'pending_signature' && !contract.signedByTenant" class="mc-banner mc-banner-info">
@@ -69,6 +104,9 @@
             <span *ngIf="canPayDeposit()">
               Vous devez payer le <strong>dépôt de garantie</strong> et le <strong>premier mois de loyer</strong> sous 7 jours.
             </span>
+            <span *ngIf="hasNoDeposit()">
+              Vous devez payer le <strong>premier mois de loyer</strong> sous 7 jours.
+            </span>
             <span *ngIf="contract.depositStatus === 'paid'">
               Dépôt payé. En attente de la validation par l'administrateur.
             </span>
@@ -77,6 +115,9 @@
         <button *ngIf="canPayDeposit()" class="mc-btn mc-btn-primary" (click)="openDepositModal()">
           <i class="feather icon-credit-card"></i> Payer le dépôt
         </button>
+        <a *ngIf="hasNoDeposit()" class="mc-btn mc-btn-primary" routerLink="/emplacement/my-invoices">
+          <i class="feather icon-credit-card"></i> Payer le loyer
+        </a>
       </div>
       <!-- Deposit progress -->
       <div *ngIf="contract.depositStatus === 'partial'" class="mc-progress-block">
@@ -125,7 +166,7 @@
             <span class="mc-info-label">Caution</span>
             <span class="mc-info-value">
               {{ formatMoney(contract.deposit) }}
-              <span *ngIf="contract.depositStatus" class="mc-status mc-status-deposit" [ngClass]="'mc-deposit-' + contract.depositStatus">
+              <span *ngIf="contract.depositStatus && contract.deposit > 0" class="mc-status mc-status-deposit" [ngClass]="'mc-deposit-' + contract.depositStatus">
                 {{ getDepositStatusLabel(contract.depositStatus) }}
               </span>
               <br *ngIf="contract.depositPaid > 0 && contract.depositPaid < contract.deposit">

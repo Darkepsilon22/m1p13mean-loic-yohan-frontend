@@ -6,7 +6,13 @@
       <p class="mp-subtitle">Gérez votre catalogue de produits</p>
     </div>
     <div class="mp-header-actions">
-      <a routerLink="/products/stock" class="mp-action-btn mp-action-outline">
+      <div *ngIf="boutiques.length > 1" class="boutique-pill">
+        <i class="feather icon-map-pin"></i>
+        <select [(ngModel)]="selectedBoutiqueId" (ngModelChange)="onBoutiqueChange()">
+          <option *ngFor="let b of boutiques" [value]="b.id">{{ b.name }}</option>
+        </select>
+      </div>
+      <a routerLink="/products/stock" [queryParams]="selectedBoutiqueId ? {boutiqueId: selectedBoutiqueId} : {}" class="mp-action-btn mp-action-outline">
         <i class="feather icon-trending-up"></i> Vue stock
       </a>
       <button class="mp-action-btn mp-action-outline" (click)="showImportModal = true">

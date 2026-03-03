@@ -60,8 +60,9 @@ export class StatsService {
 
   // ===== BOUTIQUE =====
 
-  getBoutiqueDashboard(): Observable<{ success: boolean; data: any }> {
-    return this.http.get<{ success: boolean; data: any }>(`${API}/stats/boutique/dashboard`).pipe(catchError(handleError));
+  getBoutiqueDashboard(boutiqueId?: string): Observable<{ success: boolean; data: any }> {
+    const query = boutiqueId ? `?boutiqueId=${boutiqueId}` : '';
+    return this.http.get<{ success: boolean; data: any }>(`${API}/stats/boutique/dashboard${query}`).pipe(catchError(handleError));
   }
 
   getBoutiqueRevenue(params?: { startDate?: string; endDate?: string; period?: string }): Observable<{ success: boolean; data: any }> {
@@ -73,8 +74,11 @@ export class StatsService {
     return this.http.get<{ success: boolean; data: any }>(`${API}/stats/boutique/revenue${query}`).pipe(catchError(handleError));
   }
 
-  getBoutiqueTrends(months?: number): Observable<{ success: boolean; data: any }> {
-    const query = months ? `?months=${months}` : '';
+  getBoutiqueTrends(months?: number, boutiqueId?: string): Observable<{ success: boolean; data: any }> {
+    const q = new URLSearchParams();
+    if (months) q.set('months', String(months));
+    if (boutiqueId) q.set('boutiqueId', boutiqueId);
+    const query = q.toString() ? '?' + q.toString() : '';
     return this.http.get<{ success: boolean; data: any }>(`${API}/stats/boutique/trends${query}`).pipe(catchError(handleError));
   }
 
@@ -86,7 +90,11 @@ export class StatsService {
     return this.http.get<{ success: boolean; data: any }>(`${API}/stats/boutique/margins${query}`).pipe(catchError(handleError));
   }
 
-  getBoutiqueProductsTrends(months = 12, type: 'top' | 'low' = 'top'): Observable<{ success: boolean; data: { months: string[]; products: { productName: string; data: number[] }[] } }> {
-    return this.http.get<any>(`${API}/stats/boutique/products-trends?months=${months}&type=${type}`).pipe(catchError(handleError));
+  getBoutiqueProductsTrends(months = 12, type: 'top' | 'low' = 'top', boutiqueId?: string): Observable<{ success: boolean; data: { months: string[]; products: { productName: string; data: number[] }[] } }> {
+    const q = new URLSearchParams();
+    q.set('months', String(months));
+    q.set('type', type);
+    if (boutiqueId) q.set('boutiqueId', boutiqueId);
+    return this.http.get<any>(`${API}/stats/boutique/products-trends?${q.toString()}`).pipe(catchError(handleError));
   }
 }

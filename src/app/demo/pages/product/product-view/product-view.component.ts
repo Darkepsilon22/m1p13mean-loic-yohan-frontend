@@ -351,9 +351,11 @@ export class ProductViewComponent implements OnInit {
 
     if (this.userReview) {
       // Mise à jour
+      const expectedRating = this.reviewRating;
+      const expectedComment = this.reviewComment.trim();
       this.reviewService.update(this.userReview._id, {
-        rating: this.reviewRating,
-        comment: this.reviewComment.trim()
+        rating: expectedRating,
+        comment: expectedComment
       }).subscribe({
         next: () => {
           this.reviewMessage = 'Avis mis à jour avec succès.';
@@ -363,9 +365,35 @@ export class ProductViewComponent implements OnInit {
           setTimeout(() => this.closeReviewForm(), 1500);
         },
         error: (err: ApiErrorBody) => {
-          this.reviewMessage = err.message || 'Erreur lors de la mise à jour.';
-          this.reviewMessageType = 'error';
-          this.submittingReview = false;
+          // The backend may return a 500 even though the review was actually updated.
+          // Reload reviews to verify; if the update went through, show success instead.
+          this.reviewService.getAll({
+            boutiqueId: this.product.boutiqueId._id,
+            productId: this.product._id,
+            limit: 50
+          }).subscribe({
+            next: (res) => {
+              const updated = res.reviews?.find(r => r.userId._id === this.currentUser._id);
+              if (updated && updated.rating === expectedRating && updated.comment === expectedComment) {
+                this.reviewMessage = 'Avis mis à jour avec succès.';
+                this.reviewMessageType = 'success';
+                this.reviews = res.reviews?.filter(r => r.status === 'published') || [];
+                this.calculateRatingStats();
+                this.findUserReview();
+                this.submittingReview = false;
+                setTimeout(() => this.closeReviewForm(), 1500);
+              } else {
+                this.reviewMessage = err.message || 'Erreur lors de la mise à jour.';
+                this.reviewMessageType = 'error';
+                this.submittingReview = false;
+              }
+            },
+            error: () => {
+              this.reviewMessage = err.message || 'Erreur lors de la mise à jour.';
+              this.reviewMessageType = 'error';
+              this.submittingReview = false;
+            }
+          });
         }
       });
     } else {

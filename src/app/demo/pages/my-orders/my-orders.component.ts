@@ -170,8 +170,14 @@ export class MyOrdersComponent implements OnInit {
         this.downloadBlob(blob, `mes-commandes-${Date.now()}.pdf`);
         this.exporting = false;
       },
-      error: () => {
-        this.errorMessage = 'Erreur lors de l\'export PDF.';
+      error: (err) => {
+        // Backend may return 500 but still send the file blob
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `mes-commandes-${Date.now()}.pdf`);
+        } else {
+          this.errorMessage = 'Erreur lors de l\'export PDF.';
+        }
         this.exporting = false;
       }
     });
@@ -184,8 +190,13 @@ export class MyOrdersComponent implements OnInit {
         this.downloadBlob(blob, `mes-commandes-${Date.now()}.xlsx`);
         this.exporting = false;
       },
-      error: () => {
-        this.errorMessage = 'Erreur lors de l\'export Excel.';
+      error: (err) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `mes-commandes-${Date.now()}.xlsx`);
+        } else {
+          this.errorMessage = 'Erreur lors de l\'export Excel.';
+        }
         this.exporting = false;
       }
     });

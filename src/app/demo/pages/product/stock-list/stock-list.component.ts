@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../../../core/services/product.service';
 import { StockService } from '../../../../core/services/stock.service';
+import { ContractService } from '../../../../core/services/contract.service';
 import { AuthService, ApiErrorBody } from '../../../../core/services/auth.service';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20, 50, 100];
@@ -25,6 +26,9 @@ export class StockListComponent implements OnInit {
   pageSizeAllValue = PAGE_SIZE_ALL;
   selectedPageSize: number | 'all' = 20;
 
+  // Multi-boutique support
+  boutiques: { id: string; name: string }[] = [];
+
   exportModalVisible = false;
   exportDateDebut = '';
   exportDateFin = '';
@@ -35,68 +39,101 @@ export class StockListComponent implements OnInit {
   exportLoading = false;
   exportError = '';
 
+  private initialBoutiqueId: string | null = null;
+
   constructor(
     private productService: ProductService,
     private stockService: StockService,
+    private contractService: ContractService,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    console.log('🔄 Initialisation du composant stock-list');
+    this.initialBoutiqueId = this.route.snapshot.queryParamMap.get('boutiqueId');
     this.resolveBoutiqueAndLoad();
   }
 
   resolveBoutiqueAndLoad(): void {
     this.loading = true;
     this.errorMessage = '';
-    
-    console.log('📦 Chargement des produits pour obtenir boutiqueId...');
-    
-    // Charger plus de produits pour avoir plus de chances d'en trouver un
+
+    // First try to get boutiques from contracts
+    this.contractService.getMyContracts().subscribe({
+      next: (res) => {
+        const contracts = res.data || [];
+        const uniqueBoutiques = new Map<string, string>();
+        for (const c of contracts) {
+          if (c.boutique) {
+            const id = typeof c.boutique === 'string' ? c.boutique : c.boutique._id;
+            if (id && !uniqueBoutiques.has(id)) {
+              const loc = c.boutique.location;
+              const name = loc
+                ? `Étage ${loc.floor}, Zone ${loc.zone}, N°${loc.number}`
+                : (c.boutique.name || 'Boutique');
+              uniqueBoutiques.set(id, name);
+            }
+          }
+        }
+
+        if (uniqueBoutiques.size > 0) {
+          this.boutiques = Array.from(uniqueBoutiques.entries()).map(([id, name]) => ({ id, name }));
+          if (this.initialBoutiqueId && uniqueBoutiques.has(this.initialBoutiqueId)) {
+            this.boutiqueId = this.initialBoutiqueId;
+          } else {
+            this.boutiqueId = this.boutiques[0].id;
+          }
+          this.loadStock();
+        } else {
+          // Fallback: resolve from products
+          this.resolveBoutiqueFromProducts();
+        }
+      },
+      error: () => {
+        // Fallback: resolve from products
+        this.resolveBoutiqueFromProducts();
+      }
+    });
+  }
+
+  private resolveBoutiqueFromProducts(): void {
     this.productService.getMyProducts({ limit: 100 }).subscribe({
       next: (res) => {
-        console.log('✅ Réponse getMyProducts:', res);
-        
         const list = res.data ?? [];
-        console.log(`📊 Nombre de produits trouvés: ${list.length}`);
-        
         if (list.length === 0) {
           this.loading = false;
           this.errorMessage = 'Aucun produit trouvé. Créez d\'abord des produits pour voir le stock.';
-          console.warn('⚠️ Aucun produit trouvé');
           return;
         }
 
-        // Essayer de trouver boutiqueId dans les produits
         for (const product of list) {
           if (product.boutiqueId) {
             const b = product.boutiqueId;
             this.boutiqueId = typeof b === 'string' ? b : (b as any)._id ?? b;
-            
-            if (this.boutiqueId) {
-              console.log('✅ boutiqueId trouvé:', this.boutiqueId);
-              break;
-            }
+            if (this.boutiqueId) break;
           }
         }
 
         if (!this.boutiqueId) {
           this.loading = false;
-          this.errorMessage = 'Impossible de déterminer la boutique. Les produits ne contiennent pas de boutiqueId.';
-          console.error('❌ boutiqueId non trouvé dans les produits');
+          this.errorMessage = 'Impossible de déterminer la boutique.';
           return;
         }
 
-        // Charger le stock
         this.loadStock();
       },
       error: (err: ApiErrorBody) => {
         this.loading = false;
         this.errorMessage = err.message || 'Erreur lors du chargement des produits.';
-        console.error('❌ Erreur getMyProducts:', err);
       }
     });
+  }
+
+  onBoutiqueChange(): void {
+    this.pagination.page = 1;
+    this.products = [];
+    this.loadStock();
   }
 
   get effectiveLimit(): number {
@@ -191,7 +228,7 @@ export class StockListComponent implements OnInit {
     this.exportDateFin = today;
     this.exportProductIds = [];
     this.exportCategory = '';
-    this.productService.getMyProducts({ limit: 500 }).subscribe({
+    this.productService.getMyProducts({ limit: 500, boutiqueId: this.boutiqueId || undefined }).subscribe({
       next: (res) => {
         this.exportProductsList = res.data ?? [];
         const cats = new Set<string>();
@@ -237,15 +274,22 @@ export class StockListComponent implements OnInit {
     const params: any = { dateDebut: this.exportDateDebut, dateFin: this.exportDateFin };
     if (this.exportProductIds.length > 0) params.productIds = this.exportProductIds;
     if (this.exportCategory) params.category = this.exportCategory;
+    if (this.boutiqueId) params.boutiqueId = this.boutiqueId;
     this.stockService.exportPDF(params).subscribe({
       next: (blob) => {
         this.exportLoading = false;
         this.downloadBlob(blob, `export-stock-${this.exportDateDebut}-${this.exportDateFin}.pdf`);
         this.closeExportModal();
       },
-      error: (err: ApiErrorBody) => {
+      error: (err: any) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `export-stock-${this.exportDateDebut}-${this.exportDateFin}.pdf`);
+          this.closeExportModal();
+        } else {
+          this.exportError = err.message || 'Erreur lors de l\'export PDF.';
+        }
         this.exportLoading = false;
-        this.exportError = err.message || 'Erreur lors de l\'export PDF.';
       }
     });
   }
@@ -260,15 +304,22 @@ export class StockListComponent implements OnInit {
     const params: any = { dateDebut: this.exportDateDebut, dateFin: this.exportDateFin };
     if (this.exportProductIds.length > 0) params.productIds = this.exportProductIds;
     if (this.exportCategory) params.category = this.exportCategory;
+    if (this.boutiqueId) params.boutiqueId = this.boutiqueId;
     this.stockService.exportExcel(params).subscribe({
       next: (blob) => {
         this.exportLoading = false;
         this.downloadBlob(blob, `export-stock-${this.exportDateDebut}-${this.exportDateFin}.xlsx`);
         this.closeExportModal();
       },
-      error: (err: ApiErrorBody) => {
+      error: (err: any) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `export-stock-${this.exportDateDebut}-${this.exportDateFin}.xlsx`);
+          this.closeExportModal();
+        } else {
+          this.exportError = err.message || 'Erreur lors de l\'export Excel.';
+        }
         this.exportLoading = false;
-        this.exportError = err.message || 'Erreur lors de l\'export Excel.';
       }
     });
   }

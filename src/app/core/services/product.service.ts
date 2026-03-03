@@ -39,6 +39,7 @@ export interface MyProductsParams {
   search?: string;
   includeArchived?: boolean;
   sort?: string;
+  boutiqueId?: string;
 }
 
 export interface CreateProductBody {
@@ -157,6 +158,7 @@ export class ProductService {
     if (params?.search) q.set('search', params.search);
     if (params?.includeArchived === true) q.set('includeArchived', 'true');
     if (params?.sort) q.set('sort', params.sort);
+    if (params?.boutiqueId) q.set('boutiqueId', params.boutiqueId);
     const query = q.toString() ? '?' + q.toString() : '';
     return this.http.get<ProductsResponse>(`${API}/products/my-products${query}`).pipe(catchError(handleError));
   }

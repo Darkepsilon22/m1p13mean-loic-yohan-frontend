@@ -239,7 +239,7 @@ export class AdminContractsComponent implements OnInit {
     this.depositLoading = true;
     this.contractService.confirmDeposit(this.depositContractId).subscribe({
       next: () => {
-        this.successMessage = 'Dépôt validé et contrat activé avec succès.';
+        this.successMessage = 'Contrat activé avec succès.';
         this.showDepositModal = false;
         this.depositLoading = false;
         this.loadContracts();

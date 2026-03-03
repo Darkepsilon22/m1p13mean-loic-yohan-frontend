@@ -162,12 +162,14 @@
               <span *ngIf="c.status === 'pending_signature' && c.signedByTenant" class="status-pill pill-info">Signé - Attente paiement</span>
 
               <!-- Pending activation info -->
-              <span *ngIf="c.status === 'pending_activation' && (c.depositStatus === 'pending' || !c.depositStatus)" class="status-pill pill-info">Attente dépôt + loyer</span>
+              <span *ngIf="c.status === 'pending_activation' && (c.depositStatus === 'pending' || !c.depositStatus) && c.deposit > 0" class="status-pill pill-info">Attente dépôt + loyer</span>
+              <span *ngIf="c.status === 'pending_activation' && (c.depositStatus === 'pending' || !c.depositStatus) && (!c.deposit || c.deposit <= 0)" class="status-pill pill-info">Attente loyer</span>
+              <span *ngIf="c.status === 'pending_activation' && c.depositStatus === 'confirmed' && (!c.deposit || c.deposit <= 0)" class="status-pill pill-success">Loyer payé</span>
               <span *ngIf="c.status === 'pending_activation' && c.depositStatus === 'partial'" class="status-pill pill-warning">Dépôt partiel ({{ formatMoney(c.depositPaid) }}/{{ formatMoney(c.deposit) }})</span>
               <span *ngIf="c.status === 'pending_activation' && c.depositStatus === 'paid'" class="status-pill pill-info">Dépôt payé</span>
 
-              <!-- Validate deposit -->
-              <button *ngIf="c.status === 'pending_activation' && c.depositStatus === 'paid'"
+              <!-- Validate deposit / activate -->
+              <button *ngIf="c.status === 'pending_activation' && (c.depositStatus === 'paid' || (c.depositStatus === 'confirmed' && (!c.deposit || c.deposit <= 0)))"
                       class="action-btn action-approve" title="Valider et activer"
                       (click)="openDepositModal(c)">
                 <i class="feather icon-check-circle"></i>
@@ -228,14 +230,15 @@
 <div *ngIf="showDepositModal" class="modal-overlay" (click)="showDepositModal = false">
   <div class="modal-card" (click)="$event.stopPropagation()">
     <div class="modal-head">
-      <h5><i class="feather icon-check-circle"></i> Valider le dépôt de garantie</h5>
+      <h5><i class="feather icon-check-circle"></i> {{ depositContract?.deposit > 0 ? 'Valider le dépôt de garantie' : 'Activer le contrat' }}</h5>
       <button class="modal-close" (click)="showDepositModal = false">&times;</button>
     </div>
     <div class="modal-body">
-      <p class="modal-desc">La boutique a effectué le paiement du dépôt de garantie et du premier loyer.</p>
-      <div class="modal-info-grid" *ngIf="depositContract">
+      <p *ngIf="depositContract?.deposit > 0" class="modal-desc">La boutique a effectué le paiement du dépôt de garantie et du premier loyer.</p>
+      <p *ngIf="!depositContract?.deposit || depositContract?.deposit <= 0" class="modal-desc">La boutique a effectué le paiement du premier loyer. Aucun dépôt de garantie requis pour ce contrat.</p>
+      <div class="modal-info-grid" *ngIf="depositContract && depositContract.deposit > 0">
         <div class="modal-info-item">
-          <span class="modal-info-label">Montant</span>
+          <span class="modal-info-label">Montant dépôt</span>
           <span class="modal-info-value">{{ formatMoney(depositContract.deposit) }} Ar</span>
         </div>
         <div class="modal-info-item">

@@ -5,10 +5,19 @@
       <h4 class="stats-title"><i class="feather icon-pie-chart"></i> Statistiques</h4>
       <p class="stats-subtitle">Vue d'ensemble de votre activité</p>
     </div>
-    <button class="stats-refresh-btn" (click)="loadAllData()" [disabled]="loading">
-      <i class="feather icon-refresh-cw" [class.spin]="loading"></i>
-      <span>Actualiser</span>
-    </button>
+    <div class="stats-header-right">
+      <div *ngIf="boutiques.length > 1" class="boutique-pill">
+        <i class="feather icon-map-pin"></i>
+        <select [(ngModel)]="boutiqueId" (ngModelChange)="onBoutiqueChange()">
+          <option value="">Toutes les boutiques</option>
+          <option *ngFor="let b of boutiques" [value]="b.id">{{ b.name }}</option>
+        </select>
+      </div>
+      <button class="stats-refresh-btn" (click)="loadAllData()" [disabled]="loading">
+        <i class="feather icon-refresh-cw" [class.spin]="loading"></i>
+        <span>Actualiser</span>
+      </button>
+    </div>
   </div>
 
   <!-- Loading -->

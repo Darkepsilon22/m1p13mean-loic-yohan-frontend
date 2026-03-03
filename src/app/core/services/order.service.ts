@@ -64,6 +64,7 @@ export interface OrderListParams {
   endDate?: string;
   page?: number;
   limit?: number;
+  boutiqueId?: string;
 }
 
 export interface OrdersResponse {
@@ -128,6 +129,7 @@ export class OrderService {
     if (params?.paymentStatus) q.set('paymentStatus', params.paymentStatus);
     if (params?.page != null) q.set('page', String(params.page));
     if (params?.limit != null) q.set('limit', String(params.limit));
+    if (params?.boutiqueId) q.set('boutiqueId', params.boutiqueId);
     const query = q.toString() ? '?' + q.toString() : '';
     return this.http.get<OrdersResponse>(`${API}/orders/boutique${query}`).pipe(catchError(handleError));
   }
@@ -138,8 +140,9 @@ export class OrderService {
   }
 
   /** Boutique: statistiques des commandes */
-  getBoutiqueStats(): Observable<{ success: boolean; data: any }> {
-    return this.http.get<{ success: boolean; data: any }>(`${API}/orders/boutique/stats`).pipe(catchError(handleError));
+  getBoutiqueStats(boutiqueId?: string): Observable<{ success: boolean; data: any }> {
+    const query = boutiqueId ? `?boutiqueId=${boutiqueId}` : '';
+    return this.http.get<{ success: boolean; data: any }>(`${API}/orders/boutique/stats${query}`).pipe(catchError(handleError));
   }
 
   /** Boutique: met à jour le statut d'une commande */
@@ -173,33 +176,43 @@ export class OrderService {
   }
 
   /** Export rapport mensuel boutique PDF */
-  exportBoutiqueReportPDF(month: number, year: number): Observable<Blob> {
-    return this.http.get(`${API}/orders/boutique/report/pdf?month=${month}&year=${year}`, { responseType: 'blob' });
+  exportBoutiqueReportPDF(month: number, year: number, boutiqueId?: string): Observable<Blob> {
+    const q = new URLSearchParams();
+    q.set('month', String(month));
+    q.set('year', String(year));
+    if (boutiqueId) q.set('boutiqueId', boutiqueId);
+    return this.http.get(`${API}/orders/boutique/report/pdf?${q.toString()}`, { responseType: 'blob' });
   }
 
   /** Export rapport mensuel boutique Excel */
-  exportBoutiqueReportExcel(month: number, year: number): Observable<Blob> {
-    return this.http.get(`${API}/orders/boutique/report/excel?month=${month}&year=${year}`, { responseType: 'blob' });
+  exportBoutiqueReportExcel(month: number, year: number, boutiqueId?: string): Observable<Blob> {
+    const q = new URLSearchParams();
+    q.set('month', String(month));
+    q.set('year', String(year));
+    if (boutiqueId) q.set('boutiqueId', boutiqueId);
+    return this.http.get(`${API}/orders/boutique/report/excel?${q.toString()}`, { responseType: 'blob' });
   }
 
   /** Export commandes boutique PDF (avec filtres) */
-  exportBoutiqueOrdersPDF(params?: { status?: string; paymentStatus?: string; startDate?: string; endDate?: string }): Observable<Blob> {
+  exportBoutiqueOrdersPDF(params?: { status?: string; paymentStatus?: string; startDate?: string; endDate?: string; boutiqueId?: string }): Observable<Blob> {
     const q = new URLSearchParams();
     if (params?.status) q.set('status', params.status);
     if (params?.paymentStatus) q.set('paymentStatus', params.paymentStatus);
     if (params?.startDate) q.set('startDate', params.startDate);
     if (params?.endDate) q.set('endDate', params.endDate);
+    if (params?.boutiqueId) q.set('boutiqueId', params.boutiqueId);
     const query = q.toString() ? '?' + q.toString() : '';
     return this.http.get(`${API}/orders/boutique/export/pdf${query}`, { responseType: 'blob' });
   }
 
   /** Export commandes boutique Excel (avec filtres) */
-  exportBoutiqueOrdersExcel(params?: { status?: string; paymentStatus?: string; startDate?: string; endDate?: string }): Observable<Blob> {
+  exportBoutiqueOrdersExcel(params?: { status?: string; paymentStatus?: string; startDate?: string; endDate?: string; boutiqueId?: string }): Observable<Blob> {
     const q = new URLSearchParams();
     if (params?.status) q.set('status', params.status);
     if (params?.paymentStatus) q.set('paymentStatus', params.paymentStatus);
     if (params?.startDate) q.set('startDate', params.startDate);
     if (params?.endDate) q.set('endDate', params.endDate);
+    if (params?.boutiqueId) q.set('boutiqueId', params.boutiqueId);
     const query = q.toString() ? '?' + q.toString() : '';
     return this.http.get(`${API}/orders/boutique/export/excel${query}`, { responseType: 'blob' });
   }
