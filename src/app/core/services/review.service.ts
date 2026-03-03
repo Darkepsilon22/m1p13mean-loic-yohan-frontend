@@ -106,8 +106,13 @@ export class ReviewService {
 
   /** Met à jour un avis (acheteur - propriétaire) */
   update(id: string, body: { rating?: number; comment?: string }): Observable<Review> {
-    return this.http.put<ReviewApiResponse>(`${API}/reviews/${id}`, body).pipe(
-      map(res => res.data.review),
+    return this.http.put<any>(`${API}/reviews/${id}`, body).pipe(
+      map(res => {
+        // Handle both { data: { review: {...} } } and { data: {...} } response formats
+        if (res?.data?.review) return res.data.review;
+        if (res?.data) return res.data;
+        return res;
+      }),
       catchError(handleError)
     );
   }

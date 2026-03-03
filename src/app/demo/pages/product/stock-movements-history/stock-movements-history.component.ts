@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService } from '../../../../core/services/product.service';
 import { StockService } from '../../../../core/services/stock.service';
+import { ContractService } from '../../../../core/services/contract.service';
 import { AuthService, ApiErrorBody } from '../../../../core/services/auth.service';
 
 @Component({
@@ -16,6 +17,9 @@ export class StockMovementsHistoryComponent implements OnInit {
   loading = false;
   errorMessage = '';
   pagination: { page: number; limit: number; total: number; pages: number} = { page: 1, limit: 10, total: 0, pages: 0 };
+
+  // Multi-boutique support
+  boutiques: { id: string; name: string }[] = [];
 
   // Filters
   filterDateDebut = '';
@@ -40,14 +44,19 @@ export class StockMovementsHistoryComponent implements OnInit {
   exportLoading = false;
   exportError = '';
 
+  private initialBoutiqueId: string | null = null;
+
   constructor(
     private productService: ProductService,
     private stockService: StockService,
+    private contractService: ContractService,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.initialBoutiqueId = this.route.snapshot.queryParamMap.get('boutiqueId');
     this.resolveBoutiqueAndLoad();
   }
 
@@ -55,6 +64,44 @@ export class StockMovementsHistoryComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
+    // First try to get boutiques from contracts
+    this.contractService.getMyContracts().subscribe({
+      next: (res) => {
+        const contracts = res.data || [];
+        const uniqueBoutiques = new Map<string, string>();
+        for (const c of contracts) {
+          if (c.boutique) {
+            const id = typeof c.boutique === 'string' ? c.boutique : c.boutique._id;
+            if (id && !uniqueBoutiques.has(id)) {
+              const loc = c.boutique.location;
+              const name = loc
+                ? `Étage ${loc.floor}, Zone ${loc.zone}, N°${loc.number}`
+                : (c.boutique.name || 'Boutique');
+              uniqueBoutiques.set(id, name);
+            }
+          }
+        }
+
+        if (uniqueBoutiques.size > 0) {
+          this.boutiques = Array.from(uniqueBoutiques.entries()).map(([id, name]) => ({ id, name }));
+          if (this.initialBoutiqueId && uniqueBoutiques.has(this.initialBoutiqueId)) {
+            this.boutiqueId = this.initialBoutiqueId;
+          } else {
+            this.boutiqueId = this.boutiques[0].id;
+          }
+          this.loadProductsList();
+          this.loadMovements();
+        } else {
+          this.resolveBoutiqueFromProducts();
+        }
+      },
+      error: () => {
+        this.resolveBoutiqueFromProducts();
+      }
+    });
+  }
+
+  private resolveBoutiqueFromProducts(): void {
     this.productService.getMyProducts({ limit: 100 }).subscribe({
       next: (res) => {
         const list = res.data ?? [];
@@ -87,6 +134,20 @@ export class StockMovementsHistoryComponent implements OnInit {
         this.errorMessage = err.message || 'Erreur lors du chargement.';
       }
     });
+  }
+
+  private loadProductsList(): void {
+    this.productService.getMyProducts({ limit: 100, boutiqueId: this.boutiqueId || undefined }).subscribe({
+      next: (res) => { this.productsList = res.data ?? []; },
+      error: () => { this.productsList = []; }
+    });
+  }
+
+  onBoutiqueChange(): void {
+    this.pagination.page = 1;
+    this.movements = [];
+    this.loadProductsList();
+    this.loadMovements();
   }
 
   loadMovements(): void {
@@ -166,7 +227,7 @@ export class StockMovementsHistoryComponent implements OnInit {
     this.exportProductIds = [];
     this.exportCategory = '';
     this.exportType = '';
-    this.productService.getMyProducts({ limit: 500 }).subscribe({
+    this.productService.getMyProducts({ limit: 500, boutiqueId: this.boutiqueId || undefined }).subscribe({
       next: (res) => {
         this.exportProductsList = res.data ?? [];
         const cats = new Set<string>();
@@ -213,15 +274,22 @@ export class StockMovementsHistoryComponent implements OnInit {
     if (this.exportProductIds.length > 0) params.productIds = this.exportProductIds;
     if (this.exportCategory) params.category = this.exportCategory;
     if (this.exportType) params.type = this.exportType;
+    if (this.boutiqueId) params.boutiqueId = this.boutiqueId;
     this.stockService.exportMovementsPDF(params).subscribe({
       next: (blob) => {
         this.exportLoading = false;
         this.downloadBlob(blob, `export-mouvements-${this.exportDateDebut}-${this.exportDateFin}.pdf`);
         this.closeExportModal();
       },
-      error: (err: ApiErrorBody) => {
+      error: (err: any) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `export-mouvements-${this.exportDateDebut}-${this.exportDateFin}.pdf`);
+          this.closeExportModal();
+        } else {
+          this.exportError = err.message || 'Erreur lors de l\'export PDF.';
+        }
         this.exportLoading = false;
-        this.exportError = err.message || 'Erreur lors de l\'export PDF.';
       }
     });
   }
@@ -237,15 +305,22 @@ export class StockMovementsHistoryComponent implements OnInit {
     if (this.exportProductIds.length > 0) params.productIds = this.exportProductIds;
     if (this.exportCategory) params.category = this.exportCategory;
     if (this.exportType) params.type = this.exportType;
+    if (this.boutiqueId) params.boutiqueId = this.boutiqueId;
     this.stockService.exportMovementsExcel(params).subscribe({
       next: (blob) => {
         this.exportLoading = false;
         this.downloadBlob(blob, `export-mouvements-${this.exportDateDebut}-${this.exportDateFin}.xlsx`);
         this.closeExportModal();
       },
-      error: (err: ApiErrorBody) => {
+      error: (err: any) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `export-mouvements-${this.exportDateDebut}-${this.exportDateFin}.xlsx`);
+          this.closeExportModal();
+        } else {
+          this.exportError = err.message || 'Erreur lors de l\'export Excel.';
+        }
         this.exportLoading = false;
-        this.exportError = err.message || 'Erreur lors de l\'export Excel.';
       }
     });
   }

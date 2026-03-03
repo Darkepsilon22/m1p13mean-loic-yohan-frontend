@@ -14,8 +14,11 @@ export class MyContractComponent implements OnInit {
   successMessage = '';
   signing = false;
 
-  contract: any = null;
+  contracts: any[] = [];
+  selectedContract: any = null;
   history: any[] = [];
+
+  get contract(): any { return this.selectedContract; }
 
   // Deposit payment modal
   showDepositModal = false;
@@ -39,23 +42,32 @@ export class MyContractComponent implements OnInit {
   constructor(private contractService: ContractService) {}
 
   ngOnInit(): void {
-    this.loadContract();
+    this.loadContracts();
     this.loadHistory();
   }
 
-  loadContract(): void {
+  loadContracts(): void {
     this.loading = true;
     this.errorMessage = '';
-    this.contractService.getMyContract().subscribe({
+    const selectedId = this.selectedContract?._id;
+    this.contractService.getMyContracts().subscribe({
       next: (res) => {
-        this.contract = res.data || null;
+        this.contracts = res.data || [];
+        if (selectedId) {
+          this.selectedContract = this.contracts.find((c: any) => c._id === selectedId) || null;
+        } else if (this.contracts.length === 1) {
+          this.selectedContract = this.contracts[0];
+        } else {
+          this.selectedContract = null;
+        }
         this.loading = false;
       },
       error: (err: ApiErrorBody) => {
         if (err.message && err.message.toLowerCase().includes('aucun contrat')) {
-          this.contract = null;
+          this.contracts = [];
+          this.selectedContract = null;
         } else {
-          this.errorMessage = err.message || 'Erreur lors du chargement du contrat.';
+          this.errorMessage = err.message || 'Erreur lors du chargement des contrats.';
         }
         this.loading = false;
       }
@@ -73,6 +85,14 @@ export class MyContractComponent implements OnInit {
     });
   }
 
+  selectContract(c: any): void {
+    this.selectedContract = c;
+  }
+
+  backToList(): void {
+    this.selectedContract = null;
+  }
+
   signContract(): void {
     if (!this.contract || this.signing) return;
     this.signing = true;
@@ -82,7 +102,7 @@ export class MyContractComponent implements OnInit {
       next: (res) => {
         this.successMessage = 'Contrat signé avec succès.';
         this.signing = false;
-        this.loadContract();
+        this.loadContracts();
       },
       error: (err: ApiErrorBody) => {
         this.errorMessage = err.message || 'Erreur lors de la signature du contrat.';
@@ -142,7 +162,12 @@ export class MyContractComponent implements OnInit {
   canPayDeposit(): boolean {
     if (!this.contract || !this.contract.signedByTenant) return false;
     if (this.contract.status !== 'pending_activation') return false;
+    if (!this.contract.deposit || this.contract.deposit <= 0) return false;
     return ['pending', 'partial'].includes(this.contract.depositStatus);
+  }
+
+  hasNoDeposit(): boolean {
+    return this.contract && (!this.contract.deposit || this.contract.deposit <= 0);
   }
 
   getDeadlineDate(): string {
@@ -191,7 +216,7 @@ export class MyContractComponent implements OnInit {
         this.successMessage = 'Paiement du dépôt enregistré avec succès.';
         this.showDepositModal = false;
         this.depositLoading = false;
-        this.loadContract();
+        this.loadContracts();
         this.clearMessages();
       },
       error: (err: ApiErrorBody) => {

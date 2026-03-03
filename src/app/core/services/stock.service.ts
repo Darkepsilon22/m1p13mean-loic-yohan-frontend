@@ -98,22 +98,24 @@ export class StockService {
   }
 
   /** Export stock movements as PDF (blob for download) */
-  exportPDF(params: { dateDebut: string; dateFin: string; productIds?: string[]; category?: string }): Observable<Blob> {
+  exportPDF(params: { dateDebut: string; dateFin: string; productIds?: string[]; category?: string; boutiqueId?: string }): Observable<Blob> {
     const q = new URLSearchParams();
     q.set('dateDebut', params.dateDebut);
     q.set('dateFin', params.dateFin);
     if (params.productIds && params.productIds.length > 0) q.set('productIds', params.productIds.join(','));
     if (params.category) q.set('category', params.category);
+    if (params.boutiqueId) q.set('boutiqueId', params.boutiqueId);
     return this.http.get(`${API}/stock/download/pdf?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
   }
 
   /** Export stock movements as Excel (blob for download) */
-  exportExcel(params: { dateDebut: string; dateFin: string; productIds?: string[]; category?: string }): Observable<Blob> {
+  exportExcel(params: { dateDebut: string; dateFin: string; productIds?: string[]; category?: string; boutiqueId?: string }): Observable<Blob> {
     const q = new URLSearchParams();
     q.set('dateDebut', params.dateDebut);
     q.set('dateFin', params.dateFin);
     if (params.productIds && params.productIds.length > 0) q.set('productIds', params.productIds.join(','));
     if (params.category) q.set('category', params.category);
+    if (params.boutiqueId) q.set('boutiqueId', params.boutiqueId);
     return this.http.get(`${API}/stock/download/excel?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
   }
 
@@ -146,6 +148,7 @@ export class StockService {
     productIds?: string[];
     category?: string;
     type?: string;
+    boutiqueId?: string;
   }): Observable<Blob> {
     const q = new URLSearchParams();
     q.set('dateDebut', params.dateDebut);
@@ -153,6 +156,7 @@ export class StockService {
     if (params.productIds && params.productIds.length > 0) q.set('productIds', params.productIds.join(','));
     if (params.category) q.set('category', params.category);
     if (params.type) q.set('type', params.type);
+    if (params.boutiqueId) q.set('boutiqueId', params.boutiqueId);
     return this.http.get(`${API}/stock/download/pdf?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
   }
 
@@ -163,6 +167,7 @@ export class StockService {
     productIds?: string[];
     category?: string;
     type?: string;
+    boutiqueId?: string;
   }): Observable<Blob> {
     const q = new URLSearchParams();
     q.set('dateDebut', params.dateDebut);
@@ -170,6 +175,7 @@ export class StockService {
     if (params.productIds && params.productIds.length > 0) q.set('productIds', params.productIds.join(','));
     if (params.category) q.set('category', params.category);
     if (params.type) q.set('type', params.type);
+    if (params.boutiqueId) q.set('boutiqueId', params.boutiqueId);
     return this.http.get(`${API}/stock/download/excel?${q.toString()}`, { responseType: 'blob' }).pipe(catchError(handleError));
   }
 }

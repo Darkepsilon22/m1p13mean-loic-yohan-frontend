@@ -72,7 +72,7 @@ export class ContractService {
 
   // ===== BOUTIQUE =====
 
-  getMyContract(): Observable<any> {
+  getMyContracts(): Observable<any> {
     return this.http.get<any>(`${API}/contracts/my/active`).pipe(catchError(handleError));
   }
 

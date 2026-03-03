@@ -6,7 +6,13 @@
       <p class="stock-subtitle">Surveillez et gérez vos niveaux de stock</p>
     </div>
     <div class="stock-header-actions">
-      <a routerLink="/products/my" class="stk-action-btn stk-action-outline">
+      <div *ngIf="boutiques.length > 1" class="boutique-pill">
+        <i class="feather icon-map-pin"></i>
+        <select [(ngModel)]="boutiqueId" (ngModelChange)="onBoutiqueChange()">
+          <option *ngFor="let b of boutiques" [value]="b.id">{{ b.name }}</option>
+        </select>
+      </div>
+      <a routerLink="/products/my" [queryParams]="boutiqueId ? {boutiqueId: boutiqueId} : {}" class="stk-action-btn stk-action-outline">
         <i class="feather icon-list"></i> Mes produits
       </a>
       <button class="stk-action-btn stk-action-danger" (click)="openExportModal()">

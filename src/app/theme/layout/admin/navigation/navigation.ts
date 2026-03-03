@@ -347,7 +347,7 @@ const BoutiqueNavigationItems: NavigationItem[] = [
       },
       {
         id: 'my-contract',
-        title: 'Mon contrat',
+        title: 'Mes contrats',
         type: 'item',
         url: '/emplacement/my-contract',
         icon: 'feather icon-file-text'

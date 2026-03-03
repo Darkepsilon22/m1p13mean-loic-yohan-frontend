@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { StatsService } from '../../../core/services/stats.service';
+import { ContractService } from '../../../core/services/contract.service';
 import { ApiErrorBody } from '../../../core/services/auth.service';
 import ApexCharts from 'apexcharts/dist/apexcharts.common.js';
 
@@ -12,6 +13,10 @@ export class BoutiqueStatsComponent implements OnInit, OnDestroy {
 
   loading = true;
   errorMessage = '';
+
+  // Multi-boutique support
+  boutiques: { id: string; name: string }[] = [];
+  boutiqueId: string | null = null;
 
   // Dashboard data
   dashboard: any = null;
@@ -36,9 +41,43 @@ export class BoutiqueStatsComponent implements OnInit, OnDestroy {
   private topColors = ['#4680ff', '#2ed8a3', '#ffba57', '#ff5370', '#6c5ce7'];
   private lowColors = ['#ff5370', '#ff8a65', '#ffba57', '#e57373', '#f06292'];
 
-  constructor(private statsService: StatsService) {}
+  constructor(private statsService: StatsService, private contractService: ContractService) {}
 
   ngOnInit(): void {
+    this.loadBoutiques();
+  }
+
+  loadBoutiques(): void {
+    this.contractService.getMyContracts().subscribe({
+      next: (res) => {
+        const contracts = res.data || [];
+        const uniqueBoutiques = new Map<string, string>();
+        for (const c of contracts) {
+          if (c.boutique) {
+            const id = typeof c.boutique === 'string' ? c.boutique : c.boutique._id;
+            if (id && !uniqueBoutiques.has(id)) {
+              const loc = c.boutique.location;
+              const name = loc
+                ? `Étage ${loc.floor}, Zone ${loc.zone}, N°${loc.number}`
+                : (c.boutique.name || 'Boutique');
+              uniqueBoutiques.set(id, name);
+            }
+          }
+        }
+        if (uniqueBoutiques.size > 0) {
+          this.boutiques = Array.from(uniqueBoutiques.entries()).map(([id, name]) => ({ id, name }));
+          this.boutiqueId = '';  // Default: toutes les boutiques
+        }
+        this.loadAllData();
+      },
+      error: () => {
+        this.loadAllData();
+      }
+    });
+  }
+
+  onBoutiqueChange(): void {
+    this.destroyCharts();
     this.loadAllData();
   }
 
@@ -68,7 +107,7 @@ export class BoutiqueStatsComponent implements OnInit, OnDestroy {
     };
 
     // Load dashboard
-    this.statsService.getBoutiqueDashboard().subscribe({
+    this.statsService.getBoutiqueDashboard(this.boutiqueId || undefined).subscribe({
       next: (res) => { this.dashboard = res.data; checkDone(); },
       error: (err: ApiErrorBody) => {
         this.errorMessage = err.message || 'Erreur lors du chargement.';
@@ -77,7 +116,7 @@ export class BoutiqueStatsComponent implements OnInit, OnDestroy {
     });
 
     // Load trends (for revenue chart, day of week, growth)
-    this.statsService.getBoutiqueTrends(12).subscribe({
+    this.statsService.getBoutiqueTrends(12, this.boutiqueId || undefined).subscribe({
       next: (res) => { this.trends = res.data; checkDone(); },
       error: (err: ApiErrorBody) => {
         if (!this.errorMessage) this.errorMessage = err.message || 'Erreur.';
@@ -86,13 +125,13 @@ export class BoutiqueStatsComponent implements OnInit, OnDestroy {
     });
 
     // Load top products trends (line chart over time)
-    this.statsService.getBoutiqueProductsTrends(12, 'top').subscribe({
+    this.statsService.getBoutiqueProductsTrends(12, 'top', this.boutiqueId || undefined).subscribe({
       next: (res) => { this.topProductsTrends = res.data; checkDone(); },
       error: () => { checkDone(); }
     });
 
     // Load low products trends (line chart over time)
-    this.statsService.getBoutiqueProductsTrends(12, 'low').subscribe({
+    this.statsService.getBoutiqueProductsTrends(12, 'low', this.boutiqueId || undefined).subscribe({
       next: (res) => { this.lowProductsTrends = res.data; checkDone(); },
       error: () => { checkDone(); }
     });

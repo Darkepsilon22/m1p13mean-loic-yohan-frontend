@@ -129,14 +129,15 @@ export class ContractHistoryComponent implements OnInit {
   exportExcel(): void {
     this.contractService.exportHistoryExcel(this.getExportParams()).subscribe({
       next: (blob) => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `historique-contrats-${new Date().toISOString().slice(0, 10)}.xlsx`;
-        link.click();
-        URL.revokeObjectURL(link.href);
+        this.downloadFile(blob, `historique-contrats-${new Date().toISOString().slice(0, 10)}.xlsx`);
       },
-      error: () => {
-        this.errorMessage = 'Erreur lors de l\'export Excel.';
+      error: (err) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadFile(blob, `historique-contrats-${new Date().toISOString().slice(0, 10)}.xlsx`);
+        } else {
+          this.errorMessage = 'Erreur lors de l\'export Excel.';
+        }
       }
     });
   }
@@ -144,16 +145,25 @@ export class ContractHistoryComponent implements OnInit {
   exportPdf(): void {
     this.contractService.exportHistoryPdf(this.getExportParams()).subscribe({
       next: (blob) => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `historique-contrats-${new Date().toISOString().slice(0, 10)}.pdf`;
-        link.click();
-        URL.revokeObjectURL(link.href);
+        this.downloadFile(blob, `historique-contrats-${new Date().toISOString().slice(0, 10)}.pdf`);
       },
-      error: () => {
-        this.errorMessage = 'Erreur lors de l\'export PDF.';
+      error: (err) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadFile(blob, `historique-contrats-${new Date().toISOString().slice(0, 10)}.pdf`);
+        } else {
+          this.errorMessage = 'Erreur lors de l\'export PDF.';
+        }
       }
     });
+  }
+
+  private downloadFile(blob: Blob, filename: string): void {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(link.href);
   }
 
   // Helpers

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrderService, Order } from '../../../core/services/order.service';
+import { ContractService } from '../../../core/services/contract.service';
 
 @Component({
   selector: 'app-boutique-orders',
@@ -11,6 +12,10 @@ export class BoutiqueOrdersComponent implements OnInit {
   orders: Order[] = [];
   loading = false;
   errorMessage = '';
+
+  // Multi-boutique support
+  boutiques: { id: string; name: string }[] = [];
+  boutiqueId: string | null = null;
 
   // Filtres
   statusFilter = '';
@@ -32,8 +37,10 @@ export class BoutiqueOrdersComponent implements OnInit {
   // Rapport mensuel
   reportMonth = new Date().getMonth() + 1;
   reportYear = new Date().getFullYear();
+  reportBoutiqueId = '';
   exportingReport = false;
   exportingOrders = false;
+  exportOrdersBoutiqueId = '';
   months = [
     { value: 1, label: 'Janvier' }, { value: 2, label: 'Février' }, { value: 3, label: 'Mars' },
     { value: 4, label: 'Avril' }, { value: 5, label: 'Mai' }, { value: 6, label: 'Juin' },
@@ -65,12 +72,50 @@ export class BoutiqueOrdersComponent implements OnInit {
 
   constructor(
     private orderService: OrderService,
+    private contractService: ContractService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     const currentYear = new Date().getFullYear();
     this.years = [currentYear, currentYear - 1, currentYear - 2];
+    this.loadBoutiques();
+  }
+
+  loadBoutiques(): void {
+    this.contractService.getMyContracts().subscribe({
+      next: (res) => {
+        const contracts = res.data || [];
+        const uniqueBoutiques = new Map<string, string>();
+        for (const c of contracts) {
+          if (c.boutique) {
+            const id = typeof c.boutique === 'string' ? c.boutique : c.boutique._id;
+            if (id && !uniqueBoutiques.has(id)) {
+              const loc = c.boutique.location;
+              const name = loc
+                ? `Étage ${loc.floor}, Zone ${loc.zone}, N°${loc.number}`
+                : (c.boutique.name || 'Boutique');
+              uniqueBoutiques.set(id, name);
+            }
+          }
+        }
+        if (uniqueBoutiques.size > 0) {
+          this.boutiques = Array.from(uniqueBoutiques.entries()).map(([id, name]) => ({ id, name }));
+          this.boutiqueId = '';  // Default: toutes les boutiques
+        }
+        this.loadOrders();
+        this.loadStats();
+      },
+      error: () => {
+        this.loadOrders();
+        this.loadStats();
+      }
+    });
+  }
+
+  onBoutiqueChange(): void {
+    this.page = 1;
+    this.orders = [];
     this.loadOrders();
     this.loadStats();
   }
@@ -83,6 +128,7 @@ export class BoutiqueOrdersComponent implements OnInit {
     if (this.paymentFilter) params.paymentStatus = this.paymentFilter;
     if (this.dateFrom) params.startDate = this.dateFrom;
     if (this.dateTo) params.endDate = this.dateTo;
+    if (this.boutiqueId) params.boutiqueId = this.boutiqueId;
 
     this.orderService.getBoutiqueOrders(params).subscribe({
       next: (res) => {
@@ -108,7 +154,7 @@ export class BoutiqueOrdersComponent implements OnInit {
 
   loadStats(): void {
     this.loadingStats = true;
-    this.orderService.getBoutiqueStats().subscribe({
+    this.orderService.getBoutiqueStats(this.boutiqueId || undefined).subscribe({
       next: (res) => {
         this.loadingStats = false;
         this.stats = res.data;
@@ -200,32 +246,45 @@ export class BoutiqueOrdersComponent implements OnInit {
 
   exportReportPDF(): void {
     this.exportingReport = true;
-    this.orderService.exportBoutiqueReportPDF(this.reportMonth, this.reportYear).subscribe({
+    this.orderService.exportBoutiqueReportPDF(this.reportMonth, this.reportYear, this.reportBoutiqueId || undefined).subscribe({
       next: (blob) => {
         this.exportingReport = false;
         this.downloadBlob(blob, `rapport-${this.reportMonth}-${this.reportYear}.pdf`);
       },
-      error: () => { this.exportingReport = false; }
+      error: (err) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `rapport-${this.reportMonth}-${this.reportYear}.pdf`);
+        }
+        this.exportingReport = false;
+      }
     });
   }
 
   exportReportExcel(): void {
     this.exportingReport = true;
-    this.orderService.exportBoutiqueReportExcel(this.reportMonth, this.reportYear).subscribe({
+    this.orderService.exportBoutiqueReportExcel(this.reportMonth, this.reportYear, this.reportBoutiqueId || undefined).subscribe({
       next: (blob) => {
         this.exportingReport = false;
         this.downloadBlob(blob, `rapport-${this.reportMonth}-${this.reportYear}.xlsx`);
       },
-      error: () => { this.exportingReport = false; }
+      error: (err) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `rapport-${this.reportMonth}-${this.reportYear}.xlsx`);
+        }
+        this.exportingReport = false;
+      }
     });
   }
 
-  private getExportParams(): { status?: string; paymentStatus?: string; startDate?: string; endDate?: string } {
+  private getExportParams(): { status?: string; paymentStatus?: string; startDate?: string; endDate?: string; boutiqueId?: string } {
     const params: any = {};
     if (this.statusFilter) params.status = this.statusFilter;
     if (this.paymentFilter) params.paymentStatus = this.paymentFilter;
     if (this.dateFrom) params.startDate = this.dateFrom;
     if (this.dateTo) params.endDate = this.dateTo;
+    if (this.exportOrdersBoutiqueId) params.boutiqueId = this.exportOrdersBoutiqueId;
     return params;
   }
 
@@ -236,7 +295,13 @@ export class BoutiqueOrdersComponent implements OnInit {
         this.exportingOrders = false;
         this.downloadBlob(blob, `commandes-${new Date().toISOString().slice(0, 10)}.xlsx`);
       },
-      error: () => { this.exportingOrders = false; }
+      error: (err) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `commandes-${new Date().toISOString().slice(0, 10)}.xlsx`);
+        }
+        this.exportingOrders = false;
+      }
     });
   }
 
@@ -247,7 +312,13 @@ export class BoutiqueOrdersComponent implements OnInit {
         this.exportingOrders = false;
         this.downloadBlob(blob, `commandes-${new Date().toISOString().slice(0, 10)}.pdf`);
       },
-      error: () => { this.exportingOrders = false; }
+      error: (err) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `commandes-${new Date().toISOString().slice(0, 10)}.pdf`);
+        }
+        this.exportingOrders = false;
+      }
     });
   }
 

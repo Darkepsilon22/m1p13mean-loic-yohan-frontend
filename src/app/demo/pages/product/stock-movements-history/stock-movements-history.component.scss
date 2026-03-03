@@ -119,6 +119,49 @@ $transition: 0.25s ease;
   }
 }
 
+.smh-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// ── Boutique Pill Selector ──
+.boutique-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 12px;
+  background: rgba($blue, 0.06);
+  border: 1px solid rgba($blue, 0.15);
+  border-radius: 50px;
+  transition: all $transition;
+
+  &:hover {
+    background: rgba($blue, 0.1);
+    border-color: rgba($blue, 0.25);
+  }
+
+  > i {
+    font-size: 13px;
+    color: $blue;
+    flex-shrink: 0;
+  }
+
+  select {
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    color: $ink;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 2px 4px;
+    max-width: 220px;
+
+    &:focus { outline: none; }
+  }
+}
+
 // ── Filters ──
 .smh-filters {
   background: $surface;

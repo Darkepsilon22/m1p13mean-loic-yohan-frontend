@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ProductService, MyProductsParams } from '../../../../core/services/product.service';
+import { ContractService } from '../../../../core/services/contract.service';
 import { AuthService, ApiErrorBody } from '../../../../core/services/auth.service';
 
 @Component({
@@ -15,6 +16,10 @@ export class MyProductsComponent implements OnInit {
   pageSizeOptions = [5, 10, 20, 50, 100];
   selectedPageSize = 20;
   pagination: { page: number; limit: number; total: number; pages: number } = { page: 1, limit: 20, total: 0, pages: 0 };
+
+  // Multi-boutique support
+  boutiques: { id: string; name: string }[] = [];
+  selectedBoutiqueId: string | null = null;
 
   // Import Excel
   showImportModal = false;
@@ -32,13 +37,57 @@ export class MyProductsComponent implements OnInit {
     limit: 20
   };
 
+  private initialBoutiqueId: string | null = null;
+
   constructor(
     private productService: ProductService,
+    private contractService: ContractService,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.initialBoutiqueId = this.route.snapshot.queryParamMap.get('boutiqueId');
+    this.resolveBoutiquesAndLoad();
+  }
+
+  resolveBoutiquesAndLoad(): void {
+    this.loading = true;
+    this.contractService.getMyContracts().subscribe({
+      next: (res) => {
+        const contracts = res.data || [];
+        const uniqueBoutiques = new Map<string, string>();
+        for (const c of contracts) {
+          if (c.boutique) {
+            const id = typeof c.boutique === 'string' ? c.boutique : c.boutique._id;
+            if (id && !uniqueBoutiques.has(id)) {
+              const loc = c.boutique.location;
+              const name = loc
+                ? `Étage ${loc.floor}, Zone ${loc.zone}, N°${loc.number}`
+                : (c.boutique.name || 'Boutique');
+              uniqueBoutiques.set(id, name);
+            }
+          }
+        }
+        if (uniqueBoutiques.size > 0) {
+          this.boutiques = Array.from(uniqueBoutiques.entries()).map(([id, name]) => ({ id, name }));
+          if (this.initialBoutiqueId && uniqueBoutiques.has(this.initialBoutiqueId)) {
+            this.selectedBoutiqueId = this.initialBoutiqueId;
+          } else {
+            this.selectedBoutiqueId = this.boutiques[0].id;
+          }
+        }
+        this.loadProducts();
+      },
+      error: () => {
+        this.loadProducts();
+      }
+    });
+  }
+
+  onBoutiqueChange(): void {
+    this.filters.page = 1;
     this.loadProducts();
   }
 
@@ -55,6 +104,7 @@ export class MyProductsComponent implements OnInit {
     if (this.filters.search) params.search = this.filters.search;
     if (this.filters.availability) params.availability = this.filters.availability;
     if (this.filters.category) params.category = this.filters.category;
+    if (this.selectedBoutiqueId) params.boutiqueId = this.selectedBoutiqueId;
 
     this.productService.getMyProducts(params).subscribe({
       next: (res) => {

@@ -83,7 +83,13 @@ export class UserListComponent implements OnInit {
         this.exportingExcel = false;
         this.downloadBlob(blob, `utilisateurs-${new Date().toISOString().slice(0, 10)}.xlsx`);
       },
-      error: () => { this.exportingExcel = false; }
+      error: (err) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `utilisateurs-${new Date().toISOString().slice(0, 10)}.xlsx`);
+        }
+        this.exportingExcel = false;
+      }
     });
   }
 
@@ -99,7 +105,13 @@ export class UserListComponent implements OnInit {
         this.exportingPDF = false;
         this.downloadBlob(blob, `utilisateurs-${new Date().toISOString().slice(0, 10)}.pdf`);
       },
-      error: () => { this.exportingPDF = false; }
+      error: (err) => {
+        const blob = err?.error;
+        if (blob instanceof Blob && blob.size > 0) {
+          this.downloadBlob(blob, `utilisateurs-${new Date().toISOString().slice(0, 10)}.pdf`);
+        }
+        this.exportingPDF = false;
+      }
     });
   }
 
